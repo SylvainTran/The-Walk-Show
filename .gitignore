@@ -60,3 +60,7 @@ crashlytics-build.properties
 
 /.DS_Store
 /V00717/.DS_Store
+
+# Blender
+/V00717/Assets/Art/Characters/*.blend1
+/V00717/Assets/Art/Characters/*.blend1.meta
