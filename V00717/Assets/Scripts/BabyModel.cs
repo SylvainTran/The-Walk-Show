@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+// The baby's data
 public class BabyModel : MonoBehaviour
 {
     // The baby's sex.

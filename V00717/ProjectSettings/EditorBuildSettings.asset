@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/GeneEditingMenu.unity
+    path: Assets/Scenes/GeneEditingMenu.unity
     guid: d97a558c34f9747418c7b08d3ce49960
   m_configObjects: {}
