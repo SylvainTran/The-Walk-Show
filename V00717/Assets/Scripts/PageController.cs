@@ -6,7 +6,12 @@ using UnityEngine.UI;
 public class PageController : MonoBehaviour
 {
     // The biological data page
-    public Transform biologicalData;
+    public Transform biological;
+    // The psychological profile data page
+    public Transform psychological;
+    // The socioeconomic data page
+    public Transform socioeconomic;
+
     // The previous canvas
     private Canvas previousCanvas = null;
     // The active canvas
@@ -27,8 +32,14 @@ public class PageController : MonoBehaviour
         // Match the page and set it active
         switch(pageName)
         {
-            case "BiologicalData":
-                activeCanvas = biologicalData.gameObject.GetComponent<Canvas>();
+            case "biological":
+                activeCanvas = biological.gameObject.GetComponent<Canvas>();
+                break;
+            case "psychological":
+                activeCanvas = psychological.gameObject.GetComponent<Canvas>();
+                break;
+            case "socioeconomic":
+                activeCanvas = socioeconomic.gameObject.GetComponent <Canvas>();
                 break;
             default:
                 break;
@@ -39,7 +50,8 @@ public class PageController : MonoBehaviour
             previousCanvas.enabled = false;
         }
         // Enable new active canvas
-        activeCanvas.enabled = true;
+        if(activeCanvas)
+            activeCanvas.enabled = true;
         // Disable nav buttons canvas temporarily
         if(NavigationButtonCanvas.GetComponent<Canvas>().enabled)
         {
@@ -55,7 +67,7 @@ public class PageController : MonoBehaviour
     public void ConfirmPage()
     {
         // Disable currently active canvas
-        if(activeCanvas.enabled)
+        if(activeCanvas && activeCanvas.enabled)
         {
             activeCanvas.enabled = false;
         }
@@ -64,7 +76,7 @@ public class PageController : MonoBehaviour
         {
             NavigationButtonCanvas.GetComponent<Canvas>().enabled = true;
         }
-        // Re-enable confirm page button
+        // Hide confirm page button
         if(confirmPageButton.gameObject.activeInHierarchy)
         {
             confirmPageButton.gameObject.SetActive(false);
