@@ -5,11 +5,18 @@ using TMPro;
 // Deals with view render changes
 public class View : MonoBehaviour
 {
-    // The Baby Model GO to render, and its component to pull data from
+    // The Baby Model GO to render, and the scriptable object to pull data from
     public GameObject BabyModelGO;
     private BabyModel babyModel;
+    // Scriptable object with assets
+    public ModelAssets ModelAssets;
+
     // Adult height marker
     public GameObject adultHeightMarker;
+    // Unique colonist personnel ID in colonist creation screen
+    public GameObject uniqueColonistPersonnelID_CC;
+    // Tool tip GO to update
+    public GameObject tooltipGO;
 
     // Cache the BabyModel component
     public void Awake()
@@ -24,6 +31,8 @@ public class View : MonoBehaviour
         BabyController._OnSkinColorChanged += UpdateSkinColor;
         BabyController._OnHeadMeshChanged += UpdateHeadMesh;
         BabyController._OnTorsoMeshChanged += UpdateTorsoMesh;
+        BabyController._OnToolTipAction += UpdateToolTip;
+        BabyController._OnToolTipExitAction += ClearToolTip;
     }
 
     // Detach the event listeners
@@ -33,11 +42,24 @@ public class View : MonoBehaviour
         BabyController._OnSkinColorChanged -= UpdateSkinColor;
         BabyController._OnHeadMeshChanged -= UpdateHeadMesh;
         BabyController._OnTorsoMeshChanged -= UpdateTorsoMesh;
+        BabyController._OnToolTipAction -= UpdateToolTip;
+        BabyController._OnToolTipExitAction -= ClearToolTip;
     }
     // Updates the adult height marker label
     public void UpdateAdultHeightLabel(float value)
     {
         adultHeightMarker.GetComponent<TMP_Text>().SetText($"{Math.Round(value)} cm");
+    }
+
+    // Update tool tip box content on pointer enter some UI elements
+    public void UpdateToolTip(string text)
+    {
+        tooltipGO.GetComponent<TMP_Text>().SetText(text);
+    }
+
+    public void ClearToolTip()
+    {
+        tooltipGO.GetComponent<TMP_Text>().SetText("");
     }
 
     // Procedure to update the skin color of BabyModelGO's game object's children
@@ -57,7 +79,7 @@ public class View : MonoBehaviour
     public void UpdateHeadMesh()
     {
         Mesh newHeadMesh = null;
-        foreach(GameObject head in babyModel.heads)
+        foreach (GameObject head in ModelAssets.heads)
         {
             Debug.Log($"Head Mesh filter: {head.gameObject.name}");
             if (head.gameObject.name.Equals(babyModel.ActiveHeadName)) // search find for the current active head name
@@ -72,7 +94,7 @@ public class View : MonoBehaviour
     public void UpdateTorsoMesh()
     {
         Mesh newTorsoMesh = null;
-        foreach (GameObject torso in babyModel.torsos)
+        foreach (GameObject torso in ModelAssets.torsos)
         {
             Debug.Log($"Torso Mesh filter: {torso.gameObject.name}");
             if (torso.gameObject.name.Equals(babyModel.ActiveTorsoName)) // search find for the current active head name

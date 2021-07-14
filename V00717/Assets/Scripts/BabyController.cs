@@ -1,3 +1,5 @@
+using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 
 // This class contains the baby model and controls its attributes
@@ -5,10 +7,20 @@ public class BabyController : MonoBehaviour
 {
     // The Baby Model component
     private BabyModel babyModel;
+    public BabyModel BabyModel { get { return babyModel; } set { babyModel = value; } }
+
+    // The UI tooltip event
+    public delegate void ToolTipAction(string text);
+    public static event ToolTipAction _OnToolTipAction; // listened to by View.cs
+
+    // The UI tooltip exit event
+    public delegate void ToolTipActionExit();
+    public static event ToolTipActionExit _OnToolTipExitAction;
 
     // Delegate for changing sex
     public delegate void SexChangeAction(string sex);
     public static event SexChangeAction _OnSexChanged; // listened to by SoundController.cs
+
     // Delegate for changing adult height
     public delegate void AdultHeightChangeAction(float value);
     public static event AdultHeightChangeAction _OnAdultHeightChanged; // listened to by LabelController.cs
@@ -25,11 +37,31 @@ public class BabyController : MonoBehaviour
     public delegate void TorsoMeshChanged();
     public static event TorsoMeshChanged _OnTorsoMeshChanged; // listened to by View.cs
 
+    private void OnEnable()
+    {
+        PageController._OnSaveToFile += Save;
+    }
+
     // Cache the BabyModel component
     public void Awake()
     {
         babyModel = GetComponent<BabyModel>();
     }
+
+    // Setter for new colonist name
+    public void OnNameChanged(string name)
+    {
+        babyModel.Name = name;
+        Debug.Log($"And so {babyModel.Name} was given his name.");
+    }
+
+    // Setter for new colonist nickname
+    public void OnNickNameChanged(string nickName)
+    {
+        babyModel.NickName = nickName;
+        Debug.Log($"And so {babyModel.NickName} was given his nickname.");
+    }
+
     //Setter for baby's sex via Unity's built-in event system.
     public void OnSexChanged(string sex)
     {
@@ -80,5 +112,30 @@ public class BabyController : MonoBehaviour
     {
         babyModel.ActiveTorsoName = meshName;
         _OnTorsoMeshChanged();
+    }
+
+    // UI Tooltip box - text is passed from the inspector
+    public void OnUIElementPointerEnter(string text)
+    {
+        _OnToolTipAction(text);
+    }
+
+    // Clear the UI toolkit
+    public void OnUIElementPointerExit()
+    {
+        _OnToolTipExitAction();
+    }
+
+    // Save to JSON (async)
+    public async Task Save()
+    {
+        string json = JsonUtility.ToJson(babyModel);
+        //BabyModel.UniqueColonistPersonnelID
+
+        using (StreamWriter outputFile = new StreamWriter("colonists.txt", true))
+        {
+            await outputFile.WriteAsync(json);
+            Debug.Log("New colonist data saved successfully.");
+        }
     }
 }
