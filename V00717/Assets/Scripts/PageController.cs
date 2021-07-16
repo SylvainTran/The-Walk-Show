@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class PageController : MonoBehaviour
 {
+    // Creation parent canvas
+    public Transform parentCanvas;
     // The colonist identification page
     public Transform identification;
     // The biological data page
@@ -65,7 +67,7 @@ public class PageController : MonoBehaviour
         // Disable nav buttons canvas temporarily
         if(NavigationButtonCanvas.GetComponent<Canvas>().enabled)
         {
-            NavigationButtonCanvas.GetComponent<Canvas>().enabled = false;
+            ToggleActive(NavigationButtonCanvas, false);
         }
         // Re-enable the confirm button
         if(!confirmPageButton.gameObject.activeInHierarchy)
@@ -78,6 +80,14 @@ public class PageController : MonoBehaviour
             finalizeButton.gameObject.SetActive(false);
         }
     }
+
+    // Toggle canvas
+    public void ToggleActive(Transform canvas, bool active)
+    {
+        canvas.GetComponent<Canvas>().enabled = active;
+    }
+
+
     // Confirm button event
     public void ConfirmPage()
     {
@@ -89,7 +99,7 @@ public class PageController : MonoBehaviour
         // Re-enable nav canvas
         if (!NavigationButtonCanvas.GetComponent<Canvas>().enabled)
         {
-            NavigationButtonCanvas.GetComponent<Canvas>().enabled = true;
+            ToggleActive(NavigationButtonCanvas, true);
         }
         // Hide confirm page button
         if(confirmPageButton.gameObject.activeInHierarchy)
@@ -110,5 +120,6 @@ public class PageController : MonoBehaviour
         // Increment the static unique colonist personnel ID
         BabyModel.UniqueColonistPersonnelID++;
         // TODO exit menu
+        ToggleActive(parentCanvas, false);
     }
 }
