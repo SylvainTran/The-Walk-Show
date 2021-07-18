@@ -6,7 +6,7 @@ using UnityEngine;
 public class BabyModel : MonoBehaviour
 {
     // The newborn's name - set during creation
-    [SerializeField] private string name = null;
+    [SerializeField] private new string name = null;
     public string Name { get { return name; } set { name = value; } }
 
     // The newborn's nickname - set during creation
@@ -61,6 +61,36 @@ public class BabyModel : MonoBehaviour
     // The B value of the material for the skin
     [SerializeField] private float skinColorB = 0.0f;
     public float SkinColorB { get { return skinColorB; } set { skinColorB = value; } }
+
+    // Stable temperament - general master variable
+    [SerializeField] private float temperament = 0.0f;
+    // The property for the baby's temperament
+    public float Temperament { get { return temperament; } set { temperament = value; } }
+
+    // Openness
+    [SerializeField] private float openness = 0.0f;
+    // The property for the baby's openness
+    public float Openness { get { return openness; } set { openness = value; } }
+
+    // Conscientitiousness
+    [SerializeField] private float conscientitiousness = 0.0f;
+    // The property for the baby's conscientitiousness
+    public float Conscientitiousness { get { return conscientitiousness; } set { conscientitiousness = value; } }
+
+    // Extraversion
+    [SerializeField] private float extraversion = 0.0f;
+    // The property for the baby's extraversion
+    public float Extraversion { get { return extraversion; } set { extraversion = value; } }
+
+    // Agreeableness
+    [SerializeField] private float agreeableness = 0.0f;
+    // The property for the baby's agreeableness
+    public float Agreeableness { get { return agreeableness; } set { agreeableness = value; } }
+
+    // Neuroticism
+    [SerializeField] private float neuroticism = 0.0f;
+    // The property for the baby's neuroticism
+    public float Neuroticism { get { return neuroticism; } set { neuroticism = value; } }
 
     // The currently used mesh names for head and torso - to allow View to reload the proper mesh
     [SerializeField] private string activeHeadName;
