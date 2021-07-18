@@ -4,8 +4,10 @@ using UnityEngine.UI;
 
 public class PageController : MonoBehaviour
 {
-    // Creation parent canvas
-    public Transform parentCanvas;
+    // Creation parent canvas world version
+    public Transform parentCanvasWorld;
+    // Creation parent canvas overlay version
+    public Transform parentCanvasOverlay;
     // The colonist identification page
     public Transform identification;
     // The biological data page
@@ -29,6 +31,19 @@ public class PageController : MonoBehaviour
     // Save to file event
     public delegate Task SaveToFile();
     public static event SaveToFile _OnSaveToFile; // Listened to by BabyController.cs
+
+    public delegate void TriggerExitCreationMenuAction(int newState, int oldState);
+    public static event TriggerExitCreationMenuAction _OnTriggerExitCreationMenuAction;
+
+    private void OnEnable()
+    {
+        TriggerCreationMenu._OnTriggerCreationMenuAction += SetOverlayMode;
+    }
+
+    private void OnDisable()
+    {
+        TriggerCreationMenu._OnTriggerCreationMenuAction -= SetOverlayMode;
+    }
 
     // Changes the active page
     public void ChangePage(string pageName)
@@ -87,6 +102,19 @@ public class PageController : MonoBehaviour
         canvas.GetComponent<Canvas>().enabled = active;
     }
 
+    // Set to overlay mode -- Creation canvas
+    public void SetOverlayMode()
+    {
+        parentCanvasWorld.GetComponent<Canvas>().enabled = false;
+        parentCanvasOverlay.GetComponent<Canvas>().enabled = true;
+    }
+
+    // Set to world space mode -- Creation canvas
+    public void SetWorldMode()
+    {
+        parentCanvasOverlay.GetComponent<Canvas>().enabled = false;
+        parentCanvasWorld.GetComponent<Canvas>().enabled = true;
+    }
 
     // Confirm button event
     public void ConfirmPage()
@@ -112,6 +140,15 @@ public class PageController : MonoBehaviour
             finalizeButton.gameObject.SetActive(true);
         }
     }
+
+    // Cancel button in creation menu
+    public void Cancel()
+    {
+        SetWorldMode();
+        Cursor.visible = false;
+        _OnTriggerExitCreationMenuAction((int)Player.STATES.AS_CREATOR, (int)Player.STATES.CREATOR_MENU); // Listened by Player.cs (re-enable player controller) and CameraController.cs (re-enable camera)
+    }
+
     // Save changes to file (/colonists.txt) and exit colonist creation menu
     public void FinalizeCreation()
     {
@@ -119,7 +156,7 @@ public class PageController : MonoBehaviour
         _OnSaveToFile();
         // Increment the static unique colonist personnel ID
         BabyModel.UniqueColonistPersonnelID++;
-        // TODO exit menu
-        ToggleActive(parentCanvas, false);
+        // Set world mdoe
+        Cancel();
     }
 }
