@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 using static BabyController;
@@ -5,6 +6,9 @@ using static BabyController;
 // Deals with loading, saving, and auto-save behaviours
 public class SaveSystem : MonoBehaviour
 {
+    // This action is to tell any other components that we have a successful save (e.g., when updating the colonist uuid)
+    public static Action _SuccessfulSaveAction;
+
     private void OnEnable()
     {
         BabyController._OnSaveAction += Save;
@@ -25,6 +29,9 @@ public class SaveSystem : MonoBehaviour
         if (nbElements < colonists.GetMaxColonists())
         {
             colonists.colonists[nbElements] = babyModel;
+            // Make the UUID - TODO this doesn't work? It sets the previous ids back to 0
+            BabyModel.uniqueColonistPersonnelID++;
+            babyModel.UniqueColonistPersonnelID_ = BabyModel.uniqueColonistPersonnelID;            
             SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
         }
         else
@@ -68,6 +75,8 @@ public class SaveSystem : MonoBehaviour
         {
             outputFile.WriteLine(output);
             Debug.Log(successMessage);
+            // Success event
+            _SuccessfulSaveAction();
         }
     }
     // Checks if save file exists

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // The baby's data - also provides methods to save and retrieve data to database/json file
-public class BabyModel : ISerializableObject
+[Serializable]
+public class BabyModel : Element, ISerializableObject
 {
     // The newborn's name - set during creation
     [SerializeField] private string name = null;
@@ -14,9 +15,9 @@ public class BabyModel : ISerializableObject
     public string NickName { get { return nickName; } set { nickName = value; } }
 
     // Colonist unique personnel ID
-    [SerializeField] private static int uniqueColonistPersonnelID = 0;
-    public static int UniqueColonistPersonnelID { get { return uniqueColonistPersonnelID; } set { uniqueColonistPersonnelID = value; } }
-    [SerializeField] private int _uniqueColonistPersonnelID;
+    public static int uniqueColonistPersonnelID = 0;
+    [SerializeField] private int uniqueColonistPersonnelID_ = 0;
+    public int UniqueColonistPersonnelID_ { get { return uniqueColonistPersonnelID_; } set { uniqueColonistPersonnelID_ = uniqueColonistPersonnelID; } }
 
     // Colonist health - Can be reduced by conditions, damage taken during certain events?
     [SerializeField] private float health = 0.0f;

@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: ModelAssets
   m_EditorClassIdentifier: 
   heads:
-  - {fileID: -7793455307240373955, guid: 66074b82e4d424634bff2efb1065f5d4, type: 3}
-  - {fileID: 919132149155446097, guid: c06249821c55b4ec2a87c2e3b2a1bac1, type: 3}
+  - {fileID: -9142138597999427274, guid: 66074b82e4d424634bff2efb1065f5d4, type: 3}
+  - {fileID: -5754084199372789682, guid: c06249821c55b4ec2a87c2e3b2a1bac1, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
   torsos:
-  - {fileID: -6709288533808664266, guid: 66074b82e4d424634bff2efb1065f5d4, type: 3}
-  - {fileID: -6709288533808664266, guid: 66074b82e4d424634bff2efb1065f5d4, type: 3}
+  - {fileID: 7496309451010476952, guid: 66074b82e4d424634bff2efb1065f5d4, type: 3}
+  - {fileID: 7496309451010476952, guid: 66074b82e4d424634bff2efb1065f5d4, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}

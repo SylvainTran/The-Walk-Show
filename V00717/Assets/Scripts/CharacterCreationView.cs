@@ -3,60 +3,75 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 // Deals with view render changes
-public class CharacterCreationView : MonoBehaviour
+public class CharacterCreationView : UIView
 {
-    // The Baby Model GO to render, and the scriptable object to pull data from
-    public GameObject BabyModelGO;
+    // The Baby Model GOs to render/change mesh, and the scriptable object to pull data from
+    public Renderer BabyModelHeadRenderer;
+    public Renderer BabyModelTorsoRenderer;
+    public MeshFilter BabyModelHeadMeshFilter;
+    public MeshFilter BabyModelTorsoMeshFilter;
+
+    // TODO change this
     public BabyController babyController;
     // Scriptable object with assets
     public ModelAssets ModelAssets;
 
     // Adult height marker
-    public GameObject adultHeightMarker;
+    public TMP_Text adultHeightMarker;
     // Unique colonist personnel ID in colonist creation screen
-    public GameObject uniqueColonistPersonnelID_CC;
+    public TMP_Text uniqueColonistPersonnelID_CC;
 
-    // E-Cart notification button (for fade animation)
-    public GameObject ecartNotificationButton;
     // The following are cached from inspector
     // Tool tip text to update
     public TMP_Text tooltipGO;
-
     public Image ecnb = null; 
     public TMP_Text text = null;
     // The price tip
     public TMP_Text priceTip;
 
     // Attach the event listeners
-    public void OnEnable()
+    public new void OnEnable()
     {
+        SaveSystem._SuccessfulSaveAction += UpdateColonistUUIDText;
         BabyController._OnAdultHeightChanged += UpdateAdultHeightLabel;
         BabyController._OnAdultHeightChanged += TriggerTextAnimation;
         BabyController._OnSkinColorChanged += UpdateSkinColor;
-        BabyController._OnHeadMeshChanged += UpdateHeadMesh;
-        BabyController._OnTorsoMeshChanged += UpdateTorsoMesh;
+        BabyController._OnMeshChanged += UpdateMesh;
         BabyController._OnToolTipAction += UpdateToolTip;
         BabyController._OnToolTipExitAction += ClearToolTip;
     }
 
     // Detach the event listeners
-    public void OnDisable()
+    public new void OnDisable()
     {
+        SaveSystem._SuccessfulSaveAction -= UpdateColonistUUIDText;
         BabyController._OnAdultHeightChanged -= UpdateAdultHeightLabel;
         BabyController._OnAdultHeightChanged -= TriggerTextAnimation;
         BabyController._OnSkinColorChanged -= UpdateSkinColor;
-        BabyController._OnHeadMeshChanged -= UpdateHeadMesh;
-        BabyController._OnTorsoMeshChanged -= UpdateTorsoMesh;
+        BabyController._OnMeshChanged -= UpdateMesh;
         BabyController._OnToolTipAction -= UpdateToolTip;
         BabyController._OnToolTipExitAction -= ClearToolTip;
+    }
+
+    // Updates the colonist uuid text on start
+    private void Start()
+    {
+        UpdateColonistUUIDText();
+    }
+
+    // Updates the colonist uuid text in identification tab
+    public void UpdateColonistUUIDText()
+    {
+        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {BabyModel.uniqueColonistPersonnelID + 1}");
     }
 
     // Updates the adult height marker label
     public void UpdateAdultHeightLabel(float value)
     {
-        adultHeightMarker.GetComponent<TMP_Text>().SetText($"{Math.Round(value)} cm");
+        adultHeightMarker.SetText($"{Math.Round(value)} cm");
     }
 
     // Floating descending text animation
@@ -118,42 +133,37 @@ public class CharacterCreationView : MonoBehaviour
     // Gets the renderer of the go's children and updates its materials with the new rgb values
     public void UpdateSkinColor()
     {
-        Renderer rendHead = BabyModelGO.transform.GetChild(0).GetComponent<Renderer>(); // Head is the first child (0)
-        Renderer rendTorso = BabyModelGO.transform.GetChild(1).GetComponent<Renderer>(); // Torso is the second child (1)
         Material newMat = new Material(Shader.Find("Standard"));
         newMat.SetColor("_Color", new Color(babyController.BabyModel.SkinColorR, babyController.BabyModel.SkinColorG, babyController.BabyModel.SkinColorB));
-        rendHead.material = newMat;
-        rendTorso.material = newMat;
+        BabyModelHeadRenderer.material = newMat;
+        BabyModelTorsoRenderer.material = newMat;
     }
 
-    // Views update itself concerning head/torso changes in UI
+    // Views update itself concerning head/torso changes in UI (type == 0-4 : head mesh, type 4-8 : torso mesh)
     // Changes the mesh of the baby model by accessing its mesh filter setter and mesh property
-    public void UpdateHeadMesh()
+    public void UpdateMesh(int meshIndex)
     {
-        Mesh newHeadMesh = null;
-        foreach (GameObject head in ModelAssets.heads)
+        // 4 is the last head mesh index (for now), so every index larger to that is a torso
+        List<MeshFilter> meshList = meshIndex < 4 ? ModelAssets.heads : ModelAssets.torsos;
+        MeshFilter? meshFilter = meshList[meshIndex % 4];
+        Mesh newMesh = null;
+        
+        if(meshFilter != null)
         {
-            Debug.Log($"Head Mesh filter: {head.gameObject.name}");
-            if (head.gameObject.name.Equals(babyController.BabyModel.ActiveHeadName)) // search find for the current active head name
-            {
-                newHeadMesh = head.gameObject.GetComponent<MeshFilter>().sharedMesh; // Prefabs use the property .sharedMesh instead of .mesh
-            }
+            newMesh = meshFilter.sharedMesh;
         }
-        BabyModelGO.transform.GetChild(0).GetComponent<MeshFilter>().mesh = newHeadMesh; // The head is the first child (0)
-    }
-
-    // Change torso mesh - TODO abstract head/torso into general mesh?
-    public void UpdateTorsoMesh()
-    {
-        Mesh newTorsoMesh = null;
-        foreach (GameObject torso in ModelAssets.torsos)
+        else
         {
-            Debug.Log($"Torso Mesh filter: {torso.gameObject.name}");
-            if (torso.gameObject.name.Equals(babyController.BabyModel.ActiveTorsoName)) // search find for the current active head name
-            {
-                newTorsoMesh = torso.gameObject.GetComponent<MeshFilter>().sharedMesh; // Prefabs use the property .sharedMesh instead of .mesh
-            }
+            return;
         }
-        BabyModelGO.transform.GetChild(1).GetComponent<MeshFilter>().mesh = newTorsoMesh; // The torso is the second child (1)
+        // Transform Child 1 are torsos, child 0 are heads
+        if (meshIndex < 4)
+        {
+            BabyModelHeadMeshFilter.mesh = newMesh;
+        }
+        else
+        {
+            BabyModelTorsoMeshFilter.mesh = newMesh;
+        }
     }
 }
