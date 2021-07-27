@@ -13,6 +13,19 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 
+		// Player interacts with something
+		public delegate void TriggerPlayerInteracted();
+		public static event TriggerPlayerInteracted _OnPlayerInteracted;
+
+		// Player opens dashboard OS
+		public delegate void TriggerOpenDashboardOS();
+		public static event TriggerOpenDashboardOS _OnTriggerOpenDashboardOS;
+		public static Canvas activeMenuCanvas = null; // If any menu is open, close it first to open another
+
+		// Player closes active menu
+		public delegate void TriggerCloseActiveMenu();
+		public static event TriggerCloseActiveMenu _OnTriggerCloseActiveMenu;
+
 		[Header("Movement Settings")]
 		public bool analogMovement;
 
@@ -45,12 +58,58 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+
+		public void OnInteract()
+        {
+			_OnPlayerInteracted();
+		}
+
+		public void OnOpenDashboardOS(InputValue value)
+        {
+			// if there is no active menu canvas or it's currently inactive, we can open the dashboard OS
+			if(!activeMenuCanvas || !activeMenuCanvas.isActiveAndEnabled)
+            {
+				_OnTriggerOpenDashboardOS();
+			}
+		}
+
+		public void OnCloseActiveMenu(InputValue value)
+        {
+			if(activeMenuCanvas != null)
+            {
+				Cursor.visible = false;
+				_OnTriggerCloseActiveMenu();				
+            }
+        }
+
+		// There's only one active menu at any state in the game hence static
+		public static void SetActiveMenuCanvas(Canvas canvas)
+        {
+			activeMenuCanvas = canvas;
+		}
+
+        private void Start()
+        {
+			Cursor.lockState = CursorLockMode.Confined;
+		}
+
+        private void Update()
+        {
+			// Force cursor mode to be visible on the UI while in any menu
+			if(activeMenuCanvas == null)
+            {
+				return;
+            }
+			if (activeMenuCanvas.isActiveAndEnabled)
+            {
+				Cursor.visible = true;
+            }
+        }
 #else
 	// old input sys if we do decide to have it (most likely wont)...
 #endif
 
-
-		public void MoveInput(Vector2 newMoveDirection)
+        public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
 		} 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using StarterAssets;
 
 // TODO - Would be specialized of any UI interactible menu triggers
 public class TriggerCreationMenu : MonoBehaviour
@@ -6,15 +7,41 @@ public class TriggerCreationMenu : MonoBehaviour
     // Delegate and event for player triggered creation menu collider
     public delegate void TriggerCreationMenuAction();
     public static event TriggerCreationMenuAction _OnTriggerCreationMenuAction;
+    // Whether this game object is currently interactible with - Set by input key trigger events in StarterAssetsInputs.cs
+    private bool isInteractable = false;
+
+    private void OnEnable()
+    {
+        StarterAssetsInputs._OnPlayerInteracted += SetInteractiveState;
+    }
+
+    private void OnDisable()
+    {
+        StarterAssetsInputs._OnPlayerInteracted -= SetInteractiveState;
+    }
+
+    // Toggle interactive state
+    public void SetInteractiveState()
+    {
+        isInteractable = !isInteractable;
+    }
 
     // When player triggered with the collider, set cursor to visible and alert all listeners
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
-        if(other.gameObject.GetComponent<Player>())
+        // Open the creation menu if there is no currently active menu canvas
+        if (other.gameObject.GetComponent<Player>())
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            _OnTriggerCreationMenuAction();
+            if (StarterAssetsInputs.activeMenuCanvas == null || !StarterAssetsInputs.activeMenuCanvas.isActiveAndEnabled)
+            {
+                if (isInteractable)
+                {
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
+                    _OnTriggerCreationMenuAction();
+                    SetInteractiveState(); // Need to repress Enter again to retrigger
+                }
+            }
         }
     }
 }
