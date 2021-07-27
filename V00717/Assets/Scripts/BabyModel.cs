@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // The baby's data - also provides methods to save and retrieve data to database/json file
-public class BabyModel : MonoBehaviour
+public class BabyModel : ISerializableObject
 {
     // The newborn's name - set during creation
-    [SerializeField] private new string name = null;
+    [SerializeField] private string name = null;
     public string Name { get { return name; } set { name = value; } }
 
     // The newborn's nickname - set during creation
@@ -22,7 +22,7 @@ public class BabyModel : MonoBehaviour
     [SerializeField] private float health = 0.0f;
     public float Health { get { return health; } set { health = value; } }
     // Virus strains/diseases/conditions active on the colonist
-    [SerializeField] private List<Condition> activeConditions = null;
+    //[SerializeField] private List<Condition> activeConditions = null;
 
     // Colonist level (for progression)
     [SerializeField] private int level = 0;
@@ -97,4 +97,10 @@ public class BabyModel : MonoBehaviour
     public string ActiveHeadName { get { return activeHeadName; } set{ activeHeadName = value; } }
     [SerializeField] private string activeTorsoName;
     public string ActiveTorsoName { get { return activeTorsoName; } set { activeTorsoName = value; } }
+
+    public override string ToString()
+    {
+        return $"{name}, {nickName}, {level}, {age}";
+    }
+
 }

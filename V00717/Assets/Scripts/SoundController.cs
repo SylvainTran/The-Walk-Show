@@ -13,7 +13,7 @@ public class SoundController : MonoBehaviour
     public AudioClip femaleSound;
     public AudioClip femaleNarrator;
     // The audio source to play the clips
-    private AudioSource AudioSource;
+    public AudioSource AudioSource;
     // The volume
     private float volume = 1.0f;
 
@@ -26,12 +26,6 @@ public class SoundController : MonoBehaviour
     public void OnDisable()
     {
         BabyController._OnSexChanged -= MakeGenderSounds;
-    }
-
-    // Get the audio source component
-    private void Start()
-    {
-        AudioSource = GetComponent<AudioSource>();
     }
 
     // Make sound based on 

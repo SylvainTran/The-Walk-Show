@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using StarterAssets;
 
 public class CameraController : MonoBehaviour
 {
@@ -16,13 +17,16 @@ public class CameraController : MonoBehaviour
     private void OnEnable()
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += SetCreationMenuCamPriority;
-        PageController._OnTriggerExitCreationMenuAction += ResetCamPriority;
+        CreationMenuController._OnTriggerExitCreationMenuAction += ResetCamPriority;
+        StarterAssetsInputs._OnTriggerCloseActiveMenu += ResetCamPriority;
     }
+
     // Disable listeners
     private void OnDisable()
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction -= SetCreationMenuCamPriority;
-        PageController._OnTriggerExitCreationMenuAction -= ResetCamPriority;
+        CreationMenuController._OnTriggerExitCreationMenuAction -= ResetCamPriority;
+        StarterAssetsInputs._OnTriggerCloseActiveMenu -= ResetCamPriority;
     }
 
     // Sets the creation menu's virtual cam live
@@ -32,11 +36,11 @@ public class CameraController : MonoBehaviour
     }
 
     // Reset all virtual cameras priorities that aren't the PlayerFollowCamera
-    public void ResetCamPriority(int newState, int oldState)
+    public void ResetCamPriority()
     {
-        foreach(CinemachineVirtualCamera c in FindObjectsOfType<CinemachineVirtualCamera>())
+        foreach (CinemachineVirtualCamera c in FindObjectsOfType<CinemachineVirtualCamera>())
         {
-            if(!c.gameObject.name.Equals("PlayerFollowCamera"))
+            if (!c.gameObject.name.Equals("PlayerFollowCamera"))
             {
                 c.gameObject.GetComponent<CinemachineVirtualCamera>().Priority = DEFAULT_PRIORITY;
             }

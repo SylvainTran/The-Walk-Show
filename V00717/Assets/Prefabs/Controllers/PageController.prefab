@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9195242676975827588
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9195242676975827586}
+  - component: {fileID: 4019157595204140034}
+  - component: {fileID: 4019157595204140061}
+  m_Layer: 0
+  m_Name: PageController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9195242676975827586
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195242676975827588}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 37.555046, y: 1.798625, z: -49.57373}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4019157595204140034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195242676975827588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9978f4d982601491a8c9df555652966b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pages: []
+  UIAssets: {fileID: 11400000, guid: d48ac93a047ba4e3589ed85b3e7f8126, type: 2}
+  NavigationButtonCanvas: {fileID: 0}
+  confirmPageButton: {fileID: 0}
+  finalizeButton: {fileID: 0}
+  dashboardOS: {fileID: 0}
+--- !u!114 &4019157595204140061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195242676975827588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd69372ad146946a591216a6faf2b630, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  UIAssets: {fileID: 11400000, guid: d48ac93a047ba4e3589ed85b3e7f8126, type: 2}
+  NavigationButtonCanvas: {fileID: 0}
+  confirmPageButton: {fileID: 0}
+  finalizeButton: {fileID: 0}
+  parentCanvasWorld: {fileID: 0}
+  parentCanvasOverlay: {fileID: 0}

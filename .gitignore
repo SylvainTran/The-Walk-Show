@@ -64,6 +64,9 @@ crashlytics-build.properties
 /V00717/Assets/Art/.DS_Store
 
 # Blender
+/*.json
+/*.blend
+/V00717/Assets/*/*/*.blend
 /V00717/Assets/*/*/*.blend1
 /V00717/Assets/*/*/*.blend1.meta
 # this is the base model

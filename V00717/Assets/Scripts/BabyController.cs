@@ -1,13 +1,16 @@
-using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
+using System;
+using Newtonsoft.Json;
 
 // This class contains the baby model and controls its attributes
-public class BabyController : MonoBehaviour
+public class BabyController : MonoBehaviour, ISaveableComponent
 {
-    // The Baby Model component
-    private BabyModel babyModel;
+    // The Baby Model component (cached through inspector)
+    [SerializeField] private BabyModel babyModel;
     public BabyModel BabyModel { get { return babyModel; } set { babyModel = value; } }
+
+    // Inner node class for JSON serialization (contains array of colonists)
+    public Colonists _colonists = null;
 
     // The UI tooltip event
     public delegate void ToolTipAction(string text);
@@ -23,7 +26,7 @@ public class BabyController : MonoBehaviour
 
     // Delegate for changing adult height
     public delegate void AdultHeightChangeAction(float value);
-    public static event AdultHeightChangeAction _OnAdultHeightChanged; // listened to by LabelController.cs
+    public static event AdultHeightChangeAction _OnAdultHeightChanged; // listened to by View.cs
 
     // Notify view of skin color changed
     public delegate void SkinColorChanged();
@@ -37,15 +40,63 @@ public class BabyController : MonoBehaviour
     public delegate void TorsoMeshChanged();
     public static event TorsoMeshChanged _OnTorsoMeshChanged; // listened to by View.cs
 
+    // Save to file event
+    public delegate void SaveAction(string key, Colonists c, BabyModel b, string path);
+    public static event SaveAction _OnSaveAction;
+
+    // Attach method functions
     private void OnEnable()
     {
-        PageController._OnSaveToFile += Save;
+        TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
     }
 
-    // Cache the BabyModel component
-    public void Awake()
+    // Dettach method functions
+    private void OnDisable()
     {
-        babyModel = GetComponent<BabyModel>();
+        TriggerCreationMenu._OnTriggerCreationMenuAction -= MallocNewCharacter;
+    }
+
+    // Creates an array of baby models from the json text read and deserialized from path
+    public BabyModel[] LoadCharactersFromJSONFile(string path)
+    {
+        // Generate new characters based on JSON file
+        string text = System.IO.File.ReadAllText(path);
+        SaveSystem.SavedArrayObject stuff = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
+        BabyModel[] _colonists = new BabyModel[4];
+        for(int i = 0; i < stuff.colonists.Length; i++)
+        {
+            _colonists[i] = stuff.colonists[i];
+        }
+        return _colonists;
+    }
+
+    // Loads game data from JSON file
+    private void Preload()
+    {
+        // TODO deal with edge case where the file exists but its contents are invalid
+        _colonists.colonists = LoadCharactersFromJSONFile("colonists.json");
+    }
+
+    // Malloc baby model and the colonists array
+    private void Awake()
+    {
+        MallocNewCharacter();
+        _colonists = new Colonists();
+    }
+
+    private void Start()
+    {
+        // First load game if needed (TODO validate contents too, can have bad format and exist)
+        if (SaveSystem.SaveFileExists("colonists.json"))
+        {
+            Preload();
+        }
+    }
+
+    // Re-allocate memory for a new character
+    public void MallocNewCharacter()
+    {
+        babyModel = new BabyModel();
     }
 
     // Setter for new colonist name
@@ -76,7 +127,7 @@ public class BabyController : MonoBehaviour
     {
         babyModel.AdultHeight = adultHeight;
         _OnAdultHeightChanged(adultHeight); // Call view to update height marker
-        Debug.Log($"Baby's adult height was changed to: {adultHeight}");
+        //Debug.Log($"Baby's adult height was changed to: {adultHeight}");
     }
 
     //Setter for skin color changed (red slider)
@@ -126,16 +177,33 @@ public class BabyController : MonoBehaviour
         _OnToolTipExitAction();
     }
 
-    // Save to JSON (async) -> TODO refactor out
-    public async Task Save()
+    // This inner class exists so that we can serialize the object
+    // with its contained array of colonists to JSON (we can't do it directly).
+    [Serializable]
+    public class Colonists
     {
-        string json = JsonUtility.ToJson(babyModel);
-        //BabyModel.UniqueColonistPersonnelID
+        // The array to serialize
+        [SerializeField] public BabyModel[] colonists;
+        // The max n of colonists (temporary n)
+        [NonSerialized] public int MAX_COLONISTS = 4;
 
-        using (StreamWriter outputFile = new StreamWriter("colonists.txt", true))
+        // Empty constructor, inits colonists array
+        public Colonists()
         {
-            await outputFile.WriteAsync(json);
-            Debug.Log("New colonist data saved successfully.");
+            this.colonists = new BabyModel[MAX_COLONISTS];
         }
+
+        // Getter for the N max colonists
+        public int GetMaxColonists()
+        {
+            return MAX_COLONISTS;
+        }
+    }
+
+    public void Save()
+    {
+        // Event to save the current baby template to a file
+        BabyModel.UniqueColonistPersonnelID++;
+        _OnSaveAction("colonists", _colonists, babyModel, "colonists.json");
     }
 }
