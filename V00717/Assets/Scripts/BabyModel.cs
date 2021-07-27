@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // The baby's data - also provides methods to save and retrieve data to database/json file
-public class BabyModel : ISerializableObject
+[Serializable]
+public class BabyModel : Element, ISerializableObject
 {
     // The newborn's name - set during creation
     [SerializeField] private string name = null;

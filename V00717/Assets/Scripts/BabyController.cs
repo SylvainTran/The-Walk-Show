@@ -40,17 +40,22 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public delegate void SaveAction(string key, Colonists c, BabyModel b, string path);
     public static event SaveAction _OnSaveAction;
 
+    // SERVER REQUESTS
+    public delegate void RequestColonistDataResponse(BabyModel[] colonists);
+    public static event RequestColonistDataResponse _OnRequestColonistDataResponse;
+
     // Attach method functions
     private void OnEnable()
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
-       // DashboardOSController._OnRequestColonistData += 
+        DashboardOSController._OnRequestColonistData += OnServerReply;
     }
 
     // Dettach method functions
     private void OnDisable()
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction -= MallocNewCharacter;
+        DashboardOSController._OnRequestColonistData -= OnServerReply;
     }
 
     // Creates an array of baby models from the json text read and deserialized from path
@@ -193,5 +198,17 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         // Event to save the current baby template to a file
         _OnSaveAction("colonists", _colonists, babyModel, "colonists.json");
+    }
+
+    public void OnServerReply(Enums.DataRequests requestPort)
+    {
+        switch(requestPort)
+        {
+            case Enums.DataRequests.LIVE_COLONISTS:
+                _OnRequestColonistDataResponse(_colonists.colonists);
+                break;
+            default:
+                break;
+        }
     }
 }
