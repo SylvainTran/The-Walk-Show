@@ -32,13 +32,9 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public delegate void SkinColorChanged();
     public static event SkinColorChanged _OnSkinColorChanged; // listened to by View.cs
 
-    // Notify view of head mesh changed
-    public delegate void HeadMeshChanged();
-    public static event HeadMeshChanged _OnHeadMeshChanged; // listened to by View.cs
-
-    // Notify view of torso mesh changed
-    public delegate void TorsoMeshChanged();
-    public static event TorsoMeshChanged _OnTorsoMeshChanged; // listened to by View.cs
+    // Notify view of head or torso mesh changed
+    public delegate void MeshChanged(int type);
+    public static event MeshChanged _OnMeshChanged; // listened to by View.cs
 
     // Save to file event
     public delegate void SaveAction(string key, Colonists c, BabyModel b, string path);
@@ -48,6 +44,7 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     private void OnEnable()
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
+       // DashboardOSController._OnRequestColonistData += 
     }
 
     // Dettach method functions
@@ -61,11 +58,11 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         // Generate new characters based on JSON file
         string text = System.IO.File.ReadAllText(path);
-        SaveSystem.SavedArrayObject stuff = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
+        SaveSystem.SavedArrayObject deserializedObject = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
         BabyModel[] _colonists = new BabyModel[4];
-        for(int i = 0; i < stuff.colonists.Length; i++)
+        for(int i = 0; i < deserializedObject.colonists.Length; i++)
         {
-            _colonists[i] = stuff.colonists[i];
+            _colonists[i] = deserializedObject.colonists[i];
         }
         return _colonists;
     }
@@ -152,17 +149,9 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     }
 
     // Setter for head mesh (the image contains the meshName reference)
-    public void OnHeadMeshChanged(string meshName)
+    public void OnMeshChanged(int meshIndex)
     {
-        babyModel.ActiveHeadName = meshName;
-        _OnHeadMeshChanged();
-    }
-
-    // Setter for torso mesh (the image contains the meshName reference)
-    public void OnTorsoMeshChanged(string meshName)
-    {
-        babyModel.ActiveTorsoName = meshName;
-        _OnTorsoMeshChanged();
+        _OnMeshChanged(meshIndex);
     }
 
     // UI Tooltip box - text is passed from the inspector
@@ -203,7 +192,6 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public void Save()
     {
         // Event to save the current baby template to a file
-        BabyModel.UniqueColonistPersonnelID++;
         _OnSaveAction("colonists", _colonists, babyModel, "colonists.json");
     }
 }

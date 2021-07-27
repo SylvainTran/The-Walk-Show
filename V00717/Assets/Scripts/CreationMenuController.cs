@@ -28,14 +28,14 @@ public class CreationMenuController : PageController, IWorldOverlayable
 
     public void SetOverlayMode()
     {
-        parentCanvasWorld.GetComponent<Canvas>().enabled = false;
-        parentCanvasOverlay.GetComponent<Canvas>().enabled = true;
+        parentCanvasWorld.enabled = false;
+        parentCanvasOverlay.enabled = true;
     }
 
     public void SetWorldMode()
     {
-        parentCanvasOverlay.GetComponent<Canvas>().enabled = false;
-        parentCanvasWorld.GetComponent<Canvas>().enabled = true;
+        parentCanvasOverlay.enabled = false;
+        parentCanvasWorld.enabled = true;
     }
 
     public override void SetActiveMenuCanvas()

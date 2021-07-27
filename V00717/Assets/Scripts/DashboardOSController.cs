@@ -13,11 +13,15 @@ public class DashboardOSController : PageController
     public Canvas loginPage;    
 
     // Whether the player has logged in yet (just a fake)
-    private bool isLoggedIn = false;
+    // private bool isLoggedIn = false;
+
+    public delegate void RequestColonistData();
+    public event RequestColonistData _OnRequestColonistData;
 
     private void OnEnable()
     {
         StarterAssetsInputs._OnTriggerOpenDashboardOS += SetActiveMenuCanvas;
+        //BabyController._OnRequestColonistDataReply +=  
     }
 
     private void OnDisable()
@@ -34,7 +38,7 @@ public class DashboardOSController : PageController
     // This fake login just prevents the player from seeing the login page again
     public void Login()
     {
-        isLoggedIn = true;
+        //isLoggedIn = true;
         ChangePage((int)Enums.DashboardPageIndexes.DESKTOP);
         // Hide login page forever (this session)
         loginPage.enabled = false;
@@ -57,5 +61,12 @@ public class DashboardOSController : PageController
     // Read from the list of saved colonists
     public void ReadSaveList()
     {
+        _OnRequestColonistData();
+    }
+
+    // Reply from server (baby controller)
+    public void OnServerReply()
+    {
+        
     }
 }

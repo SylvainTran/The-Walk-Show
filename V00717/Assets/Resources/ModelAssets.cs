@@ -6,6 +6,6 @@ using UnityEngine;
 public class ModelAssets : ScriptableObject
 {
     // Meshes for head and torso
-    public List<GameObject> heads;
-    public List<GameObject> torsos;
+    public List<MeshFilter> heads;
+    public List<MeshFilter> torsos;
 }
