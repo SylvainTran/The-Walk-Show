@@ -8,4 +8,5 @@ public class UIAssets : ScriptableObject
     public Canvas dashboardOSCanvas;
     public GameObject colonistIcon;
     public GameObject colonistName;
+    public GameObject eventLogText;
 }

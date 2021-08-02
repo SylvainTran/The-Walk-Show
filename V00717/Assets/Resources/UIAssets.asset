@@ -16,3 +16,4 @@ MonoBehaviour:
   dashboardOSCanvas: {fileID: 1884926824809753542, guid: 9b65e8ebcea25465599710b5f6f150f0, type: 3}
   colonistIcon: {fileID: 4512165465976959506, guid: 9c400430fe34a489181cbdfc71233c3c, type: 3}
   colonistName: {fileID: 7529235461637587055, guid: d274c31ee43104069ba578221ac6e844, type: 3}
+  eventLogText: {fileID: 2141216751153608146, guid: 2b0ba33c2e6784e12940b5287805911d, type: 3}
