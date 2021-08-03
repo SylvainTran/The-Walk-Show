@@ -15,6 +15,9 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public List<BabyModel> colonists;
     public List<BabyModel> deadColonists = null;
 
+    // The permanent assets database
+    public GameCharacterDatabase gameCharacterDatabase;
+
     // The max n of colonists (temporary n)
     [NonSerialized] public static int MAX_COLONISTS = 4;
 
@@ -206,7 +209,16 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     // Called on finalize creation menu
     public void AddNewColonist()
     {
+        if(colonists.Count > MAX_COLONISTS)
+        {
+            return;
+        }
+        // Add to active colonists
         colonists.Add(babyModel);
+        // Also add to colonist registry permanent asset for UUIDs
+        gameCharacterDatabase.colonistUUIDCount++;
+        babyModel.UniqueColonistPersonnelID_ = gameCharacterDatabase.colonistUUIDCount;
+        gameCharacterDatabase.colonistRegistry.Add(babyModel);
     }
 
     // The save method service for the client

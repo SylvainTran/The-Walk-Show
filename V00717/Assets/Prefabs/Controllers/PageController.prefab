@@ -25,7 +25,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9195242676975827588}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 37.555046, y: 1.798625, z: -49.57373}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -44,12 +44,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9978f4d982601491a8c9df555652966b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pages: []
+  pages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   UIAssets: {fileID: 11400000, guid: d48ac93a047ba4e3589ed85b3e7f8126, type: 2}
   NavigationButtonCanvas: {fileID: 0}
   confirmPageButton: {fileID: 0}
   finalizeButton: {fileID: 0}
   dashboardOS: {fileID: 0}
+  dashboardNav: {fileID: 0}
+  loginPage: {fileID: 0}
+  aliveColonistsVerticalGroupLayout: {fileID: 0}
+  deadColonistsVerticalGroupLayout: {fileID: 0}
+  colonistIconSize: {x: 3, y: 3, z: 0}
+  eventLogVerticalLayout: {fileID: 0}
+  eventCount: 0
+  eventLogText: {fileID: 0}
+  eventLogYOffset: 0
+  eventLogYOffsetDecrement: 5
+  eventLogTextTopMargin: 45
+  obituaryOverlayCanvas: {fileID: 0}
 --- !u!114 &4019157595204140061
 MonoBehaviour:
   m_ObjectHideFlags: 0

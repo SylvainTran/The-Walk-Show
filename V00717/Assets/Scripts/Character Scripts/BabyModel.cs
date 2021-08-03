@@ -17,7 +17,7 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     // Colonist unique personnel ID
     public static int uniqueColonistPersonnelID = 0;
     [SerializeField] private int uniqueColonistPersonnelID_ = 0;
-    public int UniqueColonistPersonnelID_ { get { return uniqueColonistPersonnelID_; } set { uniqueColonistPersonnelID_ = uniqueColonistPersonnelID; } }
+    public int UniqueColonistPersonnelID_ { get { return uniqueColonistPersonnelID_; } set { uniqueColonistPersonnelID_ = value; } }
 
     // Colonist health - Can be reduced by conditions, damage taken during certain events?
     [SerializeField] private float health = 100.0f;
@@ -110,7 +110,7 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     /// <returns></returns>
     public override string ToString()
     {
-        return $"{characterName}, {nickName}, {level}, {age}";
+        return $"Character Name: {characterName}, Nickname: {nickName}, Level: {level}, Age: {age}, Status/Health: {health}";
     }
 
     public delegate void OnGameClockEventProcessed(GameClockEvent e);
@@ -161,5 +161,16 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     public bool IsEnemyAI()
     {
         return false;
-    }    
+    }
+
+    public override int GetHashCode()
+    {
+        return uniqueColonistPersonnelID_;
+    }
+
+    public bool Equals(BabyModel other)
+    {
+        if (other == null) return false;
+        return (this.GetHashCode().Equals(other.GetHashCode()));
+    }
 }
