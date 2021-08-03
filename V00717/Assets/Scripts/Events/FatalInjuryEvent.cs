@@ -15,7 +15,7 @@ public class FatalInjuryEvent : GameClockEvent
 
     public override bool ApplyEvent(BabyModel b)
     {
-        Message = $"{b.Name} has died from a fatal injury on the ship.\n";
+        Message = $"{b.Name()} has died from a fatal injury on the ship.\n";
         b.Health = 0.0f;
         return true;
     }

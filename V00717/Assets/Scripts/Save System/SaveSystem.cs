@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using static BabyController;
 
@@ -16,11 +17,11 @@ public class SaveSystem : MonoBehaviour
 
     private void OnDisable()
     {
-        _OnSaveAction += Save;
+        _OnSaveAction -= Save;
     }
 
-    // Save to list and then to file
-    public void Save(string key, BabyModel[] colonists, BabyModel babyModel, string path)
+    // Save alive colonists to list and then to file
+    public void Save(string key, List<BabyModel> colonists, BabyModel babyModel, string path)
     {
         // The count of characters should be x+1 where x is the current count
         SavedArrayObject savedObject = new SavedArrayObject(colonists);
@@ -28,7 +29,7 @@ public class SaveSystem : MonoBehaviour
 
         if (nbElements < MAX_COLONISTS)
         {
-            colonists[nbElements] = babyModel;
+            colonists.Add(babyModel);
             // Make the UUID - TODO this doesn't work? It sets the previous ids back to 0
             BabyModel.uniqueColonistPersonnelID++;
             babyModel.UniqueColonistPersonnelID_ = BabyModel.uniqueColonistPersonnelID;            
@@ -45,9 +46,9 @@ public class SaveSystem : MonoBehaviour
     {
         public BabyModel[] colonists;
 
-        public SavedArrayObject(BabyModel[] colonists)
+        public SavedArrayObject(List<BabyModel> colonists)
         {
-            this.colonists = colonists;
+            this.colonists = colonists.ToArray();
         }
     }
 
@@ -55,7 +56,8 @@ public class SaveSystem : MonoBehaviour
     public void SaveToJSONFile(string key, int nbElements, SavedArrayObject savedObject, string path, string successMessage)
     {
         string output = "{\n\t";
-        int len = nbElements + 1;
+        //int len = nbElements + 1;
+        int len = savedObject.colonists.Length;
         output += "\"" + key + "\":" + "[";
 
         for (int i = 0; i < len; i++)

@@ -51,7 +51,7 @@ public class DashboardOSController : PageController
         BabyController._OnRequestColonistDataResponse += OnServerReply;
         SaveSystem._SuccessfulSaveAction += ReadSaveList;
         BabyModel._OnGameClockEventProcessed += UpdateEventLog;
-        //GameClockEvent._OnColonistIsDead += UpdateEventLog;
+        GameClockEvent._OnColonistIsDead += OnColonistDied;
         BattleEvent._OnBattleEnded += UpdateEventLog;
     }
 
@@ -61,7 +61,7 @@ public class DashboardOSController : PageController
         BabyController._OnRequestColonistDataResponse -= OnServerReply;
         SaveSystem._SuccessfulSaveAction -= ReadSaveList;
         BabyModel._OnGameClockEventProcessed -= UpdateEventLog;
-        //GameClockEvent._OnColonistIsDead -= UpdateEventLog;
+        GameClockEvent._OnColonistIsDead -= OnColonistDied;
         BattleEvent._OnBattleEnded -= UpdateEventLog;
     }
 
@@ -137,11 +137,18 @@ public class DashboardOSController : PageController
     }
 
     // Reply from server (baby controller)
-    public void OnServerReply(BabyModel[] colonists)
+    public void OnServerReply(List<BabyModel> colonists)
     {
         // Clear icons; TODO only if the children of the vertical g. layout has changed since
         ClearColonistIcons();
         CreateColonistIcons(colonists);
+    }
+
+    // On colonist dead, need to put X medical bay and also exclude that colonist from next save instance
+    public void OnColonistDied(GameClockEvent e, ICombatant c)
+    {
+        UpdateEventLog(e);
+        ClearColonistIcons(c);
     }
 
     public void ClearColonistIcons()
@@ -150,6 +157,20 @@ public class DashboardOSController : PageController
         for (int i = 0; i < len; i++)
         {
             Destroy(verticalGroupLayout.transform.GetChild(i).gameObject);
+        }
+    }
+
+    // Overload for a specific combatant
+    public void ClearColonistIcons(ICombatant c)
+    {
+        int len = verticalGroupLayout.transform.childCount;
+        for (int i = 0; i < len; i++)
+        {
+            Transform child = verticalGroupLayout.transform.GetChild(i);
+            if (c.Name().Equals(child.gameObject.name))
+            {
+                Destroy(child.gameObject);
+            }
         }
     }
 
@@ -191,7 +212,7 @@ public class DashboardOSController : PageController
         //eventLogYOffset += eventLogYOffsetDecrement;
     }
 
-    public void CreateColonistIcons(BabyModel[] colonists)
+    public void CreateColonistIcons(List<BabyModel> colonists)
     {
         // Replace content
         foreach (BabyModel b in colonists)
@@ -203,11 +224,12 @@ public class DashboardOSController : PageController
                 verticalGroupLayout.childControlWidth = true;
                 colonistIcon.transform.localScale = colonistIconSize;
                 colonistIcon.rectTransform.SetParent(verticalGroupLayout.transform);
+                colonistIcon.gameObject.name = b.Name();
                 // TODO adjust rectTransform size - some text gets wrapped due to local scale changing to its new parent vertical layout
-
+                
                 // Names
                 TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
-                colonistName.SetText(b.Name);
+                colonistName.SetText(b.Name());
                 colonistName.rectTransform.SetParent(verticalGroupLayout.transform);
                 colonistName.fontSize = 42.0f;
             }

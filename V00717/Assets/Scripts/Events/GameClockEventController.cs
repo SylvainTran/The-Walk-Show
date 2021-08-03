@@ -21,16 +21,17 @@ public class GameClockEventController : MonoBehaviour
     public void OnEventClockUpdate()
     {
         // Don't update events if no colonists or controller
-        if (babyController.colonists == null || babyController.colonists.Length == 0)
+        if (babyController.colonists == null || babyController.colonists.Count == 0)
         {
             return;
         }
         // Iterate a new event for each colonist
-        foreach (BabyModel b in babyController.colonists)
+        for(int i = 0; i < babyController.colonists.Count; i++)
         {
             GameClockEvent e = GenerateRandomEvent();
-            b.OnGameClockEventGenerated(e);
+            babyController.colonists[i].OnGameClockEventGenerated(e);
         }
+        // TODO iterate a new event for each dead colonist too? 
     }
 
     // Generates a random event using an index

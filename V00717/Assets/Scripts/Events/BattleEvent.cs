@@ -19,20 +19,21 @@ public class BattleEvent : GameClockEvent
         {
             return false;
         }
-        Message = $"[Battle Event] {b.Name} is fighting an entity on the ship.";
+        Message = $"[Battle Event] {b.Name()} is fighting an entity on the ship.";
         Enemy e = GenerateEntity();
         while(!CheckIfDead(b) && !CheckIfDead(e))
         {
             e.DealDamage(b);
             b.DealDamage(e);
-        }        
-        Message += $" The battle between {b.Name} and {e.CombatName()} is over.";
+        }
+        string colonistName = b.Name();
+        Message += $" The battle between {colonistName} and {e.Name()} is over.";
         if(b.Health > 0.0f)
         {
-            Message += $" {b.Name} won! {e.CombatName()} was savagely killed.";
+            Message += $" {colonistName} won! {e.Name()} was savagely killed.";
         } else
         {
-            Message += $" {b.Name} has died in a gruesome way {e.CombatName()} will be laughing at {b.Name} hysterically for all eternity...";
+            Message += $" {colonistName} has died in a gruesome way {e.Name()} will be laughing at {colonistName} hysterically for all eternity...";
         }
         // TODO rewards, notification pop-ups, etc. especially if colonist has died
         _OnBattleEnded(this);

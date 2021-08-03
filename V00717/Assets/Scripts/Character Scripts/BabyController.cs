@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.IO;
 
 // This class contains the baby model and controls its attributes
 public class BabyController : MonoBehaviour, ISaveableComponent
@@ -10,8 +12,8 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public BabyModel BabyModel { get { return babyModel; } set { babyModel = value; } }
 
     // The buffer to serialize
-    public BabyModel[] colonists;
-    public BabyModel[] deadColonists = null;
+    public List<BabyModel> colonists;
+    public List<BabyModel> deadColonists = null;
 
     // The max n of colonists (temporary n)
     [NonSerialized] public static int MAX_COLONISTS = 4;
@@ -41,11 +43,11 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public static event MeshChanged _OnMeshChanged; // listened to by View.cs
 
     // Save to file event
-    public delegate void SaveAction(string key, BabyModel[] c, BabyModel b, string path);
+    public delegate void SaveAction(string key, List<BabyModel> c, BabyModel b, string path);
     public static event SaveAction _OnSaveAction;
 
     // SERVER REQUESTS
-    public delegate void RequestColonistDataResponse(BabyModel[] colonists);
+    public delegate void RequestColonistDataResponse(List<BabyModel> colonists);
     public static event RequestColonistDataResponse _OnRequestColonistDataResponse;
 
     // Attach method functions
@@ -53,6 +55,7 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
         DashboardOSController._OnRequestColonistData += OnServerReply;
+        GameClockEvent._OnColonistIsDead += OnColonistDied;
     }
 
     // Dettach method functions
@@ -60,18 +63,24 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction -= MallocNewCharacter;
         DashboardOSController._OnRequestColonistData -= OnServerReply;
+        GameClockEvent._OnColonistIsDead -= OnColonistDied;
     }
 
     // Creates an array of baby models from the json text read and deserialized from path
-    public BabyModel[] LoadCharactersFromJSONFile(string path)
+    public List<BabyModel> LoadCharactersFromJSONFile(string path)
     {
         // Generate new characters based on JSON file
         string text = System.IO.File.ReadAllText(path);
         SaveSystem.SavedArrayObject deserializedObject = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
-        BabyModel[] _colonists = new BabyModel[4];
+        if(deserializedObject.colonists == null)
+        {
+            Debug.Log("No alive/dead colonists to load.");
+            return null;
+        }
+        List<BabyModel> _colonists = new List<BabyModel>();
         for(int i = 0; i < deserializedObject.colonists.Length; i++)
         {
-            _colonists[i] = deserializedObject.colonists[i];
+            _colonists.Add(deserializedObject.colonists[i]);
         }
         return _colonists;
     }
@@ -81,6 +90,7 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         // TODO deal with edge case where the file exists but its contents are invalid
         colonists = LoadCharactersFromJSONFile("colonists.json");
+        deadColonists = LoadCharactersFromJSONFile("deadColonists.json");
     }
 
     // Malloc baby model and the colonists array
@@ -107,8 +117,8 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     // Setter for new colonist name
     public void OnNameChanged(string name)
     {
-        babyModel.Name = name;
-        Debug.Log($"And so {babyModel.Name} was given his name.");
+        babyModel.CharacterName = name;
+        Debug.Log($"And so {babyModel.Name()} was given his name.");
     }
 
     // Setter for new colonist nickname
@@ -173,12 +183,32 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         _OnToolTipExitAction();
     }
-    
+
+    public void deleteSaveFile()
+    {
+        if (colonists.Count == 0)
+        {
+            File.Delete("colonists.json");
+        }
+    }
+
+    public void OnColonistDied(GameClockEvent e, ICombatant c)
+    {
+        // Remove the dead before saving again
+        colonists.Remove(c as BabyModel);
+        // If colonists file is empty, destroy it?
+        deleteSaveFile();
+        deadColonists.Add(c as BabyModel);
+        Save();
+    }
+
     // The save method service for the client
     public void Save()
     {
         // Event to save the current baby template to a file
         _OnSaveAction("colonists", colonists, babyModel, "colonists.json");
+        // Needs to load up the previous dead colonists first before rewriting
+        _OnSaveAction("deadColonists", deadColonists, babyModel, "deadColonists.json");
     }
 
     // Handle client requests

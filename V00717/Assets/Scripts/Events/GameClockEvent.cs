@@ -11,7 +11,7 @@ public class GameClockEvent
     public string Message { get { return message; } set { message = value; } }
 
     // Dead colonist event (by injury, illness, battle, etc.)
-    public delegate void OnColonistIsDead(GameClockEvent e);
+    public delegate void OnColonistIsDead(GameClockEvent e, ICombatant c);
     public static event OnColonistIsDead _OnColonistIsDead;
 
     public GameClockEvent(float triggerChance)
@@ -27,7 +27,7 @@ public class GameClockEvent
             Debug.Log("Colonist is already dead.");
             return false;
         }
-        Debug.Log($"Colonist {b.Name} received an event: {GetType()}");
+        Debug.Log($"Colonist {b.Name()} received an event: {GetType()}");
         return true;
     }
 
@@ -37,8 +37,8 @@ public class GameClockEvent
         {
             if (!b.IsEnemyAI())
             {
-                //message = $"{b.CombatName()} has died.";
-                //_OnColonistIsDead(this);
+                message = $"{b.Name()} has died.";
+                _OnColonistIsDead(this, b);
             }
             return true;
         }

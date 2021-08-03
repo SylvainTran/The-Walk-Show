@@ -7,8 +7,8 @@ using UnityEngine;
 public class BabyModel : Element, ISerializableObject, ICombatant
 {
     // The newborn's name - set during creation
-    [SerializeField] private string name = null;
-    public string Name { get { return name; } set { name = value; } }
+    [SerializeField] private string characterName = null;
+    public string CharacterName { get { return characterName; } set { characterName = value; } }
 
     // The newborn's nickname - set during creation
     [SerializeField] private string nickName = null;
@@ -110,7 +110,7 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     /// <returns></returns>
     public override string ToString()
     {
-        return $"{name}, {nickName}, {level}, {age}";
+        return $"{characterName}, {nickName}, {level}, {age}";
     }
 
     public delegate void OnGameClockEventProcessed(GameClockEvent e);
@@ -153,9 +153,9 @@ public class BabyModel : Element, ISerializableObject, ICombatant
         return health;
     }
 
-    public string CombatName()
+    public string Name()
     {
-        return name;
+        return characterName;
     }
 
     public bool IsEnemyAI()

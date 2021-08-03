@@ -1,6 +1,6 @@
 public interface ICombatant
 {
-    public string CombatName();
+    public string Name();
     public bool IsEnemyAI();
     public float GetHealth();
     public void DealDamage(ICombatant opponent);

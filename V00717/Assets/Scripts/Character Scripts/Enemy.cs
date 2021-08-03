@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Enemy : Element, ICombatant
 {
+    private string name = "Enemy";
     private float health = 100.0f;
     private float damage = 10.0f;
     public float Damage { get { return damage; } set { damage = value; } }
@@ -24,13 +25,13 @@ public class Enemy : Element, ICombatant
         return health;
     }
 
-    public string CombatName()
-    {
-        return "Enemy";
-    }
-
     public bool IsEnemyAI()
     {
         return true;
+    }
+
+    public string Name()
+    {
+        return name;
     }
 }

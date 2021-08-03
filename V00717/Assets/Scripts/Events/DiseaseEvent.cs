@@ -17,7 +17,7 @@ public class DiseaseEvent : GameClockEvent
         {
             return false;
         }
-        Message = $"{b.Name} has gotten a disease on the ship. Health decreased by {healthDecreaseTick}.\n";
+        Message = $"{b.Name()} has gotten a disease on the ship. Health decreased by {healthDecreaseTick}.\n";
         b.Health -= healthDecreaseTick;
         return true;
     }
