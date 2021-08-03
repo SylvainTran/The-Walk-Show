@@ -18,8 +18,10 @@ public class DashboardOSController : PageController
     // The login page
     public Canvas loginPage;
 
-    // Vertical group
-    public VerticalLayoutGroup verticalGroupLayout;
+    // Vertical group for live colonists
+    public VerticalLayoutGroup aliveColonistsVerticalGroupLayout;
+    // Vertical group for dead colonists
+    public VerticalLayoutGroup deadColonistsVerticalGroupLayout;
     // Size parameters (TODO put in a config file or PlayerPrefs)
     public Vector3 colonistIconSize;
 
@@ -104,7 +106,7 @@ public class DashboardOSController : PageController
 
     public void Init()
     {
-        verticalGroupLayout.transform.hasChanged = false;
+        aliveColonistsVerticalGroupLayout.transform.hasChanged = false;
     }
 
     // This fake login just prevents the player from seeing the login page again
@@ -134,40 +136,50 @@ public class DashboardOSController : PageController
     public void ReadSaveList()
     {
         _OnRequestColonistData(DataRequests.LIVE_COLONISTS);
+        _OnRequestColonistData(DataRequests.DEAD_COLONISTS);
     }
 
-    // Reply from server (baby controller)
-    public void OnServerReply(List<BabyModel> colonists)
+    // Reply from server (baby controller) - alive or dead are treated as colonists
+    public void OnServerReply(List<BabyModel> colonists, DataRequests request)
     {
+        if (colonists == null || colonists.Count == 0 || colonists.Capacity == 0)
+        {
+            Debug.Log("No alive/dead colonists to load in the med bay.");
+            return;
+        }
+        
         // Clear icons; TODO only if the children of the vertical g. layout has changed since
-        ClearColonistIcons();
-        CreateColonistIcons(colonists);
+        ClearColonistIcons(request);
+        CreateColonistIcons(colonists, request);
     }
 
     // On colonist dead, need to put X medical bay and also exclude that colonist from next save instance
     public void OnColonistDied(GameClockEvent e, ICombatant c)
     {
         UpdateEventLog(e);
-        ClearColonistIcons(c);
+        ClearColonistIcons(c);        
     }
 
-    public void ClearColonistIcons()
+    public void ClearColonistIcons(DataRequests request)
     {
-        int len = verticalGroupLayout.transform.childCount;
+        VerticalLayoutGroup layout = request == (int)DataRequests.LIVE_COLONISTS? aliveColonistsVerticalGroupLayout
+            : deadColonistsVerticalGroupLayout;
+        int len = layout.transform.childCount;
+
         for (int i = 0; i < len; i++)
         {
-            Destroy(verticalGroupLayout.transform.GetChild(i).gameObject);
+            Destroy(layout.transform.GetChild(i).gameObject);
         }
     }
 
     // Overload for a specific combatant
     public void ClearColonistIcons(ICombatant c)
     {
-        int len = verticalGroupLayout.transform.childCount;
+        int len = aliveColonistsVerticalGroupLayout.transform.childCount;
         for (int i = 0; i < len; i++)
         {
-            Transform child = verticalGroupLayout.transform.GetChild(i);
-            if (c.Name().Equals(child.gameObject.name))
+            Transform child = aliveColonistsVerticalGroupLayout.transform.GetChild(i);
+            if (child.gameObject.name.Trim().ToLower().Contains(c.Name().Trim().ToLower()))
             {
                 Destroy(child.gameObject);
             }
@@ -212,8 +224,11 @@ public class DashboardOSController : PageController
         //eventLogYOffset += eventLogYOffsetDecrement;
     }
 
-    public void CreateColonistIcons(List<BabyModel> colonists)
+    public void CreateColonistIcons(List<BabyModel> colonists, DataRequests request)
     {
+        VerticalLayoutGroup layout = request == (int)DataRequests.LIVE_COLONISTS ? aliveColonistsVerticalGroupLayout
+    : deadColonistsVerticalGroupLayout;
+
         // Replace content
         foreach (BabyModel b in colonists)
         {
@@ -221,19 +236,20 @@ public class DashboardOSController : PageController
             {
                 // Icons with click events
                 Image colonistIcon = Instantiate(UIAssets.colonistIcon.GetComponent<Image>());
-                verticalGroupLayout.childControlWidth = true;
+                layout.childControlWidth = true;
                 colonistIcon.transform.localScale = colonistIconSize;
-                colonistIcon.rectTransform.SetParent(verticalGroupLayout.transform);
+                colonistIcon.rectTransform.SetParent(layout.transform);
                 colonistIcon.gameObject.name = b.Name();
                 // TODO adjust rectTransform size - some text gets wrapped due to local scale changing to its new parent vertical layout
                 
                 // Names
                 TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
                 colonistName.SetText(b.Name());
-                colonistName.rectTransform.SetParent(verticalGroupLayout.transform);
+                colonistName.gameObject.name = b.Name();
+                colonistName.rectTransform.SetParent(layout.transform);
                 colonistName.fontSize = 42.0f;
             }
         }
-        verticalGroupLayout.transform.hasChanged = true;
+        layout.transform.hasChanged = true;
     }
 }

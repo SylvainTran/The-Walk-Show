@@ -29,7 +29,6 @@ public class UIView : MonoBehaviour
         {
             Debug.Log("Closing activeMenuCanvas");
             StarterAssetsInputs.activeMenuCanvas.enabled = false;
-            Debug.Log(StarterAssetsInputs.activeMenuCanvas.enabled);
         }
     }
 

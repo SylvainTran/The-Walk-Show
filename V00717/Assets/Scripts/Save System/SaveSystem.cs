@@ -26,19 +26,7 @@ public class SaveSystem : MonoBehaviour
         // The count of characters should be x+1 where x is the current count
         SavedArrayObject savedObject = new SavedArrayObject(colonists);
         int nbElements = Utility.Count(savedObject);
-
-        if (nbElements < MAX_COLONISTS)
-        {
-            colonists.Add(babyModel);
-            // Make the UUID - TODO this doesn't work? It sets the previous ids back to 0
-            BabyModel.uniqueColonistPersonnelID++;
-            babyModel.UniqueColonistPersonnelID_ = BabyModel.uniqueColonistPersonnelID;            
-            SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
-        }
-        else
-        {
-            Debug.Log("Save game impossible :-(. Full capacity reached.");
-        }
+        SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
     }
 
     // For JSON deserialization - needs a wrapper class to serialize an array type

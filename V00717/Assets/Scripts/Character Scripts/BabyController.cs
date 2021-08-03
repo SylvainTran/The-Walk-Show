@@ -47,7 +47,7 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public static event SaveAction _OnSaveAction;
 
     // SERVER REQUESTS
-    public delegate void RequestColonistDataResponse(List<BabyModel> colonists);
+    public delegate void RequestColonistDataResponse(List<BabyModel> colonists, Enums.DataRequests request);
     public static event RequestColonistDataResponse _OnRequestColonistDataResponse;
 
     // Attach method functions
@@ -67,14 +67,19 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     }
 
     // Creates an array of baby models from the json text read and deserialized from path
-    public List<BabyModel> LoadCharactersFromJSONFile(string path)
+    public List<BabyModel> LoadCharactersFromJSONFile(string path, bool deleteIfEmpty)
     {
         // Generate new characters based on JSON file
         string text = System.IO.File.ReadAllText(path);
         SaveSystem.SavedArrayObject deserializedObject = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
-        if(deserializedObject.colonists == null)
+        if(deserializedObject.colonists == null || deserializedObject.colonists.Length == 0)
         {
             Debug.Log("No alive/dead colonists to load.");
+            // Delete file if specified
+            if(deleteIfEmpty)
+            {
+                File.Delete(path);
+            }
             return null;
         }
         List<BabyModel> _colonists = new List<BabyModel>();
@@ -83,14 +88,6 @@ public class BabyController : MonoBehaviour, ISaveableComponent
             _colonists.Add(deserializedObject.colonists[i]);
         }
         return _colonists;
-    }
-
-    // Loads game data from JSON file
-    private void Preload()
-    {
-        // TODO deal with edge case where the file exists but its contents are invalid
-        colonists = LoadCharactersFromJSONFile("colonists.json");
-        deadColonists = LoadCharactersFromJSONFile("deadColonists.json");
     }
 
     // Malloc baby model and the colonists array
@@ -102,9 +99,13 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     private void Start()
     {
         // First load game if needed (TODO validate contents too, can have bad format and exist)
-        if (SaveSystem.SaveFileExists("colonists.json"))
+        if(SaveSystem.SaveFileExists("colonists.json"))
         {
-            Preload();
+            colonists = LoadCharactersFromJSONFile("colonists.json", true);
+        }
+        if (SaveSystem.SaveFileExists("deadColonists.json"))
+        {
+            deadColonists = LoadCharactersFromJSONFile("deadColonists.json", false);
         }
     }
 
@@ -199,16 +200,48 @@ public class BabyController : MonoBehaviour, ISaveableComponent
         // If colonists file is empty, destroy it?
         deleteSaveFile();
         deadColonists.Add(c as BabyModel);
-        Save();
+        Save(false);
+    }
+
+    // Called on finalize creation menu
+    public void AddNewColonist()
+    {
+        colonists.Add(babyModel);
     }
 
     // The save method service for the client
-    public void Save()
+    public void Save(bool checkMaxElements)
     {
         // Event to save the current baby template to a file
-        _OnSaveAction("colonists", colonists, babyModel, "colonists.json");
-        // Needs to load up the previous dead colonists first before rewriting
-        _OnSaveAction("deadColonists", deadColonists, babyModel, "deadColonists.json");
+        if(colonists == null)
+        {
+            colonists = new List<BabyModel>();
+        }
+        // We don't check for max elements if saving dead colonists (for now)
+        if (!checkMaxElements || colonists.Count < MAX_COLONISTS)
+        {
+            // Make the UUID for alive colonists - TODO this doesn't work? It sets the previous ids back to 0
+            if (checkMaxElements)
+            {
+                BabyModel.uniqueColonistPersonnelID++;
+                babyModel.UniqueColonistPersonnelID_ = BabyModel.uniqueColonistPersonnelID;
+            }
+            // TODO add dead colonists unique ID too?
+            //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
+            if (colonists.Count > 0)
+            {
+                _OnSaveAction("colonists", colonists, babyModel, "colonists.json");
+            }
+            if (deadColonists.Count > 0)
+            {
+                // Needs to load up the previous dead colonists first before rewriting
+                _OnSaveAction("colonists", deadColonists, babyModel, "deadColonists.json");
+            }
+        }
+        else
+        {
+            Debug.Log("Save game impossible :-(. Full capacity reached.");
+        }
     }
 
     // Handle client requests
@@ -217,7 +250,10 @@ public class BabyController : MonoBehaviour, ISaveableComponent
         switch(requestPort)
         {
             case Enums.DataRequests.LIVE_COLONISTS:
-                _OnRequestColonistDataResponse(colonists);
+                _OnRequestColonistDataResponse(colonists, Enums.DataRequests.LIVE_COLONISTS);
+                break;
+            case Enums.DataRequests.DEAD_COLONISTS:
+                _OnRequestColonistDataResponse(deadColonists, Enums.DataRequests.DEAD_COLONISTS);
                 break;
             default:
                 break;
