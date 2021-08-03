@@ -232,12 +232,6 @@ public class BabyController : MonoBehaviour, ISaveableComponent
         // We don't check for max elements if saving dead colonists (for now)
         if (!checkMaxElements || colonists.Count < MAX_COLONISTS)
         {
-            // Make the UUID for alive colonists - TODO this doesn't work? It sets the previous ids back to 0
-            if (checkMaxElements)
-            {
-                BabyModel.uniqueColonistPersonnelID++;
-                babyModel.UniqueColonistPersonnelID_ = BabyModel.uniqueColonistPersonnelID;
-            }
             // TODO add dead colonists unique ID too?
             //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
             if (colonists.Count > 0)
