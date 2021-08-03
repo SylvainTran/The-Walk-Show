@@ -7,6 +7,7 @@ using System.Collections.Generic;
 // Ports
 using static Enums;
 using System;
+using UnityEngine.EventSystems;
 
 public class DashboardOSController : PageController
 {
@@ -43,6 +44,10 @@ public class DashboardOSController : PageController
 
     // Queue of generated event logs (we dequeue first ones when max reached)
     private Queue<string> eventLogQueue;
+
+
+    // Obituary overlay to fade in/out when clicking on dead colonist icon
+    public Canvas obituaryOverlayCanvas;
 
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
@@ -240,8 +245,15 @@ public class DashboardOSController : PageController
                 colonistIcon.transform.localScale = colonistIconSize;
                 colonistIcon.rectTransform.SetParent(layout.transform);
                 colonistIcon.gameObject.name = b.Name();
+                // Add the handle mouse event trigger
+                EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
+                EventTrigger.Entry entry = new EventTrigger.Entry();
+                entry.eventID = EventTriggerType.PointerClick;
+                entry.callback.AddListener((eventData) => { HandleIconMouseClick(b.UniqueColonistPersonnelID_); }); // The UUID is retrieved from the scriptable object "GameCharacterDatabase"
+                evt.triggers.Add(entry);
+
                 // TODO adjust rectTransform size - some text gets wrapped due to local scale changing to its new parent vertical layout
-                
+
                 // Names
                 TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
                 colonistName.SetText(b.Name());
@@ -252,4 +264,23 @@ public class DashboardOSController : PageController
         }
         layout.transform.hasChanged = true;
     }
+
+    // The permanent assets database
+    public GameCharacterDatabase gameCharacterDatabase;
+
+    // Colonist icons (dead/alive) click handler
+    public void HandleIconMouseClick(int UUID)
+    {
+        // Look up the UUID in the gameCharacterDatabase
+        BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.GetHashCode() == UUID);
+        if(target == null)
+        {
+            Debug.Log($"Target UUID {UUID} not found. Check UUID again.");
+            return;
+        }
+        Debug.Log($"Target icon clicked: {target}");
+        Debug.Log($"UUID: {target.GetHashCode()}.");
+        Debug.Log($"Name: {target.Name()}.");
+    }
+
 }

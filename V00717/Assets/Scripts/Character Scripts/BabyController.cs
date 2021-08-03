@@ -15,6 +15,9 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public List<BabyModel> colonists;
     public List<BabyModel> deadColonists = null;
 
+    // The permanent assets database
+    public GameCharacterDatabase gameCharacterDatabase;
+
     // The max n of colonists (temporary n)
     [NonSerialized] public static int MAX_COLONISTS = 4;
 
@@ -206,7 +209,16 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     // Called on finalize creation menu
     public void AddNewColonist()
     {
+        if(colonists.Count > MAX_COLONISTS)
+        {
+            return;
+        }
+        // Add to active colonists
         colonists.Add(babyModel);
+        // Also add to colonist registry permanent asset for UUIDs
+        gameCharacterDatabase.colonistUUIDCount++;
+        babyModel.UniqueColonistPersonnelID_ = gameCharacterDatabase.colonistUUIDCount;
+        gameCharacterDatabase.colonistRegistry.Add(babyModel);
     }
 
     // The save method service for the client
@@ -220,12 +232,6 @@ public class BabyController : MonoBehaviour, ISaveableComponent
         // We don't check for max elements if saving dead colonists (for now)
         if (!checkMaxElements || colonists.Count < MAX_COLONISTS)
         {
-            // Make the UUID for alive colonists - TODO this doesn't work? It sets the previous ids back to 0
-            if (checkMaxElements)
-            {
-                BabyModel.uniqueColonistPersonnelID++;
-                babyModel.UniqueColonistPersonnelID_ = BabyModel.uniqueColonistPersonnelID;
-            }
             // TODO add dead colonists unique ID too?
             //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
             if (colonists.Count > 0)

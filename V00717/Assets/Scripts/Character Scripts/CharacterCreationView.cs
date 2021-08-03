@@ -18,6 +18,8 @@ public class CharacterCreationView : UIView
     public BabyController babyController;
     // Scriptable object with assets
     public ModelAssets ModelAssets;
+    // The permanent assets database
+    public GameCharacterDatabase gameCharacterDatabase;
 
     // Adult height marker
     public TMP_Text adultHeightMarker;
@@ -65,7 +67,7 @@ public class CharacterCreationView : UIView
     // Updates the colonist uuid text in identification tab
     public void UpdateColonistUUIDText()
     {
-        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {BabyModel.uniqueColonistPersonnelID + 1}");
+        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {gameCharacterDatabase.colonistUUIDCount}");
     }
 
     // Updates the adult height marker label
