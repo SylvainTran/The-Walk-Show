@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameClockEventController : MonoBehaviour
@@ -39,12 +40,12 @@ public class GameClockEventController : MonoBehaviour
     {
         // Polymorphic late binding
         GameClockEvent gameClockEvent = null;
-        //int randIndex = Random.Range(0, 3);
-        int randIndex = 2;
+        int randIndex = Random.Range(0, 3);
+        //int randIndex = 2;
         switch(randIndex)
         {
             case 0:
-                gameClockEvent = new FatalInjuryEvent(triggerChance);
+                gameClockEvent = new InjuryEvent(triggerChance);
                 break;
             case 1:
                 gameClockEvent = new DiseaseEvent(triggerChance);

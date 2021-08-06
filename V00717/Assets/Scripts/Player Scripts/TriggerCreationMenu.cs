@@ -9,6 +9,7 @@ public class TriggerCreationMenu : MonoBehaviour
     public static event TriggerCreationMenuAction _OnTriggerCreationMenuAction;
     // Whether this game object is currently interactible with - Set by input key trigger events in StarterAssetsInputs.cs
     private bool isInteractable = false;
+    public Canvas dashboardOS = null;
 
     private void OnEnable()
     {
@@ -32,6 +33,10 @@ public class TriggerCreationMenu : MonoBehaviour
         // Open the creation menu if there is no currently active menu canvas
         if (other.gameObject.GetComponent<Player>())
         {
+            if (dashboardOS && dashboardOS.enabled)
+            {
+                return;
+            }
             if (StarterAssetsInputs.activeMenuCanvas == null || !StarterAssetsInputs.activeMenuCanvas.isActiveAndEnabled)
             {
                 if (isInteractable)

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using StarterAssets;
+using TMPro;
 
 public abstract class PageController : MonoBehaviour
 {
@@ -11,8 +12,7 @@ public abstract class PageController : MonoBehaviour
     public UIAssets UIAssets;
     // The previous canvas
     protected Canvas previousCanvas = null;
-    // The active canvas
-    protected Canvas activeCanvas = null;
+    private Canvas activeCanvas = null;
     // The group of buttons
     public Transform NavigationButtonCanvas;
     // The lonely confirm page button
@@ -20,21 +20,21 @@ public abstract class PageController : MonoBehaviour
     // The finalize button which saves the edits and exits the menu
     public Button finalizeButton;
 
+    public virtual void ClosePreviousPage()
+    {
+        // Cache previously active canvas to disable it later
+        if (StarterAssetsInputs.previousActiveCanvas != null && StarterAssetsInputs.previousActiveCanvas != StarterAssetsInputs.activeMenuCanvas)
+        {
+            StarterAssetsInputs.previousActiveCanvas.enabled = false;
+        }
+    }
+
     // Change the page by using the page index (usually passed through inspector or explicitly elsewhere)
     public virtual void ChangePage(int pageIndex)
     {
-        // Cache previously active canvas to disable it later
-        if (activeCanvas != null)
-        {
-            previousCanvas = activeCanvas;
-        }
-        // O(1)
-        activeCanvas = pages[pageIndex];
-        // Disable cached previous canvas
-        if (previousCanvas)
-        {
-            previousCanvas.enabled = false;
-        }
+        // Close previous page if any
+        ClosePreviousPage();
+        activeCanvas = StarterAssetsInputs.activeMenuCanvas;
         // Enable new active canvas
         if (activeCanvas)
         {

@@ -1,17 +1,17 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using System.IO;
 
 // This class contains the baby model and controls its attributes
+// TODO refactor monobehaviour specific routines into a seperate class, in order to add a normal constructor
 public class BabyController : MonoBehaviour, ISaveableComponent
 {
     // The Baby Model component (cached through inspector)
     [SerializeField] private BabyModel babyModel;
     public BabyModel BabyModel { get { return babyModel; } set { babyModel = value; } }
 
-    // The buffer to serialize
+    // The colonists 
     public List<BabyModel> colonists;
     public List<BabyModel> deadColonists = null;
 
@@ -53,11 +53,27 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     public delegate void RequestColonistDataResponse(List<BabyModel> colonists, Enums.DataRequests request);
     public static event RequestColonistDataResponse _OnRequestColonistDataResponse;
 
+    // Update character registry
+    private void OnApplicationQuit()
+    {
+        Debug.Log("Saving game registry before exiting...");
+        foreach (BabyModel dc in deadColonists)
+        {
+            BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.UniqueColonistPersonnelID_ == dc.UniqueColonistPersonnelID_);
+            target.eventMarkersMap = dc.eventMarkersMap;
+            target.SetLastEvent(dc.LastEvent);
+        }
+        _OnSaveAction("colonists", colonists, babyModel, "colonists.json");
+        _OnSaveAction("colonists", deadColonists, babyModel, "deadColonists.json");
+        _OnSaveAction("colonists", gameCharacterDatabase.colonistRegistry, babyModel, "colonistRegistry.json");
+        Debug.Log("Application ending after " + Time.time + " seconds");
+    }
     // Attach method functions
     private void OnEnable()
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
         DashboardOSController._OnRequestColonistData += OnServerReply;
+        SaveSystem._SuccessfulSaveAction += ResetCharacterCache;
         GameClockEvent._OnColonistIsDead += OnColonistDied;
     }
 
@@ -66,7 +82,13 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction -= MallocNewCharacter;
         DashboardOSController._OnRequestColonistData -= OnServerReply;
+        SaveSystem._SuccessfulSaveAction -= ResetCharacterCache;
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
+    }
+
+    public void ResetCharacterCache()
+    {
+        MallocNewCharacter();
     }
 
     // Creates an array of baby models from the json text read and deserialized from path
@@ -74,7 +96,8 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     {
         // Generate new characters based on JSON file
         string text = System.IO.File.ReadAllText(path);
-        SaveSystem.SavedArrayObject deserializedObject = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
+        SaveSystem.SavedArrayObject deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
+        //SaveSystem.SavedArrayObject deserializedObject = JsonConvert.DeserializeObject<SaveSystem.SavedArrayObject>(text);
         if(deserializedObject.colonists == null || deserializedObject.colonists.Length == 0)
         {
             Debug.Log("No alive/dead colonists to load.");
@@ -96,7 +119,7 @@ public class BabyController : MonoBehaviour, ISaveableComponent
     // Malloc baby model and the colonists array
     private void Awake()
     {
-        MallocNewCharacter();
+        ResetCharacterCache();
     }
 
     private void Start()
@@ -109,6 +132,12 @@ public class BabyController : MonoBehaviour, ISaveableComponent
         if (SaveSystem.SaveFileExists("deadColonists.json"))
         {
             deadColonists = LoadCharactersFromJSONFile("deadColonists.json", false);
+        }
+        if (SaveSystem.SaveFileExists("colonistRegistry.json"))
+        {
+            gameCharacterDatabase.colonistRegistry = LoadCharactersFromJSONFile("colonistRegistry.json", false);
+            // Update the UUID count by using the length of the registry list
+            gameCharacterDatabase.colonistUUIDCount = gameCharacterDatabase.colonistRegistry.Count;
         }
     }
 
@@ -203,34 +232,42 @@ public class BabyController : MonoBehaviour, ISaveableComponent
         // If colonists file is empty, destroy it?
         deleteSaveFile();
         deadColonists.Add(c as BabyModel);
-        Save(false);
+        _OnSaveAction("colonists", deadColonists, babyModel, "deadColonists.json");
     }
 
     // Called on finalize creation menu
     public void AddNewColonist()
     {
-        if(colonists.Count > MAX_COLONISTS)
+        if(!CreationMenuController.validEntry || colonists.Count > MAX_COLONISTS)
         {
             return;
         }
-        // Add to active colonists
+        // Add event marker and to active colonists
+        string bornEventAchievement = Enum.GetName(typeof(Enums.CharacterAchievements), 0);
+        babyModel.eventMarkersMap.EventMarkersFeed.Add(bornEventAchievement, 1); // The base achievement is to be born
+
         colonists.Add(babyModel);
         // Also add to colonist registry permanent asset for UUIDs
         gameCharacterDatabase.colonistUUIDCount++;
         babyModel.UniqueColonistPersonnelID_ = gameCharacterDatabase.colonistUUIDCount;
         gameCharacterDatabase.colonistRegistry.Add(babyModel);
+        _OnSaveAction("colonists", gameCharacterDatabase.colonistRegistry, babyModel, "colonistRegistry.json");
     }
 
-    // The save method service for the client
+    // The save method service for the client - FIXME this is for through the creation menu
     public void Save(bool checkMaxElements)
     {
         // Event to save the current baby template to a file
-        if(colonists == null)
+        if(!CreationMenuController.validEntry)
+        {
+            return;
+        }
+        if (colonists == null)
         {
             colonists = new List<BabyModel>();
         }
         // We don't check for max elements if saving dead colonists (for now)
-        if (!checkMaxElements || colonists.Count < MAX_COLONISTS)
+        if (!checkMaxElements || colonists.Count <= MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
         {
             // TODO add dead colonists unique ID too?
             //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");

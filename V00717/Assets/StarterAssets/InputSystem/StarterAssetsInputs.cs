@@ -20,11 +20,16 @@ namespace StarterAssets
 		// Player opens dashboard OS
 		public delegate void TriggerOpenDashboardOS();
 		public static event TriggerOpenDashboardOS _OnTriggerOpenDashboardOS;
+		public static Canvas previousActiveCanvas = null;
 		public static Canvas activeMenuCanvas = null; // If any menu is open, close it first to open another
+		public static Canvas activeOverlayScreen = null; // Any overlay screen notification
 
 		// Player closes active menu
 		public delegate void TriggerCloseActiveMenu();
 		public static event TriggerCloseActiveMenu _OnTriggerCloseActiveMenu;
+		// Player closes active overlay
+		public delegate void TriggerCloseActiveOverlay();
+		public static event TriggerCloseActiveOverlay _OnTriggerCloseOverlay;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -75,11 +80,22 @@ namespace StarterAssets
 
 		public void OnCloseActiveMenu(InputValue value)
         {
-			if(activeMenuCanvas != null)
-            {
-				Cursor.visible = false;
+			// Close overlays first, if it it's now null also close any active menu canvas
+			if (activeOverlayScreen != null)
+			{
+				_OnTriggerCloseOverlay();
+				return;
+			}
+			//if (activeMenuCanvas != null)
+            //{
 				_OnTriggerCloseActiveMenu();				
-            }
+            //}
+			Cursor.visible = false;
+		}
+
+		public static void ClearActiveMenu()
+        {
+			activeMenuCanvas = null;
         }
 
 		// There's only one active menu at any state in the game hence static
@@ -109,7 +125,7 @@ namespace StarterAssets
 	// old input sys if we do decide to have it (most likely wont)...
 #endif
 
-        public void MoveInput(Vector2 newMoveDirection)
+		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
 		} 

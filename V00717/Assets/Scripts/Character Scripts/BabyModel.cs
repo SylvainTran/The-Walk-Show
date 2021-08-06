@@ -93,7 +93,6 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     // The property for the baby's neuroticism
     public float Neuroticism { get { return neuroticism; } set { neuroticism = value; } }
 
-
     // Physical skill (has damage too)
     private float physicalSkill = 15.0f;
     public float PhysicalSkill { get { return physicalSkill; } set { physicalSkill = value; } }
@@ -103,6 +102,65 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     public string ActiveHeadName { get { return activeHeadName; } set{ activeHeadName = value; } }
     [SerializeField] private string activeTorsoName;
     public string ActiveTorsoName { get { return activeTorsoName; } set { activeTorsoName = value; } }
+
+    // Tags/event markers map used for obituary generation: a string key is mapped to a frequency count.
+    // Possible keys are in Enums.CharacterAchievements (Enum.cs)
+
+    [Serializable]
+    public class EventMarkersMap : SerializableDictionary<string, int>
+    {
+        [SerializeField] private SerializableDictionary<string, int> eventMarkersFeed = null;
+        [SerializeField] public SerializableDictionary<string, int> EventMarkersFeed { get { return eventMarkersFeed; } set { eventMarkersFeed = value; } }
+    }
+
+    [Serializable]
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+    {
+        [SerializeField]
+        private List<TKey> keys = new List<TKey>();
+        [SerializeField]
+        private List<TValue> values = new List<TValue>();
+
+        // save the dictionary to lists
+        public void OnBeforeSerialize()
+        {
+            keys.Clear();
+            values.Clear();
+            foreach (KeyValuePair<TKey, TValue> pair in this)
+            {
+                keys.Add(pair.Key);
+                values.Add(pair.Value);
+            }
+        }
+
+        // load dictionary from lists
+        public void OnAfterDeserialize()
+        {
+            this.Clear();
+
+            if (keys.Count != values.Count)
+                throw new System.Exception(string.Format("there are {0} keys and {1} values after deserialization. Make sure that both key and value types are serializable."));
+
+            for (int i = 0; i < keys.Count; i++)
+                this.Add(keys[i], values[i]);
+        }
+    }
+
+    // Instance of the eventMarkersMap
+    [SerializeField] public EventMarkersMap eventMarkersMap = null;
+
+    // Last event is the cause of death
+    [SerializeField] private string lastEvent = null;
+    public string LastEvent { get { return lastEvent; } set { lastEvent = value; } }
+
+    /// <summary>
+    /// Initializes the serialized map class.
+    /// </summary>
+    public BabyModel()
+    {
+        eventMarkersMap = new EventMarkersMap();
+        eventMarkersMap.EventMarkersFeed = new SerializableDictionary<string, int>();
+    }
 
     /// <summary>
     /// ToString override
@@ -119,8 +177,7 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     // Handler for game clock event on this model
     public void OnGameClockEventGenerated(GameClockEvent e)
     {
-        // Dead already
-        if(health <= 0.0f)
+        if(health <= 0.0f || eventMarkersMap.EventMarkersFeed == null)
         {
             return;
         }
@@ -161,6 +218,11 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     public bool IsEnemyAI()
     {
         return false;
+    }
+
+    public void SetLastEvent(string lastEvent)
+    {
+        this.lastEvent = lastEvent;
     }
 
     public override int GetHashCode()

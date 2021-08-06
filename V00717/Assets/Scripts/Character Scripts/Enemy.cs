@@ -9,6 +9,7 @@ public class Enemy : Element, ICombatant
     private float health = 100.0f;
     private float damage = 10.0f;
     public float Damage { get { return damage; } set { damage = value; } }
+    private string lastEvent = null;
 
     public void DealDamage(ICombatant opponent)
     {
@@ -33,5 +34,10 @@ public class Enemy : Element, ICombatant
     public string Name()
     {
         return name;
+    }
+
+    public void SetLastEvent(string lastEvent)
+    {
+        this.lastEvent = lastEvent;
     }
 }

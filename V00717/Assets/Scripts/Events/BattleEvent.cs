@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BattleEvent : GameClockEvent
@@ -28,12 +29,15 @@ public class BattleEvent : GameClockEvent
         }
         string colonistName = b.Name();
         Message += $" The battle between {colonistName} and {e.Name()} is over.";
-        if(b.Health > 0.0f)
+        AddToEventMarkersFeed(b);
+        if (b.Health > 0.0f)
         {
             Message += $" {colonistName} won! {e.Name()} was savagely killed.";
         } else
         {
             Message += $" {colonistName} has died in a gruesome way {e.Name()} will be laughing at {colonistName} hysterically for all eternity...";
+            b.SetLastEvent("Died in Combat");
+            base.NotifyIsDead(b);
         }
         // TODO rewards, notification pop-ups, etc. especially if colonist has died
         _OnBattleEnded(this);
@@ -43,5 +47,23 @@ public class BattleEvent : GameClockEvent
     public Enemy GenerateEntity()
     {
         return new Enemy();
+    }
+
+    protected override void AddToEventMarkersFeed(BabyModel b)
+    {
+        if(b.eventMarkersMap.EventMarkersFeed == null)
+        {
+            return;
+        }
+        string battleEventAchievement = Enum.GetName(typeof(Enums.CharacterAchievements), 2);
+        if (b.eventMarkersMap.EventMarkersFeed.ContainsKey(battleEventAchievement))
+        {
+            b.eventMarkersMap.EventMarkersFeed[battleEventAchievement]++;
+            return;
+        }
+        else
+        {
+            b.eventMarkersMap.EventMarkersFeed.Add(battleEventAchievement, 1);
+        }
     }
 }
