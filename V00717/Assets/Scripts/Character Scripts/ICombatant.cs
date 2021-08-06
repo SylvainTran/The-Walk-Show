@@ -5,4 +5,5 @@ public interface ICombatant
     public float GetHealth();
     public void DealDamage(ICombatant opponent);
     public void TakeDamage(float damage);
+    public void SetLastEvent(string lastEvent);
 }

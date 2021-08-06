@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-public class GameClockEvent
+public abstract class GameClockEvent
 {
     // The chance that the event actually triggers
     private float triggerChance = default;
@@ -35,15 +35,22 @@ public class GameClockEvent
     {
         if (b.GetHealth() <= 0.0f)
         {
-            if (!b.IsEnemyAI())
-            {
-                message = $"{b.Name()} has died.";
-                _OnColonistIsDead(this, b);
-            }
             return true;
         }
         return false;
     }
+
+    public void NotifyIsDead(ICombatant b)
+    {
+        if (!b.IsEnemyAI())
+        {
+            message = $"{b.Name()} has died.";
+            _OnColonistIsDead(this, b);
+        }
+    }
+
+    // Add a count to the event type
+    protected abstract void AddToEventMarkersFeed(BabyModel b);
 
     // Compare
     public bool Equals(UnityEngine.Object other)

@@ -14,6 +14,8 @@ public class DashboardOSController : PageController
     protected int activePageIndex;
     // Dashboard OS canvas
     public Canvas dashboardOS;
+    // Bridge canvas
+    public Canvas bridgeCanvas;
     // Dashboard nav
     public Canvas dashboardNav;
     // The login page
@@ -48,6 +50,8 @@ public class DashboardOSController : PageController
 
     // Obituary overlay to fade in/out when clicking on dead colonist icon
     public Canvas obituaryOverlayCanvas;
+    public TMP_Text obituaryDescription; // Where we feed the generated obituary/poem
+    public Image obituaryIcon;
 
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
@@ -106,7 +110,7 @@ public class DashboardOSController : PageController
     // Sets the current active menu canvas to the dashboard OS which deals with inputs by state
     public override void SetActiveMenuCanvas()
     {
-        StarterAssetsInputs.SetActiveMenuCanvas(dashboardOS);
+        StarterAssetsInputs.SetActiveMenuCanvas(bridgeCanvas);
     }
 
     public void Init()
@@ -129,9 +133,11 @@ public class DashboardOSController : PageController
     {
         // Cache the active page index
         activePageIndex = pageIndex;
+        StarterAssets.StarterAssetsInputs.previousActiveCanvas = StarterAssets.StarterAssetsInputs.activeMenuCanvas;
+        StarterAssets.StarterAssetsInputs.activeMenuCanvas = pages[pageIndex];
         base.ChangePage(pageIndex);
         // Deal with special pages
-        if(pageIndex == (int)DashboardPageIndexes.DATABASE)
+        if (pageIndex == (int)DashboardPageIndexes.DATABASE)
         {
             ReadSaveList();
         }
@@ -241,8 +247,6 @@ public class DashboardOSController : PageController
             {
                 // Icons with click events
                 Image colonistIcon = Instantiate(UIAssets.colonistIcon.GetComponent<Image>());
-                layout.childControlWidth = true;
-                colonistIcon.transform.localScale = colonistIconSize;
                 colonistIcon.rectTransform.SetParent(layout.transform);
                 colonistIcon.gameObject.name = b.Name();
                 // Add the handle mouse event trigger
@@ -259,7 +263,7 @@ public class DashboardOSController : PageController
                 colonistName.SetText(b.Name());
                 colonistName.gameObject.name = b.Name();
                 colonistName.rectTransform.SetParent(layout.transform);
-                colonistName.fontSize = 42.0f;
+                //colonistName.fontSize = 42.0f;
             }
         }
         layout.transform.hasChanged = true;
@@ -271,8 +275,13 @@ public class DashboardOSController : PageController
     // Colonist icons (dead/alive) click handler
     public void HandleIconMouseClick(int UUID)
     {
+        if(gameCharacterDatabase.colonistRegistry == null || gameCharacterDatabase.colonistRegistry.Count == 0)
+        {
+            Debug.LogError($"Error: Empty game character registry.");
+            return;
+        }
         // Look up the UUID in the gameCharacterDatabase
-        BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.GetHashCode() == UUID);
+        BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.UniqueColonistPersonnelID_ == UUID);
         if(target == null)
         {
             Debug.Log($"Target UUID {UUID} not found. Check UUID again.");
@@ -281,6 +290,18 @@ public class DashboardOSController : PageController
         Debug.Log($"Target icon clicked: {target}");
         Debug.Log($"UUID: {target.GetHashCode()}.");
         Debug.Log($"Name: {target.Name()}.");
-    }
 
+        // Toggle on the obituary overlay
+        // Cache it in the inputs system
+        StarterAssetsInputs.activeOverlayScreen = obituaryOverlayCanvas;
+        StarterAssetsInputs.activeOverlayScreen.enabled = true;
+
+
+        // Generate an obituary
+        ObituaryGenerator og = new ObituaryGenerator(target);
+        String eventFrequencyTest = og.GenerateEventFrequencyText();
+        string majorEventText = og.GenerateMajorEventText();
+
+        obituaryDescription.SetText("Name: " + target.Name() + "\n" + "Cause of death: " + target.LastEvent + "\n" + "\n" + majorEventText + "\n" + eventFrequencyTest);
+    }
 }
