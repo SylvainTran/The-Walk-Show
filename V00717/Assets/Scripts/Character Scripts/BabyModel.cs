@@ -49,10 +49,6 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     [SerializeField] private int qalys;
     public int Qalys { get { return qalys; } set { qalys = value; } }
 
-    // The baby's adult height.
-    [SerializeField] private float adultHeight = 0.0f;
-    // The property for the baby's adult height
-    public float AdultHeight { get { return adultHeight; } set { adultHeight = value; } }
     // The R value of the material for the skin
     [SerializeField] private float skinColorR = 0.0f;
     public float SkinColorR { get { return skinColorR; } set { skinColorR = value; } }
@@ -93,6 +89,18 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     // The property for the baby's neuroticism
     public float Neuroticism { get { return neuroticism; } set { neuroticism = value; } }
 
+    /// <summary>
+    /// Stress levels: influences dialogue
+    /// </summary>
+    private float stressTolerance = 0.0f;
+    public float StressTolerance { get { return stressTolerance; } set { stressTolerance = value; } }
+
+    /// <summary>
+    /// Moral levels: influences dialogue
+    /// </summary>
+    private float moralLevel = 0.0f;
+    public float MoralLevel { get { return moralLevel; } set { moralLevel = value; } }
+
     // Physical skill (has damage too)
     private float physicalSkill = 15.0f;
     public float PhysicalSkill { get { return physicalSkill; } set { physicalSkill = value; } }
@@ -105,6 +113,8 @@ public class BabyModel : Element, ISerializableObject, ICombatant
 
     // Tags/event markers map used for obituary generation: a string key is mapped to a frequency count.
     // Possible keys are in Enums.CharacterAchievements (Enum.cs)
+    private bool isInPendingCall = false;
+    public bool IsInPendingCall { get { return isInPendingCall; } set { isInPendingCall = value; } }
 
     [Serializable]
     public class EventMarkersMap : SerializableDictionary<string, int>
@@ -177,15 +187,17 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     // Handler for game clock event on this model
     public void OnGameClockEventGenerated(GameClockEvent e)
     {
-        if(health <= 0.0f || eventMarkersMap.EventMarkersFeed == null)
+        if(health <= 0.0f || eventMarkersMap.EventMarkersFeed == null || isInPendingCall)
         {
             return;
         }
+
         int randIndex = UnityEngine.Random.Range(0, 100);
-        if(randIndex > 0)// randIndex > e.TriggerChance
+        if(randIndex > e.TriggerChance) //DEBUG MODE: Set this to > 0; randIndex > e.TriggerChance
         {
             e.ApplyEvent(this);
-            if (!e.GetType().Name.Equals("BattleEvent"))
+ 
+            if (!e.GetType().Name.Equals(Enums.ToString(Enums.CharacterAchievements.GOT_BATTLE)))
             {
                 _OnGameClockEventProcessed(e);
             }

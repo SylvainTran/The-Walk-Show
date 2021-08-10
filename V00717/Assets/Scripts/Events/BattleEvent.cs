@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using static Enums;
+using static Enums.CharacterAchievements;
 
 public class BattleEvent : GameClockEvent
 {
@@ -55,15 +57,16 @@ public class BattleEvent : GameClockEvent
         {
             return;
         }
-        string battleEventAchievement = Enum.GetName(typeof(Enums.CharacterAchievements), 2);
-        if (b.eventMarkersMap.EventMarkersFeed.ContainsKey(battleEventAchievement))
+        int battleEventAchievement = (int)GOT_BATTLE;
+        string key = Enum.GetName(typeof(CharacterAchievements), battleEventAchievement);
+        if (b.eventMarkersMap.EventMarkersFeed.ContainsKey(key))
         {
-            b.eventMarkersMap.EventMarkersFeed[battleEventAchievement]++;
+            b.eventMarkersMap.EventMarkersFeed[key]++;
             return;
         }
         else
         {
-            b.eventMarkersMap.EventMarkersFeed.Add(battleEventAchievement, 1);
+            b.eventMarkersMap.EventMarkersFeed.Add(key, 1);
         }
     }
 }

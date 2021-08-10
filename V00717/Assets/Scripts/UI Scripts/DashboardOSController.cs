@@ -8,9 +8,13 @@ using System.Collections.Generic;
 using static Enums;
 using System;
 using UnityEngine.EventSystems;
+using System.IO;
+using UnityEditor;
+using System.Collections;
 
 public class DashboardOSController : PageController
 {
+    public ChatDatabase chatDatabaseSO;
     protected int activePageIndex;
     // Dashboard OS canvas
     public Canvas dashboardOS;
@@ -25,6 +29,9 @@ public class DashboardOSController : PageController
     public VerticalLayoutGroup aliveColonistsVerticalGroupLayout;
     // Vertical group for dead colonists
     public VerticalLayoutGroup deadColonistsVerticalGroupLayout;
+    // Pending calls log
+    public VerticalLayoutGroup pendingCallsLog;
+
     // Size parameters (TODO put in a config file or PlayerPrefs)
     public Vector3 colonistIconSize;
 
@@ -47,11 +54,20 @@ public class DashboardOSController : PageController
     // Queue of generated event logs (we dequeue first ones when max reached)
     private Queue<string> eventLogQueue;
 
-
     // Obituary overlay to fade in/out when clicking on dead colonist icon
     public Canvas obituaryOverlayCanvas;
     public TMP_Text obituaryDescription; // Where we feed the generated obituary/poem
     public Image obituaryIcon;
+
+    // Chat log overlay to fade in/out
+    public Canvas chatCallOverlayCanvas;
+    public TMP_Text chatDialogue; // The dialogues are generated variants from the four/five main characters
+    public Image chatterIcon;
+
+    /// <summary>
+    /// To remove icons later (match by id)
+    /// </summary>
+    public List<Image> callersList;
 
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
@@ -62,6 +78,7 @@ public class DashboardOSController : PageController
         BabyController._OnRequestColonistDataResponse += OnServerReply;
         SaveSystem._SuccessfulSaveAction += ReadSaveList;
         BabyModel._OnGameClockEventProcessed += UpdateEventLog;
+        PendingCallEvent._OnPendingCallEvent += UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         BattleEvent._OnBattleEnded += UpdateEventLog;
     }
@@ -72,6 +89,7 @@ public class DashboardOSController : PageController
         BabyController._OnRequestColonistDataResponse -= OnServerReply;
         SaveSystem._SuccessfulSaveAction -= ReadSaveList;
         BabyModel._OnGameClockEventProcessed -= UpdateEventLog;
+        PendingCallEvent._OnPendingCallEvent -= UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         BattleEvent._OnBattleEnded -= UpdateEventLog;
     }
@@ -79,6 +97,7 @@ public class DashboardOSController : PageController
     private void Start()
     {
         eventLogQueue = new Queue<string>(MAX_EVENT_COUNT);
+        callersList = new List<Image>();
     }
 
     private void UpdateEventLog(GameClockEvent e)
@@ -158,10 +177,13 @@ public class DashboardOSController : PageController
             Debug.Log("No alive/dead colonists to load in the med bay.");
             return;
         }
-        
+
         // Clear icons; TODO only if the children of the vertical g. layout has changed since
-        ClearColonistIcons(request);
-        CreateColonistIcons(colonists, request);
+        VerticalLayoutGroup layout = request == (int)DataRequests.LIVE_COLONISTS ? aliveColonistsVerticalGroupLayout
+    : deadColonistsVerticalGroupLayout;
+
+        ClearColonistIcons(request, layout);
+        CreateColonistIcons(colonists, request, layout);
     }
 
     // On colonist dead, need to put X medical bay and also exclude that colonist from next save instance
@@ -171,10 +193,8 @@ public class DashboardOSController : PageController
         ClearColonistIcons(c);        
     }
 
-    public void ClearColonistIcons(DataRequests request)
+    public void ClearColonistIcons(DataRequests request, VerticalLayoutGroup layout)
     {
-        VerticalLayoutGroup layout = request == (int)DataRequests.LIVE_COLONISTS? aliveColonistsVerticalGroupLayout
-            : deadColonistsVerticalGroupLayout;
         int len = layout.transform.childCount;
 
         for (int i = 0; i < len; i++)
@@ -235,11 +255,8 @@ public class DashboardOSController : PageController
         //eventLogYOffset += eventLogYOffsetDecrement;
     }
 
-    public void CreateColonistIcons(List<BabyModel> colonists, DataRequests request)
+    public void CreateColonistIcons(List<BabyModel> colonists, DataRequests request, VerticalLayoutGroup parentLayout)
     {
-        VerticalLayoutGroup layout = request == (int)DataRequests.LIVE_COLONISTS ? aliveColonistsVerticalGroupLayout
-    : deadColonistsVerticalGroupLayout;
-
         // Replace content
         foreach (BabyModel b in colonists)
         {
@@ -247,13 +264,13 @@ public class DashboardOSController : PageController
             {
                 // Icons with click events
                 Image colonistIcon = Instantiate(UIAssets.colonistIcon.GetComponent<Image>());
-                colonistIcon.rectTransform.SetParent(layout.transform);
+                colonistIcon.rectTransform.SetParent(parentLayout.transform);
                 colonistIcon.gameObject.name = b.Name();
                 // Add the handle mouse event trigger
                 EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
                 EventTrigger.Entry entry = new EventTrigger.Entry();
                 entry.eventID = EventTriggerType.PointerClick;
-                entry.callback.AddListener((eventData) => { HandleIconMouseClick(b.UniqueColonistPersonnelID_); }); // The UUID is retrieved from the scriptable object "GameCharacterDatabase"
+                entry.callback.AddListener((eventData) => { AddObituaryOnClick(b.UniqueColonistPersonnelID_); }); // The UUID is retrieved from the scriptable object "GameCharacterDatabase"
                 evt.triggers.Add(entry);
 
                 // TODO adjust rectTransform size - some text gets wrapped due to local scale changing to its new parent vertical layout
@@ -262,18 +279,47 @@ public class DashboardOSController : PageController
                 TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
                 colonistName.SetText(b.Name());
                 colonistName.gameObject.name = b.Name();
-                colonistName.rectTransform.SetParent(layout.transform);
+                colonistName.rectTransform.SetParent(parentLayout.transform);
                 //colonistName.fontSize = 42.0f;
             }
         }
-        layout.transform.hasChanged = true;
+        parentLayout.transform.hasChanged = true;
     }
+
+    /// <summary>
+    /// Overload for one character:
+    /// Adds chat instances in the mind chat
+    /// </summary>
+    /// <param name="c"></param>
+    /// <param name="parentLayout"></param>
+    public void CreateColonistIcons(BabyModel c, VerticalLayoutGroup parentLayout)
+    {
+        if (c != null)
+        {
+            // Icons with click events
+            Image colonistIcon = Instantiate(UIAssets.colonistIcon.GetComponent<Image>());
+            colonistIcon.rectTransform.SetParent(parentLayout.transform);
+            colonistIcon.gameObject.name = c.Name();
+            // Add the handle mouse event trigger
+            EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerClick;
+            evt.triggers.Add(entry);
+            // Names
+            TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
+            colonistName.SetText(c.Name());
+            colonistName.gameObject.name = c.Name();
+            colonistName.rectTransform.SetParent(parentLayout.transform);
+            entry.callback.AddListener((eventData) => { AddChatCallOnClick(c, colonistIcon, colonistName, c.UniqueColonistPersonnelID_); });
+        }
+    }
+
 
     // The permanent assets database
     public GameCharacterDatabase gameCharacterDatabase;
 
     // Colonist icons (dead/alive) click handler
-    public void HandleIconMouseClick(int UUID)
+    public void AddObituaryOnClick(int UUID)
     {
         if(gameCharacterDatabase.colonistRegistry == null || gameCharacterDatabase.colonistRegistry.Count == 0)
         {
@@ -296,12 +342,50 @@ public class DashboardOSController : PageController
         StarterAssetsInputs.activeOverlayScreen = obituaryOverlayCanvas;
         StarterAssetsInputs.activeOverlayScreen.enabled = true;
 
-
         // Generate an obituary
         ObituaryGenerator og = new ObituaryGenerator(target);
         String eventFrequencyTest = og.GenerateEventFrequencyText();
         string majorEventText = og.GenerateMajorEventText();
 
-        obituaryDescription.SetText("Name: " + target.Name() + "\n" + "Cause of death: " + target.LastEvent + "\n" + "\n" + majorEventText + "\n" + eventFrequencyTest);
+        obituaryDescription.SetText("Media Object: " + target.Name() + "\n" + "Live Status: " + target.LastEvent + "\n" + "\n" + majorEventText + "\n" + eventFrequencyTest);
+    }
+
+    // Colonist icons (dead/alive) click handler
+    public void AddChatCallOnClick(BabyModel caller, Image callerIcon, TMP_Text callerName, int UUID)
+    {
+        if (gameCharacterDatabase.colonistRegistry == null || gameCharacterDatabase.colonistRegistry.Count == 0)
+        {
+            Debug.LogError($"Error: Empty game character registry.");
+            return;
+        }
+        // Look up the UUID in the gameCharacterDatabase
+        BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.UniqueColonistPersonnelID_ == UUID);
+        if (target == null)
+        {
+            Debug.Log($"Target UUID {UUID} not found. Check UUID again.");
+            return;
+        }
+        StarterAssetsInputs.activeOverlayScreen = chatCallOverlayCanvas;
+        StarterAssetsInputs.activeOverlayScreen.enabled = true;
+
+        // Generate a dialogue thread
+        ChatGenerator cg = new ChatGenerator(target, chatDatabaseSO);
+        chatDialogue.SetText("Caller: " + target.Name() + "\n" + "Call Log:\n" + cg.GetDialogueTextByTheme());
+        StartCoroutine(ClearChat(caller, callerIcon, callerName, 5.0f));
+    }
+
+    private IEnumerator ClearChat(BabyModel caller, Image callerIcon, TMP_Text callerName, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(callerIcon.gameObject);
+        Destroy(callerName.gameObject);
+        // Reset call 
+        caller.IsInPendingCall = false;
+        StopCoroutine("ClearChat");
+    }
+
+    private void UpdatePendingCallsLog(GameClockEvent e, ICombatant c)
+    {
+        CreateColonistIcons(c as BabyModel, pendingCallsLog);
     }
 }

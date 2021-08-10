@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using static BabyController;
+using static GameController;
 
 // Deals with loading, saving, and auto-save behaviours
 public class SaveSystem : MonoBehaviour

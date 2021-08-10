@@ -20,12 +20,12 @@ public class SoundController : MonoBehaviour
     // Attach the event listeners
     public void OnEnable()
     {
-        BabyController._OnSexChanged += MakeGenderSounds;
+        CharacterCreationView._OnSexChanged += MakeGenderSounds;
     }
     // Detach the event listeners
     public void OnDisable()
     {
-        BabyController._OnSexChanged -= MakeGenderSounds;
+        CharacterCreationView._OnSexChanged -= MakeGenderSounds;
     }
 
     // Make sound based on 
