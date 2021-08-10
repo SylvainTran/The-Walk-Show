@@ -78,3 +78,6 @@ crashlytics-build.properties
 V00717/colonists.json
 V00717/deadColonists.json
 V00717/colonistRegistry.json
+V00717/Assets/*.numbers
+V00717/Assets/*.numbers.meta
+*.numbers

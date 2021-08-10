@@ -4,7 +4,7 @@ using UnityEngine;
 public class TimeController : MonoBehaviour
 {
     // The delay between clock event ticks
-    public float eventTickDelay = 3.0f;
+    public float eventTickDelay = 5.0f;
     // Publisher event for IEventClockTickSubscribers
     public delegate void UpdateEventClock();
     public static event UpdateEventClock _OnUpdateEventClock;

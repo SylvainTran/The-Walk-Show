@@ -15,14 +15,12 @@ public class CharacterCreationView : UIView
     public MeshFilter BabyModelTorsoMeshFilter;
 
     // TODO change this
-    public BabyController babyController;
+    public static BabyController BabyControllerRef;
     // Scriptable object with assets
     public ModelAssets ModelAssets;
     // The permanent assets database
     public GameCharacterDatabase gameCharacterDatabase;
 
-    // Adult height marker
-    public TMP_Text adultHeightMarker;
     // Unique colonist personnel ID in colonist creation screen
     public TMP_Text uniqueColonistPersonnelID_CC;
 
@@ -34,28 +32,20 @@ public class CharacterCreationView : UIView
     // The price tip
     public TMP_Text priceTip;
 
+    // Delegate for changing sex
+    public delegate void SexChangeAction(string sex);
+    public static event SexChangeAction _OnSexChanged; // listened to by SoundController.cs
+
     // Attach the event listeners
     public new void OnEnable()
     {
         SaveSystem._SuccessfulSaveAction += UpdateColonistUUIDText;
-        BabyController._OnAdultHeightChanged += UpdateAdultHeightLabel;
-        BabyController._OnAdultHeightChanged += TriggerTextAnimation;
-        BabyController._OnSkinColorChanged += UpdateSkinColor;
-        BabyController._OnMeshChanged += UpdateMesh;
-        BabyController._OnToolTipAction += UpdateToolTip;
-        BabyController._OnToolTipExitAction += ClearToolTip;
     }
 
     // Detach the event listeners
     public new void OnDisable()
     {
         SaveSystem._SuccessfulSaveAction -= UpdateColonistUUIDText;
-        BabyController._OnAdultHeightChanged -= UpdateAdultHeightLabel;
-        BabyController._OnAdultHeightChanged -= TriggerTextAnimation;
-        BabyController._OnSkinColorChanged -= UpdateSkinColor;
-        BabyController._OnMeshChanged -= UpdateMesh;
-        BabyController._OnToolTipAction -= UpdateToolTip;
-        BabyController._OnToolTipExitAction -= ClearToolTip;
     }
 
     // Updates the colonist uuid text on start
@@ -64,16 +54,55 @@ public class CharacterCreationView : UIView
         UpdateColonistUUIDText();
     }
 
+    // Setter for new colonist name
+    public void OnNameChanged(string name)
+    {
+        BabyControllerRef.OnNameChanged(name);
+        Debug.Log($"And so {name} was given his name.");
+    }
+
+    // Setter for new colonist nickname
+    public void OnNickNameChanged(string nickName)
+    {
+        BabyControllerRef.OnNickNameChanged(nickName);
+        Debug.Log($"And so {nickName} was given his nickname.");
+    }
+
+    //Setter for baby's sex via Unity's built-in event system.
+    public void OnSexChanged(string sex)
+    {
+        // Call listeners - Sound
+        _OnSexChanged(sex);
+        Debug.Log($"Baby's sex was changed to: {sex}");
+    }
+
+    public static void SetCharacterViewModel(ref BabyController babyController)
+    {
+        BabyControllerRef = babyController;
+    }
+
+    public void OnSkinColorChangedR(float value)
+    {
+        BabyControllerRef.OnSkinColorChanged_R(value);
+        UpdateSkinColor();
+    }
+
+    public void OnSkinColorChangedG(float value)
+    {
+        BabyControllerRef.OnSkinColorChanged_G(value);
+        UpdateSkinColor();
+    }
+
+    public void OnSkinColorChangedB(float value)
+    {
+        BabyControllerRef.OnSkinColorChanged_B(value);
+        UpdateSkinColor();
+    }
+
     // Updates the colonist uuid text in identification tab
     public void UpdateColonistUUIDText()
     {
         uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {gameCharacterDatabase.colonistUUIDCount}");
-    }
-
-    // Updates the adult height marker label
-    public void UpdateAdultHeightLabel(float value)
-    {
-        adultHeightMarker.SetText($"{Math.Round(value)} cm");
     }
 
     // Floating descending text animation
@@ -136,7 +165,7 @@ public class CharacterCreationView : UIView
     public void UpdateSkinColor()
     {
         Material newMat = new Material(Shader.Find("Standard"));
-        newMat.SetColor("_Color", new Color(babyController.BabyModel.SkinColorR, babyController.BabyModel.SkinColorG, babyController.BabyModel.SkinColorB));
+        newMat.SetColor("_Color", new Color(BabyControllerRef.BabyModel.SkinColorR, BabyControllerRef.BabyModel.SkinColorG, BabyControllerRef.BabyModel.SkinColorB));
         BabyModelHeadRenderer.material = newMat;
         BabyModelTorsoRenderer.material = newMat;
     }

@@ -88,22 +88,33 @@ public class ObituaryGenerator
         switch (maxFrequency)
         {
             case "WAS_BORN":
+            {
                 feed = WAS_BORN_VARIANTS;
                 break;
+            }
             case "GOT_DISEASE":
+            {
                 feed = GOT_DISEASE_VARIANTS;
                 break;
+            }
             case "GOT_INJURY":
+            {
                 feed = GOT_INJURY_VARIANTS;
                 break;
+            }
             case "GOT_BATTLE":
+            {
                 feed = GOT_BATTLE_VARIANTS;
                 break;
+            }
             default:
                 break;
         }
-
-        string mainAchievement = feed[UnityEngine.Random.Range(0, feed.Length)];
+        string mainAchievement = null;
+        if (feed != null)
+        {
+            mainAchievement = feed[UnityEngine.Random.Range(0, feed.Length)];
+        }
         return mainAchievement;
     }
 
