@@ -44,7 +44,7 @@ public abstract class PageController : MonoBehaviour
         if (NavigationButtonCanvas.GetComponent<Canvas>().enabled)
         {
             ToggleActive(NavigationButtonCanvas, false);
-        }
+        }        
         // Re-enable the confirm button
         if (!confirmPageButton.gameObject.activeInHierarchy)
         {
@@ -64,7 +64,7 @@ public abstract class PageController : MonoBehaviour
     }
 
     // Confirm button event
-    public void ConfirmPage()
+    public virtual void ConfirmPage()
     {
         // Disable currently active canvas
         if(activeCanvas && activeCanvas.enabled)

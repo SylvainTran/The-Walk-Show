@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using UnityEditor;
+using Cinemachine;
 
 public class GameController : MonoBehaviour
 {
@@ -27,6 +28,20 @@ public class GameController : MonoBehaviour
     public ChatDatabase chatDatabaseSO;
     public List<BabyModel> colonists = null;
     public List<BabyModel> deadColonists = null;
+
+    /// <summary>
+    /// The possible tracklane positions to start each new character
+    /// </summary>
+    public Vector3[] trackLanePositions;
+    /// <summary>
+    /// These cameras follow/track a character in its lane (by index, going up to 3)
+    /// </summary>
+    public Camera[] laneFeedCams;
+
+    /// <summary>
+    /// The model to instanciate and re-look after creating a character
+    /// </summary>
+    public GameObject characterModelPrefab;
 
     private void OnEnable()
     {
@@ -71,6 +86,11 @@ public class GameController : MonoBehaviour
         babyController = new BabyController(ref colonists, ref deadColonists, gameCharacterDatabase, ref babyModel);
         gameClockEventController = new GameClockEventController(ref colonists, triggerChance);
         CharacterCreationView.SetCharacterViewModel(ref babyController);
+        // Hunger games
+        trackLanePositions = new Vector3[3];
+        trackLanePositions[0] = new Vector3(0.0f, 0.0f, 0.0f);
+        trackLanePositions[1] = new Vector3(10.0f, 0.0f, 0.0f);
+        trackLanePositions[2] = new Vector3(20.0f, 0.0f, 0.0f);
     }
 
     public void OnEventClockUpdate()
@@ -199,6 +219,26 @@ public class GameController : MonoBehaviour
         chatDatabaseSO.DENIAL_THEME = deserializedObject.DENIAL_THEME;
         chatDatabaseSO.GUILT_THEME = deserializedObject.GUILT_THEME;
         chatDatabaseSO.FEAR_THEME = deserializedObject.FEAR_THEME;
+    }
+
+    public void UpdateCharacterMesh(Mesh meshToUpdate)
+    {
+        //meshToUpdate.mesh = CharacterCreationView.BabyModelHeadMeshFilter.mesh;
+    }
+
+    public void CreateNewCharacterMesh()
+    {
+        if(!CreationMenuController.validEntry)
+        {
+            return;
+        }
+        // Set the new Material runner games character to the last track position (set from live game character count)
+        int trackLanePosition = colonists.Count-1;
+        GameObject newCharacterMesh = Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.identity);
+        // Set its mesh to the players' choices
+        //newCharacterMesh.gameObject.name = $"{babyModel.CharacterName}";
+        
+        laneFeedCams[trackLanePosition].GetComponent<CharacterTracker>().SetTarget(newCharacterMesh.gameObject.transform);
     }
 
     /// <summary>

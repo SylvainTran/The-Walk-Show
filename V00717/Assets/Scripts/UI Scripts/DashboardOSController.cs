@@ -209,7 +209,12 @@ public class DashboardOSController : PageController
         int len = aliveColonistsVerticalGroupLayout.transform.childCount;
         for (int i = 0; i < len; i++)
         {
+            // Todo fix no name error
             Transform child = aliveColonistsVerticalGroupLayout.transform.GetChild(i);
+            if (child.gameObject.name == null || c.Name() == null)
+            {
+                return;
+            }
             if (child.gameObject.name.Trim().ToLower().Contains(c.Name().Trim().ToLower()))
             {
                 Destroy(child.gameObject);

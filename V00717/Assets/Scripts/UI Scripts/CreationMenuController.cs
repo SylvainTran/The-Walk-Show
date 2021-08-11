@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class CreationMenuController : PageController, IWorldOverlayable
 {
@@ -11,6 +12,8 @@ public class CreationMenuController : PageController, IWorldOverlayable
     public Canvas parentCanvasOverlay;
     public List<GameObject> inputFieldList;
     public static bool validEntry = false;
+    // The one liner poetry TMP asset that regenerates after each confirm
+    public TMP_Text oneLinerPoetryAsset;
 
     public delegate void TriggerExitCreationMenuAction();
     public static event TriggerExitCreationMenuAction _OnTriggerExitCreationMenuAction;
@@ -74,6 +77,21 @@ public class CreationMenuController : PageController, IWorldOverlayable
         // Cache the active page index
         StarterAssets.StarterAssetsInputs.activeMenuCanvas = pages[pageIndex];
         base.ChangePage(pageIndex);
+        SetTextAssetEnabled(oneLinerPoetryAsset, false);
+    }
+
+    public void SetTextAssetEnabled(TMP_Text textAsset, bool enabledOverride)
+    {
+        textAsset.enabled = enabledOverride;
+    }
+
+    public override void ConfirmPage()
+    {
+        base.ConfirmPage();
+
+        // TODO Regenerate new one liner
+        // oneLinerPoetryAsset
+        SetTextAssetEnabled(oneLinerPoetryAsset, true);
     }
 
     //Must validate all input fields before going on (no empty fields allowed)
