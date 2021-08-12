@@ -23,9 +23,9 @@ public abstract class PageController : MonoBehaviour
     public virtual void ClosePreviousPage()
     {
         // Cache previously active canvas to disable it later
-        if (StarterAssetsInputs.previousActiveCanvas != null && StarterAssetsInputs.previousActiveCanvas != StarterAssetsInputs.activeMenuCanvas)
+        if (StarterAssetsInputs.previouslyActiveCanvas != null && StarterAssetsInputs.previouslyActiveCanvas != StarterAssetsInputs.activeMenuCanvas)
         {
-            StarterAssetsInputs.previousActiveCanvas.enabled = false;
+            StarterAssetsInputs.previouslyActiveCanvas.enabled = false;
         }
     }
 
@@ -34,7 +34,9 @@ public abstract class PageController : MonoBehaviour
     {
         // Close previous page if any
         ClosePreviousPage();
+        // Just caching
         activeCanvas = StarterAssetsInputs.activeMenuCanvas;
+
         // Enable new active canvas
         if (activeCanvas)
         {

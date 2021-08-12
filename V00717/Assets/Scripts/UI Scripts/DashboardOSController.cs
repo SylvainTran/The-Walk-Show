@@ -22,6 +22,12 @@ public class DashboardOSController : PageController
     public Canvas dashboardOS;
     // Bridge canvas
     public Canvas bridgeCanvas;
+    // On Air Canvas
+    public Canvas onAirCanvas;
+    // Livestream chat
+    public Canvas livestreamChat;
+
+
     // Dashboard nav
     public Canvas dashboardNav;
     // The login page
@@ -156,11 +162,26 @@ public class DashboardOSController : PageController
     // TODO fix active page index changed in other menus too
     public override void ChangePage(int pageIndex)
     {
+        // If the bridge page is open, make it the previous page
+        Canvas previouslyActiveCanvas = null;
+        if(bridgeCanvas.enabled)
+        {
+            previouslyActiveCanvas = bridgeCanvas;
+        } else if (onAirCanvas.enabled)
+        {
+            previouslyActiveCanvas = onAirCanvas;
+        } else if (livestreamChat.enabled)
+        {
+            previouslyActiveCanvas = livestreamChat;
+        }
+        StarterAssetsInputs.previouslyActiveCanvas = previouslyActiveCanvas;
+
         // Cache the active page index
         activePageIndex = pageIndex;
-        StarterAssets.StarterAssetsInputs.previousActiveCanvas = StarterAssets.StarterAssetsInputs.activeMenuCanvas;
-        StarterAssets.StarterAssetsInputs.activeMenuCanvas = pages[pageIndex];
+        StarterAssetsInputs.activeMenuCanvas = pages[pageIndex];
+        // Change page through parent's method
         base.ChangePage(pageIndex);
+
         // Deal with special pages
         if (GameController.CreationController != null && pageIndex == (int)DashboardPageIndexes.DATABASE)
         {

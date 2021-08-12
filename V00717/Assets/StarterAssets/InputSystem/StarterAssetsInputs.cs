@@ -20,7 +20,7 @@ namespace StarterAssets
 		// Player opens dashboard OS
 		public delegate void TriggerOpenDashboardOS();
 		public static event TriggerOpenDashboardOS _OnTriggerOpenDashboardOS;
-		public static Canvas previousActiveCanvas = null;
+		public static Canvas previouslyActiveCanvas = null;
 		public static Canvas activeMenuCanvas = null; // If any menu is open, close it first to open another
 		public static Canvas activeOverlayScreen = null; // Any overlay screen notification
 

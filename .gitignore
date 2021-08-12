@@ -81,3 +81,5 @@ V00717/colonistRegistry.json
 V00717/Assets/*.numbers
 V00717/Assets/*.numbers.meta
 *.numbers
+V00717/deadColonists.json
+V00717/PlayerStatistics.json
