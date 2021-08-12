@@ -11,7 +11,7 @@ public abstract class GameClockEvent
     public string Message { get { return message; } set { message = value; } }
 
     // Dead colonist event (by injury, illness, battle, etc.)
-    public delegate void OnColonistIsDead(GameClockEvent e, ICombatant c);
+    public delegate void OnColonistIsDead(GameClockEvent e, GameObject c);
     public static event OnColonistIsDead _OnColonistIsDead;
 
     public GameClockEvent(float triggerChance)
@@ -20,7 +20,7 @@ public abstract class GameClockEvent
     }
 
     // Apply the event
-    public virtual bool ApplyEvent(BabyModel b)
+    public virtual bool ApplyEvent(CharacterModel b)
     {
         if (CheckIfDead(b))
         {
@@ -40,17 +40,17 @@ public abstract class GameClockEvent
         return false;
     }
 
-    public void NotifyIsDead(ICombatant b)
+    public void NotifyIsDead(GameObject b)
     {
-        if (!b.IsEnemyAI())
+        if (!b.GetComponent<CharacterModel>().IsEnemyAI())
         {
-            message = $"{b.Name()} has died.";
+            message = $"{b.GetComponent<CharacterModel>().Name()} has died.";
             _OnColonistIsDead(this, b);
         }
     }
 
     // Add a count to the event type
-    protected abstract void AddToEventMarkersFeed(BabyModel b);
+    protected abstract void AddToEventMarkersFeed(CharacterModel b);
 
     // Compare
     public bool Equals(UnityEngine.Object other)

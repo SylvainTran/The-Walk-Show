@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class TimeController : MonoBehaviour
@@ -15,7 +15,7 @@ public class TimeController : MonoBehaviour
         StartCoroutine("UpdateEventTick");
     }
 
-    // Notifies subscribers (BabyController.cs's colonists list)
+    // Notifies subscribers (CreationController.cs's colonists list)
     private IEnumerator UpdateEventTick()
     {
         yield return new WaitForSeconds(eventTickDelay);

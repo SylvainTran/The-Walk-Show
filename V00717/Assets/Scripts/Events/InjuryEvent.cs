@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,7 +17,7 @@ public class InjuryEvent : GameClockEvent
 
     }
 
-    public override bool ApplyEvent(BabyModel b)
+    public override bool ApplyEvent(CharacterModel b)
     {
         float injuryRange = UnityEngine.Random.Range(injuryDamageMin, injuryDamageMax);
 
@@ -27,12 +27,12 @@ public class InjuryEvent : GameClockEvent
         if(CheckIfDead(b))
         {
             b.SetLastEvent("Fatal Injury");
-            base.NotifyIsDead(b);
+            base.NotifyIsDead(b.gameObject);
         }
         return true;
     }
 
-    protected override void AddToEventMarkersFeed(BabyModel b)
+    protected override void AddToEventMarkersFeed(CharacterModel b)
     {
         string injuryEventAchievement = Enum.GetName(typeof(Enums.CharacterAchievements), 3);
         if (b.eventMarkersMap.EventMarkersFeed.ContainsKey(injuryEventAchievement))

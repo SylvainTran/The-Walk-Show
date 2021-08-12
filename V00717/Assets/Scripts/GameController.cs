@@ -8,9 +8,17 @@ using Cinemachine;
 
 public class GameController : MonoBehaviour
 {
-    BabyModel babyModel = null;
-    BabyController babyController = null;
+    private CharacterModelObject characterModel = null;
+    public CharacterModelObject CharacterModel { get { return characterModel; } set { characterModel = value; } }
+    private CreationController creationController = null;
+    public CreationController CreationController { get { return creationController; } set { creationController = value; } }
     GameClockEventController gameClockEventController = null;
+    private PlayerStatistics playerStatistics;
+
+    public PlayerStatistics GetPlayerStatistics()
+    {
+        return playerStatistics;
+    }
 
     [Header("The trigger chance for any time event to occur.")]
     [Tooltip("Higher values mean less chance of a triggered event happening.")]
@@ -21,13 +29,17 @@ public class GameController : MonoBehaviour
     public float eventIntervalRate = 5.0f;
 
     // Save to file event
-    public delegate void SaveAction(string key, List<BabyModel> c, BabyModel b, string path);
+    public delegate void SaveAction(string key, List<GameObject> c, string path);
     public static event SaveAction _OnSaveAction;
 
-    public GameCharacterDatabase gameCharacterDatabase;
+    public delegate void PlayerStatisticsAction(PlayerStatistics playerStatistics, string path, string successMessage);
+    public static event PlayerStatisticsAction _OnSavePlayerStatisticsAction;
+
     public ChatDatabase chatDatabaseSO;
-    public List<BabyModel> colonists = null;
-    public List<BabyModel> deadColonists = null;
+    private List<GameObject> colonists = null;
+    public List<GameObject> Colonists { get { return colonists; } set { colonists = value; }}
+    private List<GameObject> deadColonists = null;
+    public List<GameObject> DeadColonists { get { return deadColonists; } set { deadColonists = value; } }
 
     /// <summary>
     /// The possible tracklane positions to start each new character
@@ -64,12 +76,6 @@ public class GameController : MonoBehaviour
     {
         // Create a game character database if it doesn't exist (failsafe)
         // ScriptableObject gcd = (ScriptableObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/GameCharacterDatabase.asset", typeof(ScriptableObject));
-        gameCharacterDatabase = (GameCharacterDatabase)AssetDatabase.LoadAssetAtPath("Assets/MyResources/GameCharacterDatabase.asset", typeof(GameCharacterDatabase));
-        if (gameCharacterDatabase == null)
-        {
-            gameCharacterDatabase = ScriptableObject.CreateInstance<GameCharacterDatabase>();
-            AssetDatabase.CreateAsset(gameCharacterDatabase, $"Assets/MyResources/{gameCharacterDatabase.name}.asset");
-        }
         // Load chat database SO and initialize main controllers
         chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath("Assets/MyResources/ChatDatabase.asset", typeof(ChatDatabase));
         if (chatDatabaseSO == null)
@@ -82,19 +88,84 @@ public class GameController : MonoBehaviour
         {
             LoadChatDatabaseJSON($"Assets/chatDatabase.json");
         }
-        // Objects are passed to controllers by reference to keep the same object updated here at the same time
-        babyController = new BabyController(ref colonists, ref deadColonists, gameCharacterDatabase, ref babyModel);
-        gameClockEventController = new GameClockEventController(ref colonists, triggerChance);
-        CharacterCreationView.SetCharacterViewModel(ref babyController);
-        // Hunger games
-        trackLanePositions = new Vector3[3];
-        trackLanePositions[0] = new Vector3(0.0f, 0.0f, 0.0f);
-        trackLanePositions[1] = new Vector3(10.0f, 0.0f, 0.0f);
-        trackLanePositions[2] = new Vector3(20.0f, 0.0f, 0.0f);
+
+        colonists = new List<GameObject>();
+        deadColonists = new List<GameObject>();
+        characterModel = new CharacterModelObject();
+        LoadGameCharacters();
+
+        creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
+        gameClockEventController = new GameClockEventController(this, triggerChance);
+    }
+
+    public void LoadGameCharacters()
+    {
+        // First load game if needed (TODO validate contents too, can have bad format and exist)
+        if (SaveSystem.SaveFileExists("colonists.json"))
+        {
+            LoadCharactersFromJSONFile(colonists, "colonists.json", true, true);
+        }
+        if (SaveSystem.SaveFileExists("deadColonists.json"))
+        {
+            LoadCharactersFromJSONFile(deadColonists, "deadColonists.json", false, true);
+        }
+        if (SaveSystem.SaveFileExists("PlayerStatistics.json"))
+        {
+            playerStatistics = LoadPlayerStatistics("PlayerStatistics.json");
+            //  Update UUIDs
+            CharacterModelObject.uniqueColonistPersonnelID = playerStatistics.characterUUIDCount;
+        }
+        else // New game
+        {
+            playerStatistics = new PlayerStatistics();
+            playerStatistics.characterUUIDCount = 0;
+        }
+    }
+
+    public PlayerStatistics LoadPlayerStatistics(string path)
+    {
+        string text = System.IO.File.ReadAllText(path);
+        PlayerStatistics deserializedObject = JsonUtility.FromJson<PlayerStatistics>(text);
+
+        return deserializedObject;
+    }
+
+    // Creates an array of baby models from the json text read and deserialized from path
+    public void LoadCharactersFromJSONFile(List<GameObject> characters, string path, bool deleteIfEmpty, bool instantiateGO)
+    {
+        // Generate new characters based on JSON file
+        string text = System.IO.File.ReadAllText(path);
+        SaveSystem.SavedArrayObject deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
+        List<CharacterModelObject> deserializedObjectList = new List<CharacterModelObject>(deserializedObject.colonists);
+
+        if (deserializedObjectList == null || deserializedObjectList.Count == 0 || deserializedObjectList[0] == null)
+        {
+            Debug.Log("No alive/dead colonists to load.");
+            // Delete file if specified
+            if (deleteIfEmpty)
+            {
+                File.Delete(path);
+            }
+            return;
+        }
+        for (int i = 0; i < deserializedObjectList.Count; i++)
+        {
+            if (instantiateGO)
+            {
+                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, Vector3.zero, Quaternion.identity);
+                newCharacter.GetComponent<CharacterModel>().InitCharacterModel(deserializedObjectList[i]); // Should get its uuid from the field, which got its value from previous static uuid, which was updated - we should expect anyways
+                newCharacter.GetComponent<CharacterModel>().InitEventsMarkersFeed(deserializedObjectList[i]);
+                characters.Add(newCharacter);
+            }
+        }
     }
 
     public void OnEventClockUpdate()
     {
+        if(gameClockEventController == null)
+        {
+            return;
+        }
         gameClockEventController.OnEventClockUpdate();
     }
 
@@ -106,60 +177,48 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void OnColonistDied(GameClockEvent e, ICombatant c)
+    public void OnColonistDied(GameClockEvent e, GameObject c)
     {
         // Remove the dead before saving again
-        colonists.Remove(c as BabyModel);
+        colonists.Remove(c);
         deleteSaveFile();
-        deadColonists.Add(c as BabyModel);
-        //UpdateGameCharacterRegistry();
-        _OnSaveAction("colonists", deadColonists, babyController.BabyModel, "deadColonists.json");
+        deadColonists.Add(c);
+        _OnSaveAction("colonists", deadColonists, "deadColonists.json");
     }
 
     // Called on finalize creation menu
     public void AddNewColonistToRegistry()
     {
-        babyController.CreateNewColonist();
-        _OnSaveAction("colonists", gameCharacterDatabase.colonistRegistry, babyController.BabyModel, "colonistRegistry.json");
+        CreationController.CreateNewColonist();
     }
 
     // The save method service for the client - FIXME this is for through the creation menu
     public void Save(bool checkMaxElements)
     {
         // Event to save the current baby template to a file
-        if (!CreationMenuController.validEntry || babyController.colonists.Count > BabyController.MAX_COLONISTS)
+        if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
         {
             return;
         }
-        int count = babyController.colonists.Count;
+        int count = colonists.Count;
         // We don't check for max elements if saving dead colonists (for now)
-        if (!checkMaxElements || count <= BabyController.MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
+        if (!checkMaxElements || count <= CreationController.MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
         {
             // TODO add dead colonists unique ID too?
             //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
             if (colonists.Count > 0)
             {
-                _OnSaveAction("colonists", colonists, babyController.BabyModel, "colonists.json");
+                _OnSaveAction("colonists", colonists, "colonists.json");
             }
             if (deadColonists.Count > 0)
             {
                 // Needs to load up the previous dead colonists first before rewriting
-                _OnSaveAction("colonists", deadColonists, babyController.BabyModel, "deadColonists.json");
+                _OnSaveAction("colonists", deadColonists, "deadColonists.json");
             }
         }
         else
         {
             Debug.Log("Save game impossible :-(. Full capacity reached.");
-        }
-    }
-
-    public void UpdateGameCharacterRegistry()
-    {
-        foreach (BabyModel dc in deadColonists)
-        {
-            BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.UniqueColonistPersonnelID_ == dc.UniqueColonistPersonnelID_);
-            target.eventMarkersMap = dc.eventMarkersMap;
-            target.SetLastEvent(dc.LastEvent);
         }
     }
 
@@ -226,21 +285,6 @@ public class GameController : MonoBehaviour
         //meshToUpdate.mesh = CharacterCreationView.BabyModelHeadMeshFilter.mesh;
     }
 
-    public void CreateNewCharacterMesh()
-    {
-        if(!CreationMenuController.validEntry)
-        {
-            return;
-        }
-        // Set the new Material runner games character to the last track position (set from live game character count)
-        int trackLanePosition = colonists.Count-1;
-        GameObject newCharacterMesh = Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.identity);
-        // Set its mesh to the players' choices
-        //newCharacterMesh.gameObject.name = $"{babyModel.CharacterName}";
-        
-        laneFeedCams[trackLanePosition].GetComponent<CharacterTracker>().SetTarget(newCharacterMesh.gameObject.transform);
-    }
-
     /// <summary>
     /// The camera lanes to watch the characters
     /// </summary>
@@ -251,29 +295,19 @@ public class GameController : MonoBehaviour
 
     // DEBUG MODE: Nothing here
     // Update character registry
-    //private void OnApplicationQuit()
-    //{
-    //    Debug.Log("Saving game registry before exiting...");
-    //    foreach (BabyModel dc in deadColonists)
-    //    {
-    //        BabyModel target = gameCharacterDatabase.colonistRegistry.Find(x => x.UniqueColonistPersonnelID_ == dc.UniqueColonistPersonnelID_);
-    //        target.eventMarkersMap = dc.eventMarkersMap;
-    //        target.SetLastEvent(dc.LastEvent);
-    //    }
-    //    if(colonists != null && colonists.Count > 0)
-    //    {
-    //        _OnSaveAction("colonists", colonists, babyController.BabyModel, "colonists.json");
-    //    }
-    //    if(deadColonists != null && deadColonists.Count > 0)
-    //    {
-    //        _OnSaveAction("colonists", deadColonists, babyController.BabyModel, "deadColonists.json");
-    //    }
-    //    if(gameCharacterDatabase != null)
-    //    {
-    //        _OnSaveAction("colonists", gameCharacterDatabase.colonistRegistry, babyController.BabyModel, "colonistRegistry.json");
-    //    }
-    //    // Save any created assets to disk - Necessary?
-    //    AssetDatabase.SaveAssets();
-    //    Debug.Log("Application ending after " + Time.time + " seconds");
-    //}
+    private void OnApplicationQuit()
+    {
+        if (colonists != null && colonists.Count > 0)
+        {
+            _OnSaveAction("colonists", colonists, "colonists.json");
+        }
+        if (deadColonists != null && deadColonists.Count > 0)
+        {
+            _OnSaveAction("colonists", deadColonists, "deadColonists.json");
+        }
+        // Update the UUID count and save it
+        playerStatistics.characterUUIDCount = CharacterModelObject.uniqueColonistPersonnelID;
+        _OnSavePlayerStatisticsAction(playerStatistics, "PlayerStatistics.json", "successfully saved player stats.");
+        Debug.Log("Application ending after " + Time.time + " seconds");
+    }
 }

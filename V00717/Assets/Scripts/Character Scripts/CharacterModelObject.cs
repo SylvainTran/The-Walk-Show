@@ -1,15 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// The baby's data - also provides methods to save and retrieve data to database/json file
-[Serializable]
-public class BabyModel : Element, ISerializableObject, ICombatant
+[Serializable] // wrapper class to serialize (can't with monobehaviours)
+public class CharacterModelObject : ISerializableObject
 {
-    // The newborn's name - set during creation
-    [SerializeField] private string characterName = null;
-    public string CharacterName { get { return characterName; } set { characterName = value; } }
-
     // The newborn's nickname - set during creation
     [SerializeField] private string nickName = null;
     public string NickName { get { return nickName; } set { nickName = value; } }
@@ -38,7 +33,7 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     // The baby's sex.
     [SerializeField] private string sex = null;
     // The property for the baby's sex.
-    public string Sex { get{ return sex; } set { sex = value; } }
+    public string Sex { get { return sex; } set { sex = value; } }
     // The newborn's age -> progresses overtime
     [SerializeField] private int age = 1;
     public int Age { get { return age; } set { age = value; } }
@@ -86,6 +81,12 @@ public class BabyModel : Element, ISerializableObject, ICombatant
 
     // Neuroticism
     [SerializeField] private float neuroticism = 0.0f;
+
+    public string Name()
+    {
+        return nickName;
+    }
+
     // The property for the baby's neuroticism
     public float Neuroticism { get { return neuroticism; } set { neuroticism = value; } }
 
@@ -107,7 +108,7 @@ public class BabyModel : Element, ISerializableObject, ICombatant
 
     // The currently used mesh names for head and torso - to allow View to reload the proper mesh
     [SerializeField] private string activeHeadName;
-    public string ActiveHeadName { get { return activeHeadName; } set{ activeHeadName = value; } }
+    public string ActiveHeadName { get { return activeHeadName; } set { activeHeadName = value; } }
     [SerializeField] private string activeTorsoName;
     public string ActiveTorsoName { get { return activeTorsoName; } set { activeTorsoName = value; } }
 
@@ -116,46 +117,6 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     private bool isInPendingCall = false;
     public bool IsInPendingCall { get { return isInPendingCall; } set { isInPendingCall = value; } }
 
-    [Serializable]
-    public class EventMarkersMap : SerializableDictionary<string, int>
-    {
-        [SerializeField] private SerializableDictionary<string, int> eventMarkersFeed = null;
-        [SerializeField] public SerializableDictionary<string, int> EventMarkersFeed { get { return eventMarkersFeed; } set { eventMarkersFeed = value; } }
-    }
-
-    [Serializable]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
-    {
-        [SerializeField]
-        private List<TKey> keys = new List<TKey>();
-        [SerializeField]
-        private List<TValue> values = new List<TValue>();
-
-        // save the dictionary to lists
-        public void OnBeforeSerialize()
-        {
-            keys.Clear();
-            values.Clear();
-            foreach (KeyValuePair<TKey, TValue> pair in this)
-            {
-                keys.Add(pair.Key);
-                values.Add(pair.Value);
-            }
-        }
-
-        // load dictionary from lists
-        public void OnAfterDeserialize()
-        {
-            this.Clear();
-
-            if (keys.Count != values.Count)
-                throw new System.Exception(string.Format("there are {0} keys and {1} values after deserialization. Make sure that both key and value types are serializable."));
-
-            for (int i = 0; i < keys.Count; i++)
-                this.Add(keys[i], values[i]);
-        }
-    }
-
     // Instance of the eventMarkersMap
     [SerializeField] public EventMarkersMap eventMarkersMap = null;
 
@@ -163,88 +124,18 @@ public class BabyModel : Element, ISerializableObject, ICombatant
     [SerializeField] private string lastEvent = null;
     public string LastEvent { get { return lastEvent; } set { lastEvent = value; } }
 
-    /// <summary>
-    /// Initializes the serialized map class.
-    /// </summary>
-    public BabyModel()
+    // To serialize wrapper fill-in the actual characterModel
+    public void InitCharacterModel(CharacterModel other)
     {
-        eventMarkersMap = new EventMarkersMap();
-        eventMarkersMap.EventMarkersFeed = new SerializableDictionary<string, int>();
-    }
-
-    /// <summary>
-    /// ToString override
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString()
-    {
-        return $"Character Name: {characterName}, Nickname: {nickName}, Level: {level}, Age: {age}, Status/Health: {health}";
-    }
-
-    public delegate void OnGameClockEventProcessed(GameClockEvent e);
-    public static OnGameClockEventProcessed _OnGameClockEventProcessed;
-
-    // Handler for game clock event on this model
-    public void OnGameClockEventGenerated(GameClockEvent e)
-    {
-        if(health <= 0.0f || eventMarkersMap.EventMarkersFeed == null || isInPendingCall)
-        {
-            return;
-        }
-
-        int randIndex = UnityEngine.Random.Range(0, 100);
-        if(randIndex > e.TriggerChance) //DEBUG MODE: Set this to > 0; randIndex > e.TriggerChance
-        {
-            e.ApplyEvent(this);
- 
-            if (!e.GetType().Name.Equals(Enums.ToString(Enums.CharacterAchievements.GOT_BATTLE)))
-            {
-                _OnGameClockEventProcessed(e);
-            }
-        } else
-        {
-            Debug.Log($"Event failed to occur by chance");
-        }
-    }
-
-    public void DealDamage(ICombatant opponent)
-    {
-        opponent.TakeDamage(physicalSkill);
-    }
-
-    public void TakeDamage(float damage)
-    {
-        health -= damage;
-    }
-
-    public float GetHealth()
-    {
-        return health;
-    }
-
-    public string Name()
-    {
-        return characterName;
-    }
-
-    public bool IsEnemyAI()
-    {
-        return false;
-    }
-
-    public void SetLastEvent(string lastEvent)
-    {
-        this.lastEvent = lastEvent;
-    }
-
-    public override int GetHashCode()
-    {
-        return uniqueColonistPersonnelID_;
-    }
-
-    public bool Equals(BabyModel other)
-    {
-        if (other == null) return false;
-        return (this.GetHashCode().Equals(other.GetHashCode()));
+        this.nickName = other.NickName;
+        this.sex = other.Sex;
+        this.skinColorR = other.SkinColorR;
+        this.skinColorG = other.SkinColorG;
+        this.skinColorB = other.SkinColorB;
+        this.activeHeadName = other.ActiveHeadName;
+        this.activeTorsoName = other.ActiveTorsoName;
+        this.uniqueColonistPersonnelID_ = other.UniqueColonistPersonnelID_;
+        this.eventMarkersMap = other.eventMarkersMap;
+        this.lastEvent = other.LastEvent;
     }
 }

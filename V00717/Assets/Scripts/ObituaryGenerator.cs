@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,9 +12,9 @@ public class ObituaryGenerator
     private float REPAIR_SUCCESS_WEIGHT = 0.7f;
     private float REPAIR_FAILURE_WEIGHT = 0.7f;
     // The model to act upon
-    private BabyModel target = null;
+    private CharacterModel target = null;
 
-    public ObituaryGenerator(BabyModel target)
+    public ObituaryGenerator(CharacterModel target)
     {
         this.target = target;
     }

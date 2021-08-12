@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +12,7 @@ public class DiseaseEvent : GameClockEvent
 
     }
 
-    public override bool ApplyEvent(BabyModel b)
+    public override bool ApplyEvent(CharacterModel b)
     {
         if(!base.ApplyEvent(b))
         {
@@ -25,12 +25,12 @@ public class DiseaseEvent : GameClockEvent
         if(CheckIfDead(b)) // TODO make distinction between checking if dead and calling the on dead event
         {
             b.SetLastEvent("Fatal Disease");
-            base.NotifyIsDead(b);
+            base.NotifyIsDead(b.gameObject);
         }
         return true;
     }
 
-    protected override void AddToEventMarkersFeed(BabyModel b)
+    protected override void AddToEventMarkersFeed(CharacterModel b)
     {
         if(b.eventMarkersMap.EventMarkersFeed == null)
         {

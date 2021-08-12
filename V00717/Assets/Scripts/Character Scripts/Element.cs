@@ -1,7 +1,8 @@
 using System;
+using UnityEngine;
 
 [Serializable]
-public class Element
+public class Element : MonoBehaviour
 {
 
 }

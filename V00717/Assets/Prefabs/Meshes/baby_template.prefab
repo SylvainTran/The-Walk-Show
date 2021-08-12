@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 754176350573047230}
   - component: {fileID: -8831243955877080282}
   - component: {fileID: 5316659715758251392}
+  - component: {fileID: 2045270141073806237}
   m_Layer: 0
   m_Name: baby_template
   m_TagString: Untagged
@@ -25,7 +26,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 89104189234902788}
-  m_LocalRotation: {x: 0.6238717, y: 0.28520092, z: -0.46196347, w: 0.56216943}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 553, y: 289, z: -46}
   m_LocalScale: {x: 0.4984721, y: 0.49847227, z: 0.49847218}
   m_Children:
@@ -33,7 +34,7 @@ Transform:
   - {fileID: 3459059710057364281}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 74.785, y: -77.033, z: -141.452}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!195 &-8831243955877080282
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -69,9 +70,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  wanderRadius: 0.33
-  wanderDistance: 0.33
-  wanderJitter: 0.15
+  wanderRadius: 3
+  wanderDistance: 10
+  wanderJitter: 4
+--- !u!114 &2045270141073806237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89104189234902788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f4853cf7183541df9e74b7ffc471cbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterName: 
+  nickName: 
+  uniqueColonistPersonnelID_: 0
+  health: 100
+  level: 0
+  skillPoints: 1
+  geneticPoints: 10
+  sex: 
+  age: 1
+  lifeExpectancy: 100
+  qalys: 0
+  skinColorR: 0
+  skinColorG: 0
+  skinColorB: 0
+  temperament: 0
+  openness: 0
+  conscientitiousness: 0
+  extraversion: 0
+  agreeableness: 0
+  neuroticism: 0
+  activeHeadName: 
+  activeTorsoName: 
+  eventMarkersMap:
+    keys: []
+    values: 
+    eventMarkersFeed:
+      keys: []
+      values: 
+  lastEvent: 
 --- !u!1 &2172410301786049384
 GameObject:
   m_ObjectHideFlags: 0
