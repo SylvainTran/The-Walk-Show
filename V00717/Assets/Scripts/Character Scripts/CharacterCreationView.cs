@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using TMPro;
 using System.Collections;
@@ -13,13 +13,10 @@ public class CharacterCreationView : UIView
     public Renderer BabyModelTorsoRenderer;
     public MeshFilter BabyModelHeadMeshFilter;
     public MeshFilter BabyModelTorsoMeshFilter;
-
-    // TODO change this
-    public static BabyController BabyControllerRef;
+    
+    public GameController GameController;
     // Scriptable object with assets
     public ModelAssets ModelAssets;
-    // The permanent assets database
-    public GameCharacterDatabase gameCharacterDatabase;
 
     // Unique colonist personnel ID in colonist creation screen
     public TMP_Text uniqueColonistPersonnelID_CC;
@@ -54,17 +51,10 @@ public class CharacterCreationView : UIView
         UpdateColonistUUIDText();
     }
 
-    // Setter for new colonist name
-    public void OnNameChanged(string name)
-    {
-        BabyControllerRef.OnNameChanged(name);
-        Debug.Log($"And so {name} was given his name.");
-    }
-
     // Setter for new colonist nickname
     public void OnNickNameChanged(string nickName)
     {
-        BabyControllerRef.OnNickNameChanged(nickName);
+        GameController.CreationController.OnNickNameChanged(nickName);
         Debug.Log($"And so {nickName} was given his nickname.");
     }
 
@@ -76,33 +66,29 @@ public class CharacterCreationView : UIView
         Debug.Log($"Baby's sex was changed to: {sex}");
     }
 
-    public static void SetCharacterViewModel(ref BabyController babyController)
-    {
-        BabyControllerRef = babyController;
-    }
-
     public void OnSkinColorChangedR(float value)
     {
-        BabyControllerRef.OnSkinColorChanged_R(value);
+        GameController.CreationController.OnSkinColorChanged_R(value);
         UpdateSkinColor();
     }
 
     public void OnSkinColorChangedG(float value)
     {
-        BabyControllerRef.OnSkinColorChanged_G(value);
+        GameController.CreationController.OnSkinColorChanged_G(value);
         UpdateSkinColor();
     }
 
     public void OnSkinColorChangedB(float value)
     {
-        BabyControllerRef.OnSkinColorChanged_B(value);
+        GameController.CreationController.OnSkinColorChanged_B(value);
         UpdateSkinColor();
     }
 
     // Updates the colonist uuid text in identification tab
     public void UpdateColonistUUIDText()
     {
-        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {gameCharacterDatabase.colonistUUIDCount}");
+        // TODO UUID new way to get it from files?
+        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID:");
     }
 
     // Floating descending text animation
@@ -165,7 +151,7 @@ public class CharacterCreationView : UIView
     public void UpdateSkinColor()
     {
         Material newMat = new Material(Shader.Find("Standard"));
-        newMat.SetColor("_Color", new Color(BabyControllerRef.BabyModel.SkinColorR, BabyControllerRef.BabyModel.SkinColorG, BabyControllerRef.BabyModel.SkinColorB));
+        newMat.SetColor("_Color", new Color(GameController.CharacterModel.SkinColorR, GameController.CharacterModel.SkinColorG, GameController.CharacterModel.SkinColorB));
         BabyModelHeadRenderer.material = newMat;
         BabyModelTorsoRenderer.material = newMat;
     }

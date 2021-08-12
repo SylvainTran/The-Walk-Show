@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Enemy : Element, ICombatant
 {
-    private string name = "Enemy";
+    private new string name = "Enemy";
     private float health = 100.0f;
     private float damage = 10.0f;
     public float Damage { get { return damage; } set { damage = value; } }

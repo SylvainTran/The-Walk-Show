@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 /// <summary>
 /// Generates relevant dialogues based
@@ -8,13 +8,13 @@ using System.Linq;
 /// </summary>
 public class ChatGenerator
 {
-    private BabyModel target = null;
+    private CharacterModel target = null;
     private ChatDatabase chatDatabase = null;
     public List<string> chats;
 
     public float lowThreshold = 25.0f;
 
-    public ChatGenerator(BabyModel target, ChatDatabase chatDatabase)
+    public ChatGenerator(CharacterModel target, ChatDatabase chatDatabase)
     {
         this.target = target;
         this.chatDatabase = chatDatabase;

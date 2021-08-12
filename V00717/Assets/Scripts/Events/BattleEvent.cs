@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using static Enums;
 using static Enums.CharacterAchievements;
@@ -16,7 +16,7 @@ public class BattleEvent : GameClockEvent
         this.endOfBattleMessage = "End of battle.";
     }
 
-    public override bool ApplyEvent(BabyModel b)
+    public override bool ApplyEvent(CharacterModel b)
     {
         if(!base.ApplyEvent(b))
         {
@@ -39,7 +39,7 @@ public class BattleEvent : GameClockEvent
         {
             Message += $" {colonistName} has died in a gruesome way {e.Name()} will be laughing at {colonistName} hysterically for all eternity...";
             b.SetLastEvent("Died in Combat");
-            base.NotifyIsDead(b);
+            base.NotifyIsDead(b.gameObject);
         }
         // TODO rewards, notification pop-ups, etc. especially if colonist has died
         _OnBattleEnded(this);
@@ -51,7 +51,7 @@ public class BattleEvent : GameClockEvent
         return new Enemy();
     }
 
-    protected override void AddToEventMarkersFeed(BabyModel b)
+    protected override void AddToEventMarkersFeed(CharacterModel b)
     {
         if(b.eventMarkersMap.EventMarkersFeed == null)
         {

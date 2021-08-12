@@ -1,20 +1,16 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class GameClockEventController
 {
+    private GameController GameController;
+
     // The chance that a game clock event triggers
     public float triggerChance = default;
-    private List<BabyModel> colonists;
 
-    public GameClockEventController(ref List<BabyModel> colonists, float triggerChance)
+    public GameClockEventController(GameController GameController, float triggerChance)
     {
-        this.colonists = colonists;
-        this.triggerChance = triggerChance;
-    }
-
-    public GameClockEventController(float triggerChance)
-    {
+        this.GameController = GameController;
         this.triggerChance = triggerChance;
         TimeController._OnUpdateEventClock += OnEventClockUpdate;
     }
@@ -27,15 +23,16 @@ public class GameClockEventController
     public void OnEventClockUpdate()
     {
         // Don't update events if no colonists or controller
-        if (colonists == null || colonists.Count == 0)
+        if (GameController.Colonists == null || GameController.Colonists.Count == 0)
         {
+            //Debug.LogError("No colonists to poke with events");
             return;
         }
         // Iterate a new event for each colonist
-        for(int i = 0; i < colonists.Count; i++)
+        for(int i = 0; i < GameController.Colonists.Count; i++)
         {
             GameClockEvent e = GenerateRandomEvent();
-            colonists[i].OnGameClockEventGenerated(e);
+            GameController.Colonists[i].GetComponent<CharacterModel>().OnGameClockEventGenerated(e);
         }
         // TODO iterate a new event for each dead colonist too? 
     }

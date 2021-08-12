@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,18 +13,25 @@ public class SaveSystem : MonoBehaviour
     private void OnEnable()
     {
         _OnSaveAction += Save;
+        _OnSavePlayerStatisticsAction += SavePlayerStatisticsFile;
     }
 
     private void OnDisable()
     {
         _OnSaveAction -= Save;
+        _OnSavePlayerStatisticsAction -= SavePlayerStatisticsFile;
     }
 
     // Save alive colonists to list and then to file
-    public void Save(string key, List<BabyModel> colonists, BabyModel babyModel, string path)
+    public void Save(string key, List<GameObject> colonists, string path)
     {
-        // The count of characters should be x+1 where x is the current count
-        SavedArrayObject savedObject = new SavedArrayObject(colonists);
+        // Internally they are game objects, but when saved they are their components only
+        List<CharacterModel> list = new List<CharacterModel>();
+        for(int i = 0; i < colonists.Count; i++)
+        {
+            list.Add(colonists[i].GetComponent<CharacterModel>());
+        }
+        SavedArrayObject savedObject = new SavedArrayObject(list);
         int nbElements = Utility.Count(savedObject);
         SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
     }
@@ -32,11 +39,28 @@ public class SaveSystem : MonoBehaviour
     // For JSON deserialization - needs a wrapper class to serialize an array type
     public struct SavedArrayObject
     {
-        public BabyModel[] colonists;
+        public CharacterModelObject[] colonists;
 
-        public SavedArrayObject(List<BabyModel> colonists)
+        public SavedArrayObject(List<CharacterModel> colonists)
         {
-            this.colonists = colonists.ToArray();
+            // Transfer to wrapper serializable object
+            CharacterModelObject[] wrapperSerializableList = new CharacterModelObject[colonists.Count];
+            for(int i = 0; i < wrapperSerializableList.Length; i++)
+            {
+                wrapperSerializableList[i] = new CharacterModelObject();
+                wrapperSerializableList[i].InitCharacterModel(colonists[i]);
+            }
+            this.colonists = wrapperSerializableList;
+        }
+    }
+
+    public void SavePlayerStatisticsFile(PlayerStatistics config, string path, string successMessage)
+    {
+        string output = JsonUtility.ToJson(config);
+        using (StreamWriter outputFile = new StreamWriter(path))
+        {
+            outputFile.WriteLine(output);
+            Debug.Log(successMessage);
         }
     }
 
