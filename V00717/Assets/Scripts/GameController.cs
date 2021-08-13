@@ -83,12 +83,21 @@ public class GameController : MonoBehaviour
         // Create a game character database if it doesn't exist (failsafe)
         // ScriptableObject gcd = (ScriptableObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/GameCharacterDatabase.asset", typeof(ScriptableObject));
         // Load chat database SO and initialize main controllers
+#if UNITY_EDITOR
         chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath("Assets/MyResources/ChatDatabase.asset", typeof(ChatDatabase));
         if (chatDatabaseSO == null)
         {
             chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
             AssetDatabase.CreateAsset(chatDatabaseSO, $"Assets/MyResources/{chatDatabaseSO.name}.asset");
         }
+#endif
+#if DEVELOPMENT_BUILD
+        if (chatDatabaseSO == null)
+        {
+           chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
+        }
+#endif
+
         // Load from saved file if needed
         if (chatDatabaseSO.REGRET_THEME.Length == 0)
         {

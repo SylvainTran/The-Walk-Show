@@ -209,6 +209,11 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
         this.lastEvent = lastEvent;
     }
 
+    public bool isDead()
+    {
+        return health <= 0.0f;
+    }
+
     public override int GetHashCode()
     {
         return uniqueColonistPersonnelID_;

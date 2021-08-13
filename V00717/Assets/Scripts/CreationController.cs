@@ -22,6 +22,7 @@ public class CreationController
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
     private Camera[] laneFeedCams;
+    public Camera[] LaneFeedCams { get { return laneFeedCams; } set { laneFeedCams = value; } }
 
     // SERVER REQUESTS
     public delegate void RequestColonistDataResponse(List<GameObject> colonists, Enums.DataRequests request);
@@ -115,10 +116,10 @@ public class CreationController
 
         for (int i = 0; i < laneFeedCams.Length; i++)
         {
-            // If the target is null (not occupied yet) or dead, then the new character can take their position
+            // If the target is null (not occupied yet) or dead, then the new character can evict them/take their position
             CharacterTracker characterTracker = laneFeedCams[i].GetComponent<CharacterTracker>();
 
-            if (characterTracker.Target == null || characterTracker.Target.GetComponent<CharacterModel>().Health <= 0.0f)
+            if (characterTracker.Target == null || characterTracker.Target.GetComponent<CharacterModel>().isDead())
             {
                 trackLanePosition = i;
                 break;
