@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using UnityEditor;
 using Cinemachine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -13,6 +14,11 @@ public class GameController : MonoBehaviour
     private CreationController creationController = null;
     public CreationController CreationController { get { return creationController; } set { creationController = value; } }
     GameClockEventController gameClockEventController = null;
+
+    public CreationMenuController creationMenuController = null;
+    public Button submitButton = null;
+
+
     private PlayerStatistics playerStatistics;
 
     public PlayerStatistics GetPlayerStatistics()
@@ -189,6 +195,10 @@ public class GameController : MonoBehaviour
     // Called on finalize creation menu
     public void AddNewColonistToRegistry()
     {
+        if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
+        {
+            return;
+        }
         CreationController.CreateNewColonist();
     }
 
@@ -215,11 +225,21 @@ public class GameController : MonoBehaviour
                 // Needs to load up the previous dead colonists first before rewriting
                 _OnSaveAction("colonists", deadColonists, "deadColonists.json");
             }
+            // Reset input fields to prevent creating multiple characters in a row - TODO make the submit button disappear/set inactive for a while
+            submitButton.interactable = false;
+            StartCoroutine(ResetButton(submitButton, 3.0f));
+            creationMenuController.ResetFields();
         }
         else
         {
             Debug.Log("Save game impossible :-(. Full capacity reached.");
         }
+    }
+
+    private IEnumerator ResetButton(Button button, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        button.interactable = true;
     }
 
     // TODO CSV Version for ease of editing?

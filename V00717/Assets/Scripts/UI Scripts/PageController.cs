@@ -7,12 +7,12 @@ using TMPro;
 public abstract class PageController : MonoBehaviour
 {
     // Array of pages
-    [SerializeField] protected Canvas[] pages;
+    [SerializeField] protected GameObject[] pages;
     // The UI assets
     public UIAssets UIAssets;
     // The previous canvas
-    protected Canvas previousCanvas = null;
-    private Canvas activeCanvas = null;
+    protected GameObject previousCanvas = null;
+    private GameObject activeCanvas = null;
     // The group of buttons
     public Transform NavigationButtonCanvas;
     // The lonely confirm page button
@@ -25,7 +25,7 @@ public abstract class PageController : MonoBehaviour
         // Cache previously active canvas to disable it later
         if (StarterAssetsInputs.previouslyActiveCanvas != null && StarterAssetsInputs.previouslyActiveCanvas != StarterAssetsInputs.activeMenuCanvas)
         {
-            StarterAssetsInputs.previouslyActiveCanvas.enabled = false;
+            StarterAssetsInputs.previouslyActiveCanvas.SetActive(false);
         }
     }
 
@@ -40,7 +40,7 @@ public abstract class PageController : MonoBehaviour
         // Enable new active canvas
         if (activeCanvas)
         {
-            activeCanvas.enabled = true;
+            activeCanvas.SetActive(true);
         }
         // Disable nav buttons canvas temporarily
         if (NavigationButtonCanvas.GetComponent<Canvas>().enabled)
@@ -69,9 +69,9 @@ public abstract class PageController : MonoBehaviour
     public virtual void ConfirmPage()
     {
         // Disable currently active canvas
-        if(activeCanvas && activeCanvas.enabled)
+        if(activeCanvas && activeCanvas.activeInHierarchy)
         {
-            activeCanvas.enabled = false;
+            activeCanvas.SetActive(false);
         }
         // Re-enable nav canvas
         if (!NavigationButtonCanvas.GetComponent<Canvas>().enabled)

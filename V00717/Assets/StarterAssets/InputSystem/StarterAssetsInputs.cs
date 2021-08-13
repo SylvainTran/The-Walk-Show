@@ -20,8 +20,8 @@ namespace StarterAssets
 		// Player opens dashboard OS
 		public delegate void TriggerOpenDashboardOS();
 		public static event TriggerOpenDashboardOS _OnTriggerOpenDashboardOS;
-		public static Canvas previouslyActiveCanvas = null;
-		public static Canvas activeMenuCanvas = null; // If any menu is open, close it first to open another
+		public static GameObject previouslyActiveCanvas = null;
+		public static GameObject activeMenuCanvas = null; // If any menu is open, close it first to open another
 		public static Canvas activeOverlayScreen = null; // Any overlay screen notification
 
 		// Player closes active menu
@@ -72,7 +72,7 @@ namespace StarterAssets
 		public void OnOpenDashboardOS(InputValue value)
         {
 			// if there is no active menu canvas or it's currently inactive, we can open the dashboard OS
-			if(!activeMenuCanvas || !activeMenuCanvas.isActiveAndEnabled)
+			if(!activeMenuCanvas || !activeMenuCanvas.activeInHierarchy)
             {
 				_OnTriggerOpenDashboardOS();
 			}
@@ -99,7 +99,7 @@ namespace StarterAssets
         }
 
 		// There's only one active menu at any state in the game hence static
-		public static void SetActiveMenuCanvas(Canvas canvas)
+		public static void SetActiveMenuCanvas(GameObject canvas)
         {
 			activeMenuCanvas = canvas;
 		}
@@ -116,7 +116,7 @@ namespace StarterAssets
             {
 				return;
             }
-			if (activeMenuCanvas.isActiveAndEnabled)
+			if (activeMenuCanvas.activeInHierarchy)
             {
 				Cursor.visible = true;
             }

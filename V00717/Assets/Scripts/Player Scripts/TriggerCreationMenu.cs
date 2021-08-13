@@ -37,7 +37,7 @@ public class TriggerCreationMenu : MonoBehaviour
             {
                 return;
             }
-            if (StarterAssetsInputs.activeMenuCanvas == null || !StarterAssetsInputs.activeMenuCanvas.isActiveAndEnabled)
+            if (StarterAssetsInputs.activeMenuCanvas == null || !StarterAssetsInputs.activeMenuCanvas.activeInHierarchy)
             {
                 if (isInteractable)
                 {

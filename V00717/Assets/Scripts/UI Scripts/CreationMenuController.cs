@@ -8,8 +8,8 @@ using TMPro;
 public class CreationMenuController : PageController, IWorldOverlayable
 {
     // The parent world and overlay canvases
-    public Canvas parentCanvasWorld;
-    public Canvas parentCanvasOverlay;
+    //public Canvas parentCanvasWorld;
+    //public GameObject parentCanvasOverlay;
     public List<GameObject> inputFieldList;
     public static bool validEntry = false;
     // The one liner poetry TMP asset that regenerates after each confirm
@@ -34,19 +34,19 @@ public class CreationMenuController : PageController, IWorldOverlayable
 
     public void SetOverlayMode()
     {
-        parentCanvasWorld.enabled = false;
-        parentCanvasOverlay.enabled = true;
+        //parentCanvasWorld.enabled = false;
+        //parentCanvasOverlay.SetActive(true);
     }
 
     public void SetWorldMode()
     {
-        parentCanvasOverlay.enabled = false;
-        parentCanvasWorld.enabled = true;
+        //parentCanvasOverlay.enabled = false;
+        //parentCanvasWorld.SetActive(true);
     }
 
     public override void SetActiveMenuCanvas()
     {
-        StarterAssetsInputs.SetActiveMenuCanvas(parentCanvasOverlay);
+        //StarterAssetsInputs.SetActiveMenuCanvas(parentCanvasOverlay);
     }
 
     public void ClearActiveMenuCanvas()
@@ -116,5 +116,15 @@ public class CreationMenuController : PageController, IWorldOverlayable
             }
         }
         validEntry = true;
+    }
+
+    public void ResetFields()
+    {
+        // Clear fields after immediately
+        foreach (GameObject f in inputFieldList)
+        {
+            f.GetComponent<TMPro.TMP_InputField>().text = null;
+        }
+        validEntry = false;
     }
 }

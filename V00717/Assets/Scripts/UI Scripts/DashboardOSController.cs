@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 using System.IO;
 using UnityEditor;
 using System.Collections;
+using System.Linq;
 
 public class DashboardOSController : PageController
 {
@@ -21,17 +22,16 @@ public class DashboardOSController : PageController
     // Dashboard OS canvas
     public Canvas dashboardOS;
     // Bridge canvas
-    public Canvas bridgeCanvas;
+    public GameObject creatorBridgePage;
     // On Air Canvas
-    public Canvas onAirCanvas;
+    public GameObject onAirCanvas;
     // Livestream chat
-    public Canvas livestreamChat;
-
+    public GameObject livestreamChat;
 
     // Dashboard nav
     public Canvas dashboardNav;
-    // The login page
-    public Canvas loginPage;
+    //// The login page
+    //public Canvas loginPage;
 
     // Vertical group for live colonists
     public VerticalLayoutGroup aliveColonistsVerticalGroupLayout;
@@ -141,7 +141,7 @@ public class DashboardOSController : PageController
     // Sets the current active menu canvas to the dashboard OS which deals with inputs by state
     public override void SetActiveMenuCanvas()
     {
-        StarterAssetsInputs.SetActiveMenuCanvas(bridgeCanvas);
+        StarterAssetsInputs.SetActiveMenuCanvas(creatorBridgePage);
     }
 
     public void Init()
@@ -155,7 +155,7 @@ public class DashboardOSController : PageController
         //isLoggedIn = true;
         ChangePage((int)DashboardPageIndexes.DESKTOP);
         // Hide login page forever (this session)
-        loginPage.enabled = false;
+        // loginPage.enabled = false;
         dashboardNav.enabled = true;
     }
 
@@ -163,14 +163,14 @@ public class DashboardOSController : PageController
     public override void ChangePage(int pageIndex)
     {
         // If the bridge page is open, make it the previous page
-        Canvas previouslyActiveCanvas = null;
-        if(bridgeCanvas.enabled)
+        GameObject previouslyActiveCanvas = null;
+        if(creatorBridgePage.activeInHierarchy)
         {
-            previouslyActiveCanvas = bridgeCanvas;
-        } else if (onAirCanvas.enabled)
+            previouslyActiveCanvas = creatorBridgePage;
+        } else if (onAirCanvas.activeInHierarchy)
         {
             previouslyActiveCanvas = onAirCanvas;
-        } else if (livestreamChat.enabled)
+        } else if (livestreamChat.activeInHierarchy)
         {
             previouslyActiveCanvas = livestreamChat;
         }
@@ -305,14 +305,11 @@ public class DashboardOSController : PageController
                 entry.callback.AddListener((eventData) => { AddObituaryOnClick(b.GetComponent<CharacterModel>().UniqueColonistPersonnelID_); });
                 evt.triggers.Add(entry);
 
-                // TODO adjust rectTransform size - some text gets wrapped due to local scale changing to its new parent vertical layout
-
                 // Names
                 TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
                 colonistName.SetText(b.GetComponent<CharacterModel>().Name());
                 colonistName.gameObject.name = b.GetComponent<CharacterModel>().Name();
-                colonistName.rectTransform.SetParent(parentLayout.transform);
-                //colonistName.fontSize = 42.0f;
+                colonistName.rectTransform.SetParent(colonistIcon.transform);  // Childed to icon           
             }
         }
         parentLayout.transform.hasChanged = true;
@@ -349,10 +346,12 @@ public class DashboardOSController : PageController
     // Colonist icons (dead/alive) click handler
     public void AddObituaryOnClick(int UUID)
     {
+        Debug.Log("Clicked on obituary on click icon but returning");
         if (GameController == null || GameController.DeadColonists == null)
         {
             return;
         }
+        Debug.Log("Clicked on obituary on click icon");
         // Look up the UUID in the gameCharacterDatabase
         GameObject target = GameController.DeadColonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == UUID);
         // TODO separate handling living targets

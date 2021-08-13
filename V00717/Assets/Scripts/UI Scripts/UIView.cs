@@ -8,6 +8,7 @@ public class UIView : MonoBehaviour
     // The dashboard OS
     public Canvas dashboardOS;
     public Canvas bridgeCanvas;
+    public GameObject creationBridge;
 
     // Attach the event listeners
     public void OnEnable()
@@ -33,9 +34,9 @@ public class UIView : MonoBehaviour
             dashboardOS.enabled = false;
         }
 
-        if (StarterAssetsInputs.activeMenuCanvas && StarterAssetsInputs.activeMenuCanvas.isActiveAndEnabled)
-        {            
-            StarterAssetsInputs.activeMenuCanvas.enabled = false;
+        if (StarterAssetsInputs.activeMenuCanvas && StarterAssetsInputs.activeMenuCanvas.activeInHierarchy)
+        {
+            StarterAssetsInputs.activeMenuCanvas.SetActive(false);
             StarterAssetsInputs.activeMenuCanvas = null;
         }
     }
@@ -53,8 +54,10 @@ public class UIView : MonoBehaviour
     // Show dashboard OS on input trigger
     private void ShowDashboardOS()
     {
+        dashboardOS.gameObject.SetActive(true);
         dashboardOS.enabled = true;
         bridgeCanvas.enabled = true;
+        creationBridge.SetActive(true);
         Debug.Log("Showing dashboard OS canvas");
     }
 
