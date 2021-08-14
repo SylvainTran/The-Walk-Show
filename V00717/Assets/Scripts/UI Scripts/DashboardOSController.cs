@@ -27,6 +27,10 @@ public class DashboardOSController : PageController
     public GameObject onAirCanvas;
     // Livestream chat
     public GameObject livestreamChat;
+    // Transforms for parenting pending calls
+    public Transform cameraLane1TargetCallTransform;
+    public Transform cameraLane2TargetCallTransform;
+    public Transform cameraLane3TargetCallTransform;
 
     // Dashboard nav
     public Canvas dashboardNav;
@@ -34,11 +38,9 @@ public class DashboardOSController : PageController
     //public Canvas loginPage;
 
     // Vertical group for live colonists
-    public VerticalLayoutGroup aliveColonistsVerticalGroupLayout;
+    public RectTransform aliveColonistsVerticalGroupLayout;
     // Vertical group for dead colonists
-    public VerticalLayoutGroup deadColonistsVerticalGroupLayout;
-    // Pending calls log
-    public VerticalLayoutGroup pendingCallsLog;
+    public RectTransform deadColonistsVerticalGroupLayout;
 
     // Size parameters (TODO put in a config file or PlayerPrefs)
     public Vector3 colonistIconSize;
@@ -206,7 +208,7 @@ public class DashboardOSController : PageController
         }
 
         // Clear icons; TODO only if the children of the vertical g. layout has changed since
-        VerticalLayoutGroup layout = request == (int)DataRequests.LIVE_COLONISTS ? aliveColonistsVerticalGroupLayout
+        RectTransform layout = request == (int)DataRequests.LIVE_COLONISTS ? aliveColonistsVerticalGroupLayout
     : deadColonistsVerticalGroupLayout;
 
         ClearColonistIcons(request, layout);
@@ -220,7 +222,7 @@ public class DashboardOSController : PageController
         ClearColonistIcons(c);        
     }
 
-    public void ClearColonistIcons(DataRequests request, VerticalLayoutGroup layout)
+    public void ClearColonistIcons(DataRequests request, Transform layout)
     {
         int len = layout.transform.childCount;
 
@@ -287,7 +289,7 @@ public class DashboardOSController : PageController
         //eventLogYOffset += eventLogYOffsetDecrement;
     }
 
-    public void CreateColonistIcons(List<GameObject> colonists, DataRequests request, VerticalLayoutGroup parentLayout)
+    public void CreateColonistIcons(List<GameObject> colonists, DataRequests request, Transform parentLayout)
     {
         // Replace content
         foreach (GameObject b in colonists)
@@ -321,13 +323,17 @@ public class DashboardOSController : PageController
     /// </summary>
     /// <param name="c"></param>
     /// <param name="parentLayout"></param>
-    public void CreateColonistIcons(CharacterModel c, VerticalLayoutGroup parentLayout)
+    public void CreateColonistIcons(CharacterModel c, Transform parentTransform, bool takeParentPosition)
     {
         if (c != null)
         {
             // Icons with click events
             Image colonistIcon = Instantiate(UIAssets.colonistIcon.GetComponent<Image>());
-            colonistIcon.rectTransform.SetParent(parentLayout.transform);
+            colonistIcon.rectTransform.SetParent(parentTransform);
+            if(takeParentPosition)
+            {
+                colonistIcon.rectTransform.position = parentTransform.position;
+            }
             colonistIcon.gameObject.name = c.Name();
             // Add the handle mouse event trigger
             EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
@@ -338,7 +344,11 @@ public class DashboardOSController : PageController
             TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
             colonistName.SetText(c.Name());
             colonistName.gameObject.name = c.Name();
-            colonistName.rectTransform.SetParent(parentLayout.transform);
+            colonistName.rectTransform.SetParent(parentTransform);
+            if(takeParentPosition)
+            {
+                colonistName.rectTransform.position = parentTransform.position;
+            }
             entry.callback.AddListener((eventData) => { AddChatCallOnClick(c, colonistIcon, colonistName, c.UniqueColonistPersonnelID_); });
         }
     }
@@ -410,15 +420,31 @@ public class DashboardOSController : PageController
     private IEnumerator ClearChat(CharacterModel caller, Image callerIcon, TMP_Text callerName, float delay)
     {
         yield return new WaitForSeconds(delay);
-        Destroy(callerIcon.gameObject);
-        Destroy(callerName.gameObject);
+        if(callerIcon && callerName)
+        {
+            Destroy(callerIcon.gameObject);
+            Destroy(callerName.gameObject);
+        }
         // Reset call 
         caller.IsInPendingCall = false;
         StopCoroutine("ClearChat");
     }
 
-    private void UpdatePendingCallsLog(GameClockEvent e, ICombatant c)
+    private void UpdatePendingCallsLog(GameClockEvent e, CharacterModel c)
     {
-        CreateColonistIcons(c as CharacterModel, pendingCallsLog);
+        // Check which camera lane transform to parent the new icon
+        Transform targetParent = null;
+
+        if(c.TrackLanePosition == 0)
+        {
+            targetParent = cameraLane1TargetCallTransform;
+        } else if(c.TrackLanePosition == 1)
+        {
+            targetParent = cameraLane2TargetCallTransform;
+        } else if(c.TrackLanePosition == 2)
+        {
+            targetParent = cameraLane3TargetCallTransform;
+        }
+        CreateColonistIcons(c, targetParent, true);
     }
 }

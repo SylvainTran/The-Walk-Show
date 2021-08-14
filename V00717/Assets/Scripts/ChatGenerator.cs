@@ -55,7 +55,7 @@ public class ChatGenerator
         Dictionary<string, int> profileWeights = ProfileTarget();
         // TODO some weighting algorithm to be applied?
         // is it even worth it? How to factor morale in the equation?
-        string key = profileWeights.Max().Key;
+        string key = profileWeights.Keys.Max();
         return key;
     }
 

@@ -13,7 +13,7 @@ public class CreationController
     public GameController GameController;
     private GameObject characterModelPrefab;
     // The max n of colonists (temporary n)
-    public static int MAX_COLONISTS = 4;
+    public static int MAX_COLONISTS = 3;
     /// <summary>
     /// The possible tracklane positions to start each new character
     /// </summary>
@@ -88,7 +88,6 @@ public class CreationController
         GameController.CharacterModel.SkinColorB = b;
     }
 
-
     // Called on finalize creation menu
     public void CreateNewColonist()
     {
@@ -99,9 +98,50 @@ public class CreationController
         // Create a characterModel component to attach to its mesh game object
         // TODO update UUID in a more reliable new way
         CharacterModelObject.uniqueColonistPersonnelID++;
-        //GameController.CharacterModel.UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
-
         CreateNewCharacterMesh(GameController.CharacterModel);
+    }
+
+    public string GetStartingItemKey()
+    {
+        int tier = 0;
+        float donationMoney = GameController.DonationMoney;
+        if (donationMoney <= 100.0f)
+        {
+            tier = 0;
+        } else if (donationMoney >= 100.0f && donationMoney <= 500.0f)
+        {
+            tier = 1;
+        } else if (donationMoney >= 500.0f && donationMoney <= 1000.0f)
+        {
+            tier = 2;
+        } else if (donationMoney >= 1000.0f && donationMoney <= 5000.0f)
+        {
+            tier = 3;
+        } else if (donationMoney >= 5000.0f && donationMoney <= 10000.0f)
+        {
+            tier = 4;
+        } else if (donationMoney >= 10000.0f && donationMoney <= float.MaxValue)
+        {
+            tier = 5;
+        }
+
+        string[][] startingItems = {
+            new string[] { "PAPER_PLANE", "BAND_AID", "COUGH_SYRUP", "BALLOON", "PLASTIC_SPOON" },
+            new string[] { "WOODEN_SPOON", "SYRINGE", "EXPERIMENT_RAT", "METAL_CHAIR", "FIRST-AID" },
+            new string[] { "METAL_SPOON", "DAGGER", "G-VACCINE", "PROTECTION_GOOGLES", "GAUZE" },
+            new string[] { "DIAMOND_SPOON", "HEALING_POTION", "G-VACCINE", "RESPIRATOR", "NANO-MEDICATION" },
+            new string[] { "LASER_GUN", "SPOON_HAMMER", "IMMUNE-AI-BOOSTER", "OXYGEN-TANK", "PARACHUTE" },
+            new string[] { "ARBITER_FLUTE", "MASTER_GLOVE", "FREEDOM_CONTRACT", "NUKE" }
+        };
+        int randInt = UnityEngine.Random.Range(0, startingItems[tier].Length);
+
+        return startingItems[tier][randInt];
+    }
+
+    public void GetStarterItem()
+    {
+       string itemKey = GetStartingItemKey();
+       
     }
 
     internal void CreateNewCharacterMesh(CharacterModelObject newCharacterModel)
@@ -111,6 +151,36 @@ public class CreationController
             return;
         }
 
+        // Set the new Material runner games character to the last track position (set from live game character count)
+        int trackLanePosition = FindAvailableCameraLane();
+
+        GameObject newCharacterMesh = null;
+        try
+        {
+            newCharacterMesh = GameObject.Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.Euler(new Vector3(90.0f, 0.0f, 0.0f)));
+            newCharacterMesh.gameObject.name = newCharacterModel.Name();
+            newCharacterMesh.GetComponent<CharacterModel>().InitCharacterModel(newCharacterModel);
+            newCharacterMesh.GetComponent<CharacterModel>().InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
+            newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID; // Sets the uuid field, not the static one as it wont be serialized
+            // Update UUID for application length - then needs to be saved to file
+            GameController.Colonists.Add(newCharacterMesh);
+
+            // TODO Set its mesh to the players' choices using the character model component        
+            SetTrackLanePosition(trackLanePosition, newCharacterMesh.transform);
+        }
+        catch (ArgumentNullException ane)
+        {
+            Debug.Log(ane.Message);
+            Debug.LogError("Error: No prefab model for characters loaded.");
+        }
+        catch (ArgumentException ae)
+        {
+            Debug.LogError(ae.Message);
+        }
+    }
+
+    public int FindAvailableCameraLane()
+    {
         // Set the new Material runner games character to the last track position (set from live game character count)
         int trackLanePosition = 0;
 
@@ -125,30 +195,13 @@ public class CreationController
                 break;
             }
         }
+        return trackLanePosition;
+    }
 
-        GameObject newCharacterMesh = null;
-        try
-        {
-            newCharacterMesh = GameObject.Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.identity);
-            newCharacterMesh.gameObject.name = newCharacterModel.Name();
-            newCharacterMesh.GetComponent<CharacterModel>().InitCharacterModel(newCharacterModel);
-            newCharacterMesh.GetComponent<CharacterModel>().InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
-            newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID; // Sets the uuid field, not the static one as it wont be serialized
-            // Update UUID for application length - then needs to be saved to file
-            GameController.Colonists.Add(newCharacterMesh);
-
-            // TODO Set its mesh to the players' choices using the character model component        
-            laneFeedCams[trackLanePosition].GetComponent<CharacterTracker>().SetTarget(newCharacterMesh.gameObject.transform);
-        }
-        catch (ArgumentNullException ane)
-        {
-            Debug.Log(ane.Message);
-            Debug.LogError("Error: No prefab model for characters loaded.");
-        }
-        catch (ArgumentException ae)
-        {
-            Debug.LogError(ae.Message);
-        }
+    public void SetTrackLanePosition(int trackLanePosition, Transform cameraTarget)
+    {
+        laneFeedCams[trackLanePosition].GetComponent<CharacterTracker>().SetTarget(cameraTarget);
+        cameraTarget.GetComponent<CharacterModel>().TrackLanePosition = trackLanePosition;
     }
 
     // Handle client requests

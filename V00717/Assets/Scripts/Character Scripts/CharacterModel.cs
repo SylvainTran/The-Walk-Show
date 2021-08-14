@@ -16,7 +16,7 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     public int UniqueColonistPersonnelID_ { get { return uniqueColonistPersonnelID_; } set { uniqueColonistPersonnelID_ = value; } }
 
     // Colonist health - Can be reduced by conditions, damage taken during certain events?
-    [SerializeField] private float health = 100.0f;
+    [SerializeField] private float health = 500.0f;
     public float Health { get { return health; } set { health = value; } }
     // Virus strains/diseases/conditions active on the colonist
     //[SerializeField] private List<Condition> activeConditions = null;
@@ -119,6 +119,10 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     [SerializeField] private string lastEvent = null;
     public string LastEvent { get { return lastEvent; } set { lastEvent = value; } }
 
+    // Current camera track lane occupation
+    private int trackLanePosition = 0;
+    public int TrackLanePosition { get { return trackLanePosition; } set { trackLanePosition = value; } }
+
     public void InitCharacterModel(CharacterModelObject other)
     {
         this.nickName = other.NickName;
@@ -163,9 +167,9 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     // Handler for game clock event on this model
     public void OnGameClockEventGenerated(GameClockEvent e)
     {
-        if(health <= 0.0f || eventMarkersMap.EventMarkersFeed == null || isInPendingCall)
+        if(isDead() || eventMarkersMap.EventMarkersFeed == null || isInPendingCall)
         {
-            Debug.LogError("Make sure that eventmarkersfeed is initialized properly.");
+            //Debug.LogError("Make sure that eventmarkersfeed is initialized properly.");
             return;
         }
 

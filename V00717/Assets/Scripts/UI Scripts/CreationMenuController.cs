@@ -15,6 +15,8 @@ public class CreationMenuController : PageController, IWorldOverlayable
     // The one liner poetry TMP asset that regenerates after each confirm
     public TMP_Text oneLinerPoetryAsset;
 
+    public GameController GameController;
+
     public delegate void TriggerExitCreationMenuAction();
     public static event TriggerExitCreationMenuAction _OnTriggerExitCreationMenuAction;
 
@@ -97,6 +99,12 @@ public class CreationMenuController : PageController, IWorldOverlayable
     //Must validate all input fields before going on (no empty fields allowed)
     public void ValidateFields()
     {
+        if(GameController.Colonists.Count > CreationController.MAX_COLONISTS)
+        {
+            Debug.LogError("Max characters reached already. Some need to die to leave space for others.");
+            validEntry = false;
+            return;
+        }
         // If we validated earlier, reset
         if(validEntry)
         {

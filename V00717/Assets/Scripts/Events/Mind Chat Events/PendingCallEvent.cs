@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PendingCallEvent : GameClockEvent
 {
-    public delegate void OnPendingCallEvent(GameClockEvent e, ICombatant c);
+    public delegate void OnPendingCallEvent(GameClockEvent e, CharacterModel c);
     public static event OnPendingCallEvent _OnPendingCallEvent;
 
     public PendingCallEvent() : base(0.0f)
