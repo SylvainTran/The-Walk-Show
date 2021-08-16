@@ -21,14 +21,6 @@ public class CharacterCreationView : UIView
     // Unique colonist personnel ID in colonist creation screen
     public TMP_Text uniqueColonistPersonnelID_CC;
 
-    // The following are cached from inspector
-    // Tool tip text to update
-    public TMP_Text tooltipGO;
-    public Image ecnb = null; 
-    public TMP_Text text = null;
-    // The price tip
-    public TMP_Text priceTip;
-
     // Delegate for changing sex
     public delegate void SexChangeAction(string sex);
     public static event SexChangeAction _OnSexChanged; // listened to by SoundController.cs
@@ -87,63 +79,7 @@ public class CharacterCreationView : UIView
     // Updates the colonist uuid text in identification tab
     public void UpdateColonistUUIDText()
     {
-        // TODO UUID new way to get it from files?
-        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID:");
-    }
-
-    // Floating descending text animation
-    public void TriggerTextAnimation(float value)
-    {
-        // Re-enable and lerp the image component's alpha values from 0-1 (in), then 1-0 (out)
-        ecnb.enabled = true;
-        text.enabled = true;
-        ecnb.canvasRenderer.SetAlpha(0f);
-        text.canvasRenderer.SetAlpha(0f);
-        ecnb.CrossFadeAlpha(1f, 3f, false);
-        text.CrossFadeAlpha(1f, 3f, false);
-        StartCoroutine(FadeOutImage(4.5f, 0f, 3f, 3f, ecnb, text));
-    }
-
-    // Fade out the image and its child text components after a certain delay
-    private IEnumerator FadeOutImage(float delay, float target, float fadeIn, float fadeOut, Image image, TMP_Text text)
-    {
-        yield return new WaitForSeconds(delay);
-        image.CrossFadeAlpha(target, fadeIn, false);
-        text.CrossFadeAlpha(target, fadeOut, false);
-        // Disable the image and text (separate behaviour from canvas renderer)
-        StartCoroutine(DisableButtonImage(fadeOut, ecnb, text));
-     }
-
-    // Disable the image and its child text components
-    private IEnumerator DisableButtonImage(float delay, Image image, TMP_Text text)
-    {
-        yield return new WaitForSeconds(delay);
-        image.enabled = false;
-        text.enabled = false;
-    }
-
-    // Update tool tip box content on pointer enter some UI elements
-    public void UpdateToolTip(string text)
-    {
-        tooltipGO.SetText(text);
-    }
-
-    // Clear the tool tip canvas's TMP_Text component
-    public void ClearToolTip()
-    {
-        tooltipGO.SetText("");
-    }
-
-    // Update tool tip box content on pointer enter some UI elements
-    public void UpdatePriceTip(string text)
-    {
-        priceTip.SetText(text);
-    }
-
-    // Clear the tool tip canvas's TMP_Text component
-    public void ClearPriceTip()
-    {
-        priceTip.SetText("");
+        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {CharacterModelObject.uniqueColonistPersonnelID}");
     }
 
     // Procedure to update the skin color of BabyModelGO's game object's children
@@ -154,6 +90,17 @@ public class CharacterCreationView : UIView
         newMat.SetColor("_Color", new Color(GameController.CharacterModel.SkinColorR, GameController.CharacterModel.SkinColorG, GameController.CharacterModel.SkinColorB));
         BabyModelHeadRenderer.material = newMat;
         BabyModelTorsoRenderer.material = newMat;
+    }
+
+    // Procedure to update the skin color of BabyModelGO's game object's children
+    // Gets the renderer of the go's children and updates its materials with the new rgb values
+    public void UpdateSkinColor(GameObject go)
+    {
+        Renderer[] sharedMeshList = go.GetComponentsInChildren<Renderer>();
+        foreach (Renderer m in sharedMeshList)
+        {
+            m.material.SetColor("_Color", Color.gray);
+        }
     }
 
     // Views update itself concerning head/torso changes in UI (type == 0-4 : head mesh, type 4-8 : torso mesh)
