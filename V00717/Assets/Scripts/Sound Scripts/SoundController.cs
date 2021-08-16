@@ -12,6 +12,26 @@ public class SoundController : MonoBehaviour
     // Female
     public AudioClip femaleSound;
     public AudioClip femaleNarrator;
+    // Water stream
+    public AudioClip waterStream;
+
+    /// <summary>
+    /// Jukebox Songs
+    /// </summary>
+    public AudioClip evad_myopic_horses;
+    public AudioClip evad_death_washing_machine;
+    public AudioClip eval_dope_life;
+    public AudioClip evad_stars;
+    public AudioClip evad_valley_of_winds;
+    public AudioClip ericd_is_it_better;
+
+    // Poems/Recitals/Lyrics
+    public AudioClip ashleyd_summer_stream;
+    public AudioClip ericd_death_or_glory;
+
+    // All songs
+    private AudioClip[] jukebox;
+
     // The audio source to play the clips
     public AudioSource AudioSource;
     // The volume
@@ -26,6 +46,29 @@ public class SoundController : MonoBehaviour
     public void OnDisable()
     {
         CharacterCreationView._OnSexChanged -= MakeGenderSounds;
+    }
+
+    private void Start()
+    {
+        jukebox = new AudioClip[] { evad_myopic_horses,
+                                    evad_death_washing_machine,
+                                    eval_dope_life,
+                                    evad_stars,
+                                    evad_valley_of_winds,
+                                    ericd_is_it_better,
+                                    ashleyd_summer_stream,
+                                    ericd_death_or_glory,
+                                    waterStream
+                                  };
+    }
+
+    public void PlayJukeboxSong(int songIndex)
+    {
+        if (AudioSource.isPlaying)
+        {
+            AudioSource.Stop();
+        }
+        AudioSource.PlayOneShot(jukebox[songIndex], volume);
     }
 
     // Make sound based on 

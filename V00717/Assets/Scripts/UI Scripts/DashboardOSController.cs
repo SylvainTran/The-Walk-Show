@@ -1,4 +1,7 @@
-﻿using StarterAssets;
+﻿using System;
+using UnityEngine.EventSystems;
+using System.Collections;
+using StarterAssets;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -6,12 +9,6 @@ using System.Collections.Generic;
 
 // Ports
 using static Enums;
-using System;
-using UnityEngine.EventSystems;
-using System.IO;
-using UnityEditor;
-using System.Collections;
-using System.Linq;
 
 public class DashboardOSController : PageController
 {
@@ -21,12 +18,18 @@ public class DashboardOSController : PageController
     protected int activePageIndex;
     // Dashboard OS canvas
     public Canvas dashboardOS;
-    // Bridge canvas
+    // Bridge Page
     public GameObject creatorBridgePage;
-    // On Air Canvas
+    // On Air Page
     public GameObject onAirCanvas;
     // Livestream chat
     public GameObject livestreamChat;
+    // Jukebox page
+    public GameObject jukeboxPage;
+    // EVA-NEWS page
+    public GameObject evaNewsPage;
+
+
     // Transforms for parenting pending calls
     public Transform cameraLane1TargetCallTransform;
     public Transform cameraLane2TargetCallTransform;
@@ -175,6 +178,12 @@ public class DashboardOSController : PageController
         } else if (livestreamChat.activeInHierarchy)
         {
             previouslyActiveCanvas = livestreamChat;
+        } else if (jukeboxPage.activeInHierarchy)
+        {
+            previouslyActiveCanvas = jukeboxPage;
+        } else if (evaNewsPage.activeInHierarchy)
+        {
+            previouslyActiveCanvas = evaNewsPage;
         }
         StarterAssetsInputs.previouslyActiveCanvas = previouslyActiveCanvas;
 
