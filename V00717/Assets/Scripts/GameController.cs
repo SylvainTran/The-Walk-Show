@@ -14,6 +14,8 @@ public class GameController : MonoBehaviour
     private CreationController creationController = null;
     public CreationController CreationController { get { return creationController; } set { creationController = value; } }
     GameClockEventController gameClockEventController = null;
+    private float donationMoney = 0.0f;
+    public float DonationMoney { get { return donationMoney; } set { donationMoney = value; } }
 
     public CreationMenuController creationMenuController = null;
     public Button submitButton = null;
@@ -83,12 +85,21 @@ public class GameController : MonoBehaviour
         // Create a game character database if it doesn't exist (failsafe)
         // ScriptableObject gcd = (ScriptableObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/GameCharacterDatabase.asset", typeof(ScriptableObject));
         // Load chat database SO and initialize main controllers
+#if UNITY_EDITOR
         chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath("Assets/MyResources/ChatDatabase.asset", typeof(ChatDatabase));
         if (chatDatabaseSO == null)
         {
             chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
             AssetDatabase.CreateAsset(chatDatabaseSO, $"Assets/MyResources/{chatDatabaseSO.name}.asset");
         }
+#endif
+#if DEVELOPMENT_BUILD
+        if (chatDatabaseSO == null)
+        {
+           chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
+        }
+#endif
+
         // Load from saved file if needed
         if (chatDatabaseSO.REGRET_THEME.Length == 0)
         {
@@ -98,10 +109,10 @@ public class GameController : MonoBehaviour
         colonists = new List<GameObject>();
         deadColonists = new List<GameObject>();
         characterModel = new CharacterModelObject();
-        LoadGameCharacters();
 
         creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
         gameClockEventController = new GameClockEventController(this, triggerChance);
+        LoadGameCharacters();
     }
 
     public void LoadGameCharacters()
@@ -110,6 +121,11 @@ public class GameController : MonoBehaviour
         if (SaveSystem.SaveFileExists("colonists.json"))
         {
             LoadCharactersFromJSONFile(colonists, "colonists.json", true, true);
+            // Update camera lanes
+            foreach(GameObject character in colonists)
+            {
+                creationController.SetTrackLanePosition(creationController.FindAvailableCameraLane(), character.transform);
+            }
         }
         if (SaveSystem.SaveFileExists("deadColonists.json"))
         {

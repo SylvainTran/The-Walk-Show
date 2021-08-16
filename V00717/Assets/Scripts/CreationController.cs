@@ -13,7 +13,7 @@ public class CreationController
     public GameController GameController;
     private GameObject characterModelPrefab;
     // The max n of colonists (temporary n)
-    public static int MAX_COLONISTS = 4;
+    public static int MAX_COLONISTS = 3;
     /// <summary>
     /// The possible tracklane positions to start each new character
     /// </summary>
@@ -22,6 +22,7 @@ public class CreationController
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
     private Camera[] laneFeedCams;
+    public Camera[] LaneFeedCams { get { return laneFeedCams; } set { laneFeedCams = value; } }
 
     // SERVER REQUESTS
     public delegate void RequestColonistDataResponse(List<GameObject> colonists, Enums.DataRequests request);
@@ -87,7 +88,6 @@ public class CreationController
         GameController.CharacterModel.SkinColorB = b;
     }
 
-
     // Called on finalize creation menu
     public void CreateNewColonist()
     {
@@ -98,9 +98,50 @@ public class CreationController
         // Create a characterModel component to attach to its mesh game object
         // TODO update UUID in a more reliable new way
         CharacterModelObject.uniqueColonistPersonnelID++;
-        //GameController.CharacterModel.UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
-
         CreateNewCharacterMesh(GameController.CharacterModel);
+    }
+
+    public string GetStartingItemKey()
+    {
+        int tier = 0;
+        float donationMoney = GameController.DonationMoney;
+        if (donationMoney <= 100.0f)
+        {
+            tier = 0;
+        } else if (donationMoney >= 100.0f && donationMoney <= 500.0f)
+        {
+            tier = 1;
+        } else if (donationMoney >= 500.0f && donationMoney <= 1000.0f)
+        {
+            tier = 2;
+        } else if (donationMoney >= 1000.0f && donationMoney <= 5000.0f)
+        {
+            tier = 3;
+        } else if (donationMoney >= 5000.0f && donationMoney <= 10000.0f)
+        {
+            tier = 4;
+        } else if (donationMoney >= 10000.0f && donationMoney <= float.MaxValue)
+        {
+            tier = 5;
+        }
+
+        string[][] startingItems = {
+            new string[] { "PAPER_PLANE", "BAND_AID", "COUGH_SYRUP", "BALLOON", "PLASTIC_SPOON" },
+            new string[] { "WOODEN_SPOON", "SYRINGE", "EXPERIMENT_RAT", "METAL_CHAIR", "FIRST-AID" },
+            new string[] { "METAL_SPOON", "DAGGER", "G-VACCINE", "PROTECTION_GOOGLES", "GAUZE" },
+            new string[] { "DIAMOND_SPOON", "HEALING_POTION", "G-VACCINE", "RESPIRATOR", "NANO-MEDICATION" },
+            new string[] { "LASER_GUN", "SPOON_HAMMER", "IMMUNE-AI-BOOSTER", "OXYGEN-TANK", "PARACHUTE" },
+            new string[] { "ARBITER_FLUTE", "MASTER_GLOVE", "FREEDOM_CONTRACT", "NUKE" }
+        };
+        int randInt = UnityEngine.Random.Range(0, startingItems[tier].Length);
+
+        return startingItems[tier][randInt];
+    }
+
+    public void GetStarterItem()
+    {
+       string itemKey = GetStartingItemKey();
+       
     }
 
     internal void CreateNewCharacterMesh(CharacterModelObject newCharacterModel)
@@ -111,24 +152,12 @@ public class CreationController
         }
 
         // Set the new Material runner games character to the last track position (set from live game character count)
-        int trackLanePosition = 0;
-
-        for (int i = 0; i < laneFeedCams.Length; i++)
-        {
-            // If the target is null (not occupied yet) or dead, then the new character can take their position
-            CharacterTracker characterTracker = laneFeedCams[i].GetComponent<CharacterTracker>();
-
-            if (characterTracker.Target == null || characterTracker.Target.GetComponent<CharacterModel>().Health <= 0.0f)
-            {
-                trackLanePosition = i;
-                break;
-            }
-        }
+        int trackLanePosition = FindAvailableCameraLane();
 
         GameObject newCharacterMesh = null;
         try
         {
-            newCharacterMesh = GameObject.Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.identity);
+            newCharacterMesh = GameObject.Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.Euler(new Vector3(90.0f, 0.0f, 0.0f)));
             newCharacterMesh.gameObject.name = newCharacterModel.Name();
             newCharacterMesh.GetComponent<CharacterModel>().InitCharacterModel(newCharacterModel);
             newCharacterMesh.GetComponent<CharacterModel>().InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
@@ -137,7 +166,7 @@ public class CreationController
             GameController.Colonists.Add(newCharacterMesh);
 
             // TODO Set its mesh to the players' choices using the character model component        
-            laneFeedCams[trackLanePosition].GetComponent<CharacterTracker>().SetTarget(newCharacterMesh.gameObject.transform);
+            SetTrackLanePosition(trackLanePosition, newCharacterMesh.transform);
         }
         catch (ArgumentNullException ane)
         {
@@ -148,6 +177,31 @@ public class CreationController
         {
             Debug.LogError(ae.Message);
         }
+    }
+
+    public int FindAvailableCameraLane()
+    {
+        // Set the new Material runner games character to the last track position (set from live game character count)
+        int trackLanePosition = 0;
+
+        for (int i = 0; i < laneFeedCams.Length; i++)
+        {
+            // If the target is null (not occupied yet) or dead, then the new character can evict them/take their position
+            CharacterTracker characterTracker = laneFeedCams[i].GetComponent<CharacterTracker>();
+
+            if (characterTracker.Target == null || characterTracker.Target.GetComponent<CharacterModel>().isDead())
+            {
+                trackLanePosition = i;
+                break;
+            }
+        }
+        return trackLanePosition;
+    }
+
+    public void SetTrackLanePosition(int trackLanePosition, Transform cameraTarget)
+    {
+        laneFeedCams[trackLanePosition].GetComponent<CharacterTracker>().SetTarget(cameraTarget);
+        cameraTarget.GetComponent<CharacterModel>().TrackLanePosition = trackLanePosition;
     }
 
     // Handle client requests

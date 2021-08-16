@@ -42,7 +42,7 @@ public class GameClockEventController
     {
         // Polymorphic late binding
         GameClockEvent gameClockEvent = null;
-        int randIndex = Random.Range(0, 3);
+        int randIndex = Random.Range(0, 4);
         //int randIndex = 3;
         switch(randIndex)
         {
@@ -53,10 +53,10 @@ public class GameClockEventController
                 gameClockEvent = new DiseaseEvent(triggerChance);
                 break;
             case 2:
-                gameClockEvent = new BattleEvent(triggerChance); // May require counseling, therapy for PTSD in Mind Room or it'll increase stress levels and lower morale
+                gameClockEvent = new BattleEvent(triggerChance); // TODO make by encounter with other gos?
                 break;
             case 3:
-                gameClockEvent = new PendingCallEvent(triggerChance / 10);
+                gameClockEvent = new PendingCallEvent(triggerChance/2);
                 break;
             default: // TODO add death as a bug event?
                 break;

@@ -44,7 +44,8 @@ public abstract class GameClockEvent
     {
         if (!b.GetComponent<CharacterModel>().IsEnemyAI())
         {
-            message = $"{b.GetComponent<CharacterModel>().Name()} has died.";
+            string monumentMaterial = "stone"; // TODO randomize materials of death sculpture
+            message = $"{b.GetComponent<CharacterModel>().Name()} has died at {b.transform.position}, and has become a monument of {monumentMaterial}.";
             _OnColonistIsDead(this, b);
         }
     }
@@ -52,6 +53,10 @@ public abstract class GameClockEvent
     // Add a count to the event type
     protected abstract void AddToEventMarkersFeed(CharacterModel b);
 
+    public override string ToString()
+    {
+        return this.GetType().ToString();
+    }
     // Compare
     public bool Equals(UnityEngine.Object other)
     {

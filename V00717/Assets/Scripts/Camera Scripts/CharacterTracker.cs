@@ -35,7 +35,7 @@ public class CharacterTracker : MonoBehaviour
     public void SetTarget(Transform target)
     {
         this.target = target;
-        offset = transform.position - target.position;
+        //offset = transform.position - target.position;
     }
 
     public void LookAt()

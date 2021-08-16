@@ -48,13 +48,37 @@ public class Bot : MonoBehaviour
     }
 
     protected bool coolDown = false;
-    public void BehaviourCoolDown()
+    public void BehaviourCoolDown(bool state)
     {
-        coolDown = false;
+        coolDown = state;
+    }
+
+    public void ViewTombstoneBehaviour(GameObject go)
+    {
+        BehaviourCoolDown(true);
+        Seek(go.transform.position);
+        StartCoroutine(ResetBehaviourCooldown(UnityEngine.Random.Range(5.0f, 30.0f)));
+        // Trigger 'paying hommage' event to event log and broadcast viewers chat for reactions. The key word is REACTION.
+
+    }
+
+    private IEnumerator ResetBehaviourCooldown(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        BehaviourCoolDown(false);
+    }
+
+    public void Die()
+    {
+        BehaviourCoolDown(true);
+        GetComponent<NavMeshAgent>().isStopped = true;
     }
 
     public void Update()
     {
-        Wander();
+        if(!coolDown)
+        {
+            Wander();
+        }
     }
 }
