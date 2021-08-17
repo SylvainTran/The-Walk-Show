@@ -34,6 +34,7 @@ public class DashboardOSController : PageController
     public Transform cameraLane1TargetCallTransform;
     public Transform cameraLane2TargetCallTransform;
     public Transform cameraLane3TargetCallTransform;
+    public Transform cameraLane4TargetCallTransform;
 
     // Dashboard nav
     public Canvas dashboardNav;
@@ -94,6 +95,7 @@ public class DashboardOSController : PageController
         PendingCallEvent._OnPendingCallEvent += UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         BattleEvent._OnBattleEnded += UpdateEventLog;
+        SeasonController._OnQuadrantSelectionAction += UpdateQuadrantSelectionUI;
     }
 
     private void OnDisable()
@@ -105,6 +107,7 @@ public class DashboardOSController : PageController
         PendingCallEvent._OnPendingCallEvent -= UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         BattleEvent._OnBattleEnded -= UpdateEventLog;
+        SeasonController._OnQuadrantSelectionAction -= UpdateQuadrantSelectionUI;
     }
 
     private void Start()
@@ -140,6 +143,18 @@ public class DashboardOSController : PageController
                 rebuiltLog += message;
             }
             eventLogText.SetText(rebuiltLog);
+        }
+    }
+    /// <summary>
+    /// Updates the quadrants with selection UI.
+    /// </summary>
+    public void UpdateQuadrantSelectionUI()
+    {
+        Transform[] cameraLanes = { cameraLane1TargetCallTransform, cameraLane2TargetCallTransform, cameraLane3TargetCallTransform, cameraLane4TargetCallTransform };
+        GameObject[] quadrantIcons = new GameObject[] { UIAssets.UIQuadrantIcon, UIAssets.UIQuadrantIcon, UIAssets.UIQuadrantIcon, UIAssets.UIQuadrantIcon };
+        for(int i = 0; i < cameraLanes.Length; i++)
+        {
+            SetQuadrantUIOnClick(GameController.Colonists[i].GetComponent<CharacterModel>(), quadrantIcons, cameraLanes[i]);
         }
     }
 
@@ -221,7 +236,7 @@ public class DashboardOSController : PageController
     : deadColonistsVerticalGroupLayout;
 
         ClearColonistIcons(request, layout);
-        CreateColonistIcons(colonists, request, layout);
+        AddCameraFeedActionUI(colonists, request, layout);
     }
 
     // On colonist dead, need to put X medical bay and also exclude that colonist from next save instance
@@ -298,7 +313,7 @@ public class DashboardOSController : PageController
         //eventLogYOffset += eventLogYOffsetDecrement;
     }
 
-    public void CreateColonistIcons(List<GameObject> colonists, DataRequests request, Transform parentLayout)
+    public void AddCameraFeedActionUI(List<GameObject> colonists, DataRequests request, Transform parentLayout)
     {
         // Replace content
         foreach (GameObject b in colonists)
@@ -332,7 +347,7 @@ public class DashboardOSController : PageController
     /// </summary>
     /// <param name="c"></param>
     /// <param name="parentLayout"></param>
-    public void CreateColonistIcons(CharacterModel c, Transform parentTransform, bool takeParentPosition)
+    public void AddCameraFeedActionUI(CharacterModel c, Transform parentTransform, bool takeParentPosition, Action<CharacterModel, Image, TMP_Text, int> chatCallback = null, Action<CharacterModel, Image[], int> quadrantSelectionCallback = null)
     {
         if (c != null)
         {
@@ -344,21 +359,25 @@ public class DashboardOSController : PageController
                 colonistIcon.rectTransform.position = parentTransform.position;
             }
             colonistIcon.gameObject.name = c.Name();
-            // Add the handle mouse event trigger
-            EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
-            EventTrigger.Entry entry = new EventTrigger.Entry();
-            entry.eventID = EventTriggerType.PointerClick;
-            evt.triggers.Add(entry);
-            // Names
             TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
-            colonistName.SetText(c.Name());
-            colonistName.gameObject.name = c.Name();
-            colonistName.rectTransform.SetParent(parentTransform);
-            if(takeParentPosition)
+
+            if (takeParentPosition)
             {
                 colonistName.rectTransform.position = parentTransform.position;
             }
-            entry.callback.AddListener((eventData) => { AddChatCallOnClick(c, colonistIcon, colonistName, c.UniqueColonistPersonnelID_); });
+            if(chatCallback != null)
+            {
+                // Add the handle mouse event trigger
+                EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
+                EventTrigger.Entry entry = new EventTrigger.Entry();
+                entry.eventID = EventTriggerType.PointerClick;
+                evt.triggers.Add(entry);
+                // Names
+                colonistName.SetText(c.Name());
+                colonistName.gameObject.name = c.Name();
+                colonistName.rectTransform.SetParent(parentTransform);
+                entry.callback.AddListener((eventData) => { chatCallback(c, colonistIcon, colonistName, c.UniqueColonistPersonnelID_); });
+            }
         }
     }
 
@@ -426,6 +445,18 @@ public class DashboardOSController : PageController
         StartCoroutine(ClearChat(caller, callerIcon, callerName, 5.0f));
     }
 
+    public void SetQuadrantUIOnClick(CharacterModel character, GameObject[] quadrantIcons, Transform parent)
+    {
+        if (GameController == null || GameController.Colonists == null)
+        {
+            return;
+        }
+        for(int i = 0; i < quadrantIcons.Length; i++)
+        {
+            Image quadrantIcon = Instantiate(quadrantIcons[i].GetComponent<Image>(), parent, true);
+        }
+    }
+
     private IEnumerator ClearChat(CharacterModel caller, Image callerIcon, TMP_Text callerName, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -453,7 +484,10 @@ public class DashboardOSController : PageController
         } else if(c.TrackLanePosition == 2)
         {
             targetParent = cameraLane3TargetCallTransform;
+        } else if(c.TrackLanePosition == 3)
+        {
+            targetParent = cameraLane4TargetCallTransform;
         }
-        CreateColonistIcons(c, targetParent, true);
+        AddCameraFeedActionUI(c, targetParent, true);
     }
 }

@@ -13,7 +13,7 @@ public class CreationController
     public GameController GameController;
     private GameObject characterModelPrefab;
     // The max n of colonists (temporary n)
-    public static int MAX_COLONISTS = 3;
+    public static int MAX_COLONISTS = 4;
     /// <summary>
     /// The possible tracklane positions to start each new character
     /// </summary>
@@ -95,14 +95,14 @@ public class CreationController
         {
             return;
         }
-        if (GameController.Colonists.Count == MAX_COLONISTS) // SeasonController.cs can change the state to quadrant selection phase
-        {
-            SeasonController.SetQuadrantSelection();
-        }
         // Create a characterModel component to attach to its mesh game object
         // TODO update UUID in a more reliable new way
         CharacterModelObject.uniqueColonistPersonnelID++;
         CreateNewCharacterMesh(GameController.CharacterModel);
+        if (GameController.Colonists.Count == MAX_COLONISTS) // SeasonController.cs can change the state to quadrant selection phase
+        {
+            SeasonController.SetQuadrantSelection();
+        }
     }
 
     public string GetStartingItemKey()

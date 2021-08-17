@@ -9,4 +9,5 @@ public class UIAssets : ScriptableObject
     public GameObject colonistIcon;
     public GameObject colonistName;
     public GameObject eventLogText;
+    public GameObject UIQuadrantIcon;
 }

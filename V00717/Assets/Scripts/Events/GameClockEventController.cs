@@ -22,10 +22,9 @@ public class GameClockEventController
     // Clock events
     public void OnEventClockUpdate()
     {
-        // Don't update events if no colonists or controller
-        if (GameController.Colonists == null || GameController.Colonists.Count == 0)
+        // Don't update events if no colonists or controller or not right stage of game
+        if (SeasonController.currentGameState != SeasonController.GAME_STATE.RESOLUTION || GameController.Colonists == null || GameController.Colonists.Count == 0)
         {
-            //Debug.LogError("No colonists to poke with events");
             return;
         }
         // Iterate a new event for each colonist

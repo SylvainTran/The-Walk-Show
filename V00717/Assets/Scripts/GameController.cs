@@ -199,10 +199,7 @@ public class GameController : MonoBehaviour
         {
             return;
         }
-        if(SeasonController.currentGameState == SeasonController.GAME_STATE.RESOLUTION)
-        {
-            gameClockEventController.OnEventClockUpdate();
-        }
+        gameClockEventController.OnEventClockUpdate();
     }
 
     public void deleteSaveFile()
