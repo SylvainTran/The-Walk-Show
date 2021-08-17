@@ -63,6 +63,19 @@ public class GameController : MonoBehaviour
     /// </summary>
     public GameObject characterModelPrefab;
 
+    /// <summary>
+    /// Wrapper for the adjacency graph and methods on it
+    /// that'll be used in game.
+    ///
+    /// Set through the inspector for now.
+    /// </summary>
+    public QuadrantMapper quadrantMapper;
+    /// <summary>
+    /// Controls the seasons (game scene order)
+    /// system.
+    /// </summary>
+    public SeasonController seasonController;
+
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += OnColonistDied;
@@ -73,11 +86,6 @@ public class GameController : MonoBehaviour
     {
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         TimeController._OnUpdateEventClock -= OnEventClockUpdate;
-    }
-
-    private void Awake()
-    {
-        
     }
 
     private void Start()
@@ -113,6 +121,9 @@ public class GameController : MonoBehaviour
         creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
         gameClockEventController = new GameClockEventController(this, triggerChance);
         LoadGameCharacters();
+
+        // Set game state to the intro
+        seasonController = new SeasonController(SeasonController.GAME_STATE.SEASON_INTRO);
     }
 
     public void LoadGameCharacters()
@@ -188,7 +199,10 @@ public class GameController : MonoBehaviour
         {
             return;
         }
-        gameClockEventController.OnEventClockUpdate();
+        if(SeasonController.currentGameState == SeasonController.GAME_STATE.RESOLUTION)
+        {
+            gameClockEventController.OnEventClockUpdate();
+        }
     }
 
     public void deleteSaveFile()
@@ -314,19 +328,6 @@ public class GameController : MonoBehaviour
         chatDatabaseSO.DENIAL_THEME = deserializedObject.DENIAL_THEME;
         chatDatabaseSO.GUILT_THEME = deserializedObject.GUILT_THEME;
         chatDatabaseSO.FEAR_THEME = deserializedObject.FEAR_THEME;
-    }
-
-    public void UpdateCharacterMesh(Mesh meshToUpdate)
-    {
-        //meshToUpdate.mesh = CharacterCreationView.BabyModelHeadMeshFilter.mesh;
-    }
-
-    /// <summary>
-    /// The camera lanes to watch the characters
-    /// </summary>
-    public void UpdateCameraLanes()
-    {
-
     }
 
     // DEBUG MODE: Nothing here

@@ -91,9 +91,13 @@ public class CreationController
     // Called on finalize creation menu
     public void CreateNewColonist()
     {
-        if (!CreationMenuController.validEntry || GameController.Colonists.Count > MAX_COLONISTS)
+        if (!CreationMenuController.validEntry)
         {
             return;
+        }
+        if (GameController.Colonists.Count == MAX_COLONISTS) // SeasonController.cs can change the state to quadrant selection phase
+        {
+            SeasonController.SetQuadrantSelection();
         }
         // Create a characterModel component to attach to its mesh game object
         // TODO update UUID in a more reliable new way
