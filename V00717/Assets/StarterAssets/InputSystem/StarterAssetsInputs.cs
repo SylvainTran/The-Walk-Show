@@ -31,6 +31,12 @@ namespace StarterAssets
 		public delegate void TriggerCloseActiveOverlay();
 		public static event TriggerCloseActiveOverlay _OnTriggerCloseOverlay;
 
+		// Camera views in "On Air" page in the dashboard OS
+		public GameObject lane1Subquadrants;
+		public GameObject lane2Subquadrants;
+		public GameObject lane3Subquadrants;
+		public GameObject lane4Subquadrants;
+
 		[Header("Movement Settings")]
 		public bool analogMovement;
 
@@ -91,6 +97,30 @@ namespace StarterAssets
 				_OnTriggerCloseActiveMenu();				
             //}
 			Cursor.visible = false;
+		}
+
+		public void OnLane1QuadrantToggle(InputValue value)
+        {
+			bool active = lane1Subquadrants.gameObject.activeInHierarchy;
+			lane1Subquadrants.gameObject.SetActive(!active);
+		}
+
+		public void OnLane2QuadrantToggle(InputValue value)
+		{
+			bool active = lane2Subquadrants.gameObject.activeInHierarchy;
+			lane2Subquadrants.gameObject.SetActive(!active);
+		}
+
+		public void OnLane3QuadrantToggle(InputValue value)
+		{
+			bool active = lane3Subquadrants.gameObject.activeInHierarchy;
+			lane3Subquadrants.gameObject.SetActive(!active);
+		}
+
+		public void OnLane4QuadrantToggle(InputValue value)
+		{
+			bool active = lane4Subquadrants.gameObject.activeInHierarchy;
+			lane4Subquadrants.gameObject.SetActive(!active);
 		}
 
 		public static void ClearActiveMenu()
