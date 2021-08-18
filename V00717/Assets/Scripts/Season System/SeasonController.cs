@@ -16,6 +16,25 @@ public class SeasonController
 
     public static GAME_STATE currentGameState;
 
+    /// <summary>
+    /// Quadrant north-east available? (Quadrant selection phase).
+    /// If null it is available.
+    /// </summary>
+    public static CharacterModel quadrantNEOwner = null;
+    /// <summary>
+    /// Quadrant north-west available?
+    /// </summary>
+    public static CharacterModel quadrantNWOwner = null;
+    /// <summary>
+    /// Quadrant south-west available?
+    /// </summary>
+    public static CharacterModel quadrantSWOwner = null;
+    /// <summary>
+    /// Quadrant south-east available?
+    /// </summary>
+    public static CharacterModel quadrantSEOwner = null;
+
+
     public SeasonController(GAME_STATE startingState)
     {
         currentGameState = startingState;

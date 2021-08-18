@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 // Ports
 using static Enums;
@@ -79,9 +80,9 @@ public class DashboardOSController : PageController
     public Image chatterIcon;
 
     /// <summary>
-    /// To remove icons later (match by id)
+    /// To add events.
     /// </summary>
-    public List<Image> callersList;
+    public List<Image> addedQuadrantIconsList;
 
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
@@ -113,8 +114,9 @@ public class DashboardOSController : PageController
     private void Start()
     {
         eventLogQueue = new Queue<string>(MAX_EVENT_COUNT);
-        callersList = new List<Image>();
-        if(GameController == null)
+        addedQuadrantIconsList = new List<Image>();
+
+        if (GameController == null)
         {
             GameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
         }
@@ -445,15 +447,137 @@ public class DashboardOSController : PageController
         StartCoroutine(ClearChat(caller, callerIcon, callerName, 5.0f));
     }
 
+    public void AddEventListener(Image image, CharacterModel characterModel, GameWaypoint waypoint, Action<CharacterModel, GameWaypoint> callbackA = null)
+    {
+        // Add the handle mouse event trigger
+        EventTrigger evt = image.gameObject.AddComponent<EventTrigger>();
+        EventTrigger.Entry entry = new EventTrigger.Entry();
+        entry.eventID = EventTriggerType.PointerClick;
+        evt.triggers.Add(entry);
+        if(callbackA != null)
+        {
+            entry.callback.AddListener((eventData) => { callbackA(characterModel, waypoint); });
+        }
+    }
+
+    /// <summary>
+    /// Assigns a quadrant to its character.
+    /// </summary>
+    /// <param name="c"></param>
+    /// <param name="quadrantWaypoint"></param>
+    /// <returns></returns>
+    public void AssignQuadrantData(CharacterModel c, GameWaypoint quadrantWaypoint)
+    {
+        if(c.InQuadrant > -1)
+        {
+            Debug.Log("Already in a quadrant or heading there.");
+            return;
+        }
+
+        Debug.Log("clicked on quadrant icon!");
+        // Make the character go to quadrantWaypoint
+        // Assign new owner for that waypoint in SeasonController using the intKey property
+        switch (quadrantWaypoint.intKey)
+        {
+            case 0: case 1: case 2:
+            case 3:
+                {
+                    if (SeasonController.quadrantNEOwner == null)
+                    {
+                        SeasonController.quadrantNEOwner = c;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            case 4: case 5: case 6: case 7:
+                {
+                    if (SeasonController.quadrantNWOwner == null)
+                    {
+                        SeasonController.quadrantNWOwner = c;
+                    } else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            case 8: case 9: case 10:
+            case 11:
+                {
+                    if (SeasonController.quadrantSWOwner == null)
+                    {
+                        SeasonController.quadrantSWOwner = c;
+                    } else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            case 12: case 13: case 14:
+            case 15:
+                {
+                    if (SeasonController.quadrantSEOwner == null)
+                    {
+                        SeasonController.quadrantSEOwner = c;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            default:
+                break;
+        }
+        c.InQuadrant = quadrantWaypoint.intKey;
+        c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);         // Assign game object quadrant for the Bot.cs component to move there
+        // TODO Delete this quadrant icon or alert the others that the quadrant at that icon is unavailable now
+    }
+
+    /// <summary>
+    /// Remap the values of quadrants 1-4 to the range of waypoints in all quadrants
+    /// which is 16, or 0-15 in zero based-indexing.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="from1"></param>
+    /// <param name="to1"></param>
+    /// <param name="from2"></param>
+    /// <param name="to2"></param>
+    /// <returns></returns>
+    public int remap(int value, int from1, int to1, int from2, int to2)
+    {
+        // Map waypoints: 0 -> 0-3, 1 -> 4-7, 2 -> 8-11, 3 -> 12-15
+        int randOffset = UnityEngine.Random.Range(0, 3);
+        // Transform the range and clamp to be sure
+        int origin = value - from1;
+        int bias = origin / to1;
+        int scale = bias * to2;
+        int offset = scale + from2;
+        int result = offset += randOffset;
+
+        result = Mathf.Clamp(result, 0, 15);
+        return result;
+    }
+
     public void SetQuadrantUIOnClick(CharacterModel character, GameObject[] quadrantIcons, Transform parent)
     {
         if (GameController == null || GameController.Colonists == null)
         {
             return;
         }
-        for(int i = 0; i < quadrantIcons.Length; i++)
+        GameWaypoint[] waypoints = GameController.quadrantMapper.gameWayPoints;
+        int mappedWaypointIndex = 0;
+
+        for (int i = 0; i < quadrantIcons.Length; i++)
         {
             Image quadrantIcon = Instantiate(quadrantIcons[i].GetComponent<Image>(), parent, true);
+            addedQuadrantIconsList.Add(quadrantIcon);
+            // We're getting indexes from 0-3 and we want them remapped from 0-3,4-7,8-11,12,15
+            // The awkward index i is used to adjust the new from2 parameter (for translating the desired base or origin translation).
+            mappedWaypointIndex = remap(i, 0, quadrantIcons.Length, i + (3 * i) + 1, i * 4 + 4);
+            AddEventListener(quadrantIcon, character, waypoints[mappedWaypointIndex], AssignQuadrantData);
         }
     }
 

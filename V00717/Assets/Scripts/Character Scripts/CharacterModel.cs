@@ -123,6 +123,10 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     private int trackLanePosition = 0;
     public int TrackLanePosition { get { return trackLanePosition; } set { trackLanePosition = value; } }
 
+    // Quadrant location -1 means not assigned yet - this is checked in Bot.cs
+    private int inQuadrant = -1;
+    public int InQuadrant { get { return inQuadrant; } set { inQuadrant = value; } }
+
     public void InitCharacterModel(CharacterModelObject other)
     {
         this.nickName = other.NickName;
