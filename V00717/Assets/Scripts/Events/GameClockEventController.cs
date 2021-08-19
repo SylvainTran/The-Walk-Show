@@ -49,6 +49,7 @@ public class GameClockEventController
         {
             case 0:
                 gameClockEvent = new SnakeEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent.Message = $"{character.name} walked into a snake and they got injured."; // TODO vary snake color and size
                 break;
             //case 1:
             //    gameClockEvent = new DiseaseEvent(triggerChance);

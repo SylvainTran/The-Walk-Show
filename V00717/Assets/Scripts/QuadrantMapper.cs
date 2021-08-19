@@ -100,6 +100,8 @@ public class QuadrantMapper : MonoBehaviour
     /// <param name="quadrantIntKey"></param>
     public void GoToQuadrant(CharacterModel character, GameWaypoint newWaypoint)
     {
+        // Update the current quadrant location for the calculation of the next paths
+        character.InQuadrant = newWaypoint.intKey;
         character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
     }
 

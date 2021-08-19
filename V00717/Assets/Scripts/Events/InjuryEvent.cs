@@ -17,8 +17,7 @@ public class InjuryEvent : WaypointEvent
     public override bool ApplyEvent(CharacterModel b)
     {
         float injuryRange = UnityEngine.Random.Range(injuryDamageMin, injuryDamageMax);
-
-        Message = $"{b.Name()} has been injured {injuryRange} injury damage taken.\n";
+        //Message = $"{b.Name()} has been injured {injuryRange} injury damage taken.\n";
         b.Health -= injuryRange;
         AddToEventMarkersFeed(b);
         if(CheckIfDead(b))

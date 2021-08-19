@@ -176,17 +176,29 @@ public class DashboardOSController : PageController
 
             CharacterModel randCharacter = characters[UnityEngine.Random.Range(0, characters.Count)].GetComponent<CharacterModel>();
             WaypointEvent wayPointEvent = GameController.gameClockEventController.GenerateRandomWaypointEvent(randCharacter);
-            eventQueue.Enqueue(wayPointEvent); // What to do with this
 
             // The randSubQuadrant should be in the same quadrant than the randCharacter
             // We can use the outgoing edges of the graph for this - it will only use the edges of the current waypoint, like a path
-            GameWaypoint v = GameController.quadrantMapper.gameWayPoints[randCharacter.InQuadrant];
-            int randInt = UnityEngine.Random.Range(0, 2);
-            GameWaypoint newWaypoint = v.edges[randInt].endPoint;
-            // TODO a Move To action should never use the same quadrant where the character already is, although other kinds of events could
+            GameWaypoint currentWaypoint = GameController.quadrantMapper.gameWayPoints[randCharacter.InQuadrant];
+            EdgeObject[] waypoints = currentWaypoint.edges;
+            GameWaypoint newWaypoint = null;
 
-            SpawnQuadrantUIActionEvent(newWaypoint, wayPointEvent, randCharacter);
+            for (int i = 0; i < waypoints.Length; i++)
+            {
+                if(waypoints[i].endPoint.waypointEvent == null)
+                {
+                    newWaypoint = waypoints[i].endPoint;
+                    break;
+                }
+            }
+            // All taken for now
+            if(newWaypoint == null)
+            {
+                return;
+            }
+
             SpawnEventAtWaypoint(newWaypoint, wayPointEvent);
+            SpawnQuadrantUIActionEvent(newWaypoint, wayPointEvent, randCharacter);
             SpawnItemAtWaypoint();
         }
     }
@@ -221,7 +233,7 @@ public class DashboardOSController : PageController
             // TODO put fancy icons in the events - need the same with quadrants selection
             quadrantIcon = Instantiate(UIAssets.UIQuadrantIcon.GetComponent<Image>(), parentTransform, true);
             // Start timeout to destroy the event
-            StartCoroutine(DestroyQuadrantUIEvent(quadrantIcon, 5.0f));
+            StartCoroutine(DestroyQuadrantUIEvent(newWaypoint, quadrantIcon, 5.0f));
             // TODO show timer
 
             // TODO refactor into this method (work with method group?):
@@ -233,6 +245,10 @@ public class DashboardOSController : PageController
             evt.triggers.Add(entry);
             entry.callback.AddListener((eventData) => {
                 action(randCharacter, newWaypoint);
+                // Event log
+                randCharacter.OnGameClockEventGenerated(waypointEvent);
+                // Remove event
+                newWaypoint.waypointEvent = null;
                 // may have been deleted from auto timer already
                 if(quadrantIcon)
                 {
@@ -245,9 +261,12 @@ public class DashboardOSController : PageController
         }
     }
 
-    public IEnumerator DestroyQuadrantUIEvent(Image quadrantIcon, float delay)
+    public IEnumerator DestroyQuadrantUIEvent(GameWaypoint newWaypoint, Image quadrantIcon, float delay)
     {
         yield return new WaitForSeconds(delay);
+        // also remove the actual waypoint event
+        newWaypoint.waypointEvent = null;
+
         if(quadrantIcon)
         {
             Destroy(quadrantIcon.gameObject);
