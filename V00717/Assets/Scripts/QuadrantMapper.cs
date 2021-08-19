@@ -9,6 +9,10 @@ public class QuadrantMapper : MonoBehaviour
 
     public EdgeObject[] edgeObjects;
     public GameWaypoint[] gameWayPoints;
+    public GameObject[] gameWaypointsCameraUILayouts;
+
+    // Map for the buttons parented to their horizontal layout UI associated with each gameWayPoint
+    public Dictionary<int, GameObject> gameWaypointToCameraUIMap;
 
     public bool isDirected = false;
 
@@ -16,6 +20,11 @@ public class QuadrantMapper : MonoBehaviour
     {
         adjacencyMatrix = new AdjacencyMatrix(edgeObjects);
         adjacencyMap = new AdjacencyMap(isDirected);
+        gameWaypointToCameraUIMap = new Dictionary<int, GameObject>();
+        for(int i = 0; i < gameWaypointsCameraUILayouts.Length; i++)
+        {
+            gameWaypointToCameraUIMap.Add(gameWayPoints[i].intKey, gameWaypointsCameraUILayouts[i]);
+        }
     }
 
     /// <summary>
@@ -83,5 +92,24 @@ public class QuadrantMapper : MonoBehaviour
         {
             adjacencyMap.EnableEdge(v.Outgoing[e]);
         }
+    }
+    /// <summary>
+    /// Seek the quadrant at the int key.
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="quadrantIntKey"></param>
+    public void GoToQuadrant(CharacterModel character, GameWaypoint newWaypoint)
+    {
+        character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+    }
+
+    /// <summary>
+    /// Evade the quadrant at the int key.
+    /// </summary>
+    /// <param name="character"></param>
+    /// <param name="quadrantIntKey"></param>
+    public void EvadeQuadrant(CharacterModel character, int quadrantIntKey)
+    {
+        character.GetComponent<Bot>().Flee(gameWayPoints[quadrantIntKey].transform.position);
     }
 }

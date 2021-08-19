@@ -99,10 +99,7 @@ public class CreationController
         // TODO update UUID in a more reliable new way
         CharacterModelObject.uniqueColonistPersonnelID++;
         CreateNewCharacterMesh(GameController.CharacterModel);
-        if (GameController.Colonists.Count == MAX_COLONISTS) // SeasonController.cs can change the state to quadrant selection phase
-        {
-            SeasonController.SetQuadrantSelection();
-        }
+        GameController.ValidateCharactersState();
     }
 
     public string GetStartingItemKey()

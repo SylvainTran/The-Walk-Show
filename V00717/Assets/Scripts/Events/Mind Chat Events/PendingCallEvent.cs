@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PendingCallEvent : GameClockEvent
 {
@@ -66,5 +67,10 @@ public class PendingCallEvent : GameClockEvent
         {
             b.eventMarkersMap.EventMarkersFeed.Add(pendingCall, 1);
         }
+    }
+
+    public override Image GetEventIcon()
+    {
+        throw new NotImplementedException();
     }
 }

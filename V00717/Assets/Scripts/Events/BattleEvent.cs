@@ -1,9 +1,10 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 using static Enums;
 using static Enums.CharacterAchievements;
 
-public class BattleEvent : GameClockEvent
+public abstract class BattleEvent : GameClockEvent
 {
     private Enemy enemyEntity;
     private string endOfBattleMessage;
@@ -68,5 +69,10 @@ public class BattleEvent : GameClockEvent
         {
             b.eventMarkersMap.EventMarkersFeed.Add(key, 1);
         }
+    }
+
+    public override Image GetEventIcon()
+    {
+        throw new NotImplementedException();
     }
 }

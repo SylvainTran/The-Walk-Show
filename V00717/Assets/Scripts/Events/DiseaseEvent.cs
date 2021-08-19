@@ -2,14 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class DiseaseEvent : GameClockEvent
+public abstract class DiseaseEvent : WaypointEvent
 {
     private float healthDecreaseTick = 10.0f;
+    private Image icon;
 
-    public DiseaseEvent(float triggerChance) : base(triggerChance)
+    public DiseaseEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
-
+        //icon = (Image)Resources.Load("Assets/Art/Icons/InjuryEventIcon.png");
     }
 
     public override bool ApplyEvent(CharacterModel b)
@@ -28,6 +30,11 @@ public class DiseaseEvent : GameClockEvent
             base.NotifyIsDead(b.gameObject);
         }
         return true;
+    }
+
+    public override Image GetEventIcon()
+    {
+        throw new NotImplementedException();
     }
 
     protected override void AddToEventMarkersFeed(CharacterModel b)

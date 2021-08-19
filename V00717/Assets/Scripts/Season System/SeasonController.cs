@@ -1,4 +1,8 @@
 
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
 public class SeasonController
 {
     /// <summary>
@@ -34,6 +38,9 @@ public class SeasonController
     /// </summary>
     public static CharacterModel quadrantSEOwner = null;
 
+    public static int QUADRANTS_ASSIGNED = 0;
+    public static int QUADRANTS_REACHED = 0;
+
 
     public SeasonController(GAME_STATE startingState)
     {
@@ -54,7 +61,7 @@ public class SeasonController
     public static event SeasonIntroAction _OnSeasonIntroAction;
     public static void SetSeasonIntro()
     {
-        currentGameState = SeasonController.GAME_STATE.SEASON_INTRO;
+        currentGameState = GAME_STATE.SEASON_INTRO;
         _OnSeasonIntroAction();
     }
 
@@ -62,7 +69,7 @@ public class SeasonController
     public static event QuadrantSelectionAction _OnQuadrantSelectionAction;
     public static void SetQuadrantSelection()
     {
-        currentGameState = SeasonController.GAME_STATE.QUADRANT_SELECTION;
+        currentGameState = GAME_STATE.QUADRANT_SELECTION;
         _OnQuadrantSelectionAction();
     }
 
@@ -70,15 +77,15 @@ public class SeasonController
     public static event ScavengingStateAction _OnScavengingStateAction;
     public static void SetScavengingState()
     {
-        currentGameState = SeasonController.GAME_STATE.SCAVENGING;
-        _OnScavengingStateAction();
+        currentGameState = GAME_STATE.SCAVENGING;
+        _OnScavengingStateAction(); //TODO add notifications/sounds/etc. on state change, removed because no subscribers yet
     }
 
     public delegate void ResolutionStateAction();
     public static event ResolutionStateAction _OnResolutionStateAction;
     public static void SetResolutionState()
     {
-        currentGameState = SeasonController.GAME_STATE.RESOLUTION;
+        currentGameState = GAME_STATE.RESOLUTION;
         _OnResolutionStateAction();
     }
 
@@ -86,7 +93,7 @@ public class SeasonController
     public static event FinalStateAction _OnFinalStateAction;
     public static void SetFinaleState()
     {
-        currentGameState = SeasonController.GAME_STATE.FINALE;
+        currentGameState = GAME_STATE.FINALE;
         _OnFinalStateAction();
     }
 
@@ -94,7 +101,30 @@ public class SeasonController
     public static event IntermissionStateAction _OnIntermissionStateAction;
     public static void SetIntermissionState()
     {
-        currentGameState = SeasonController.GAME_STATE.INTERMISSION;
+        currentGameState = GAME_STATE.INTERMISSION;
         _OnIntermissionStateAction();
+    }
+
+    public static void CheckQuadrantsReached()
+    {
+       if(QUADRANTS_REACHED < CreationController.MAX_COLONISTS)
+        {
+            ++QUADRANTS_REACHED;
+        }
+       if(QUADRANTS_REACHED == CreationController.MAX_COLONISTS)
+        {
+            Debug.Log("Starting scavenging phase");
+            SetScavengingState();
+        }
+    }
+
+    public static void ScavengingPhaseFlag(List<Image> images)
+    {
+        QUADRANTS_ASSIGNED++;
+
+        if (QUADRANTS_ASSIGNED >= CreationController.MAX_COLONISTS)
+        {
+            DashboardOSController.ClearQuadrantUIActions(images);
+        }
     }
 }

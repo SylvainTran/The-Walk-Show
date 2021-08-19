@@ -30,7 +30,6 @@ public class DashboardOSController : PageController
     // EVA-NEWS page
     public GameObject evaNewsPage;
 
-
     // Transforms for parenting pending calls
     public Transform cameraLane1TargetCallTransform;
     public Transform cameraLane2TargetCallTransform;
@@ -59,6 +58,7 @@ public class DashboardOSController : PageController
     public int eventCount = default;
     // The max amount of event logs instantiable
     private const int MAX_EVENT_COUNT = 100;
+    private int MAX_UIACTION_EVENT = CreationController.MAX_COLONISTS * 2;
 
     public TMP_Text eventLogText = null;
 
@@ -68,6 +68,7 @@ public class DashboardOSController : PageController
 
     // Queue of generated event logs (we dequeue first ones when max reached)
     private Queue<string> eventLogQueue;
+    private Queue<WaypointEvent> eventQueue;
 
     // Obituary overlay to fade in/out when clicking on dead colonist icon
     public Canvas obituaryOverlayCanvas;
@@ -80,9 +81,11 @@ public class DashboardOSController : PageController
     public Image chatterIcon;
 
     /// <summary>
-    /// To add events.
+    /// The icons of the quadrants (NE, NW, SW, SE).
+    /// Cached to destroy them when the selection stage is cleared.
     /// </summary>
     public List<Image> addedQuadrantIconsList;
+    public List<Image> addedQuadrantActionUIEventList;
 
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
@@ -115,6 +118,8 @@ public class DashboardOSController : PageController
     {
         eventLogQueue = new Queue<string>(MAX_EVENT_COUNT);
         addedQuadrantIconsList = new List<Image>();
+        eventQueue = new Queue<WaypointEvent>(MAX_UIACTION_EVENT);
+        addedQuadrantActionUIEventList = new List<Image>();
 
         if (GameController == null)
         {
@@ -158,6 +163,96 @@ public class DashboardOSController : PageController
         {
             SetQuadrantUIOnClick(GameController.Colonists[i].GetComponent<CharacterModel>(), quadrantIcons, cameraLanes[i]);
         }
+    }
+
+    /// <summary>
+    /// Give an event to one of the characters
+    /// </summary>
+    public void AssignNewUIActionEvent()
+    {
+        if (addedQuadrantActionUIEventList.Count < MAX_UIACTION_EVENT)
+        {
+            List<GameObject> characters = GameController.Colonists;
+
+            CharacterModel randCharacter = characters[UnityEngine.Random.Range(0, characters.Count)].GetComponent<CharacterModel>();
+            WaypointEvent wayPointEvent = GameController.gameClockEventController.GenerateRandomWaypointEvent(randCharacter);
+            eventQueue.Enqueue(wayPointEvent); // What to do with this
+
+            // The randSubQuadrant should be in the same quadrant than the randCharacter
+            // We can use the outgoing edges of the graph for this - it will only use the edges of the current waypoint, like a path
+            GameWaypoint v = GameController.quadrantMapper.gameWayPoints[randCharacter.InQuadrant];
+            int randInt = UnityEngine.Random.Range(0, 2);
+            GameWaypoint newWaypoint = v.edges[randInt].endPoint;
+            // TODO a Move To action should never use the same quadrant where the character already is, although other kinds of events could
+
+            SpawnQuadrantUIActionEvent(newWaypoint, wayPointEvent, randCharacter);
+            SpawnEventAtWaypoint(newWaypoint, wayPointEvent);
+            SpawnItemAtWaypoint();
+        }
+    }
+
+    public void SpawnEventAtWaypoint(GameWaypoint newWaypoint, WaypointEvent waypointEvent)
+    {
+        newWaypoint.waypointEvent = waypointEvent;
+    }
+
+    public void SpawnItemAtWaypoint()
+    {
+
+    }
+
+    public void SpawnQuadrantUIActionEvent(GameWaypoint newWaypoint, WaypointEvent waypointEvent, CharacterModel randCharacter)
+    {
+        // need the parent transform to put it in
+        Dictionary<int, GameObject> gameWaypointToCameraUIMap = GameController.quadrantMapper.gameWaypointToCameraUIMap;
+        if(gameWaypointToCameraUIMap.Count == 0 || waypointEvent.actionMethodPointers == null)
+        {
+            return;
+        }
+        Transform parentTransform = gameWaypointToCameraUIMap[newWaypoint.intKey].transform;
+        //Image icon = e.GetEventIcon();
+
+        // Check what to spawn depending on the waypoint event (e.g., cue to go, cue to avoid)
+        Image quadrantIcon;
+
+        foreach(Action<CharacterModel, GameWaypoint> action in waypointEvent.actionMethodPointers)
+        {
+            // Create a new quadrantIcon with this action as callback for all of the actions in the waypoint event
+            // TODO put fancy icons in the events - need the same with quadrants selection
+            quadrantIcon = Instantiate(UIAssets.UIQuadrantIcon.GetComponent<Image>(), parentTransform, true);
+            // Start timeout to destroy the event
+            StartCoroutine(DestroyQuadrantUIEvent(quadrantIcon, 5.0f));
+            // TODO show timer
+
+            // TODO refactor into this method (work with method group?):
+            //AddEventListener(quadrantIcon, target.GetComponent<CharacterModel>(), GameController.quadrantMapper.gameWayPoints[randSubQuadrant], ,AssignGameWaypointData);
+            // Add the handle mouse event trigger
+            EventTrigger evt = quadrantIcon.gameObject.AddComponent<EventTrigger>();
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerClick;
+            evt.triggers.Add(entry);
+            entry.callback.AddListener((eventData) => {
+                action(randCharacter, newWaypoint);
+                // may have been deleted from auto timer already
+                if(quadrantIcon)
+                {
+                    Destroy(quadrantIcon.gameObject);
+                }
+                addedQuadrantActionUIEventList.Remove(quadrantIcon);
+            });
+
+            addedQuadrantActionUIEventList.Add(quadrantIcon);
+        }
+    }
+
+    public IEnumerator DestroyQuadrantUIEvent(Image quadrantIcon, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if(quadrantIcon)
+        {
+            Destroy(quadrantIcon.gameObject);
+        }
+        addedQuadrantActionUIEventList.Remove(quadrantIcon);
     }
 
     // Sets the current active menu canvas to the dashboard OS which deals with inputs by state
@@ -302,17 +397,6 @@ public class DashboardOSController : PageController
         eventLogText.rectTransform.anchorMax = new Vector2(1.0f, 1.0f);
         eventLogText.rectTransform.pivot = new Vector2(0.5f, 1.0f);
         eventLogText.fontSize = 12.0f;
-        //eventLogText.rectTransform.GetComponent<TextMeshProUGUI>().margin = new Vector4(0.0f, eventLogTextTopMargin);
-
-        // Change the line spacing depending on the height of the generated text, which can be variable
-        // The proportion of the spacing scales with the height of the generated text
-        // Adjust where the next text appears using the text's size (height gotten from bounds)
-        //eventLogText.ForceMeshUpdate();
-        //float textHeight = Math.Abs(eventLogText.textBounds.size.y);
-        //float ratio = textHeight;// / 5.0f;
-        //eventLogYOffsetDecrement = textHeight;// * (ratio);
-        //Debug.Log($"Offset: {eventLogYOffset}, Decr: {eventLogYOffsetDecrement}");
-        //eventLogYOffset += eventLogYOffsetDecrement;
     }
 
     public void AddCameraFeedActionUI(List<GameObject> colonists, DataRequests request, Transform parentLayout)
@@ -447,7 +531,7 @@ public class DashboardOSController : PageController
         StartCoroutine(ClearChat(caller, callerIcon, callerName, 5.0f));
     }
 
-    public void AddEventListener(Image image, CharacterModel characterModel, GameWaypoint waypoint, Action<CharacterModel, GameWaypoint> callbackA = null)
+    public void AddEventListener(Image image, CharacterModel characterModel, GameWaypoint waypoint, Action<CharacterModel, GameWaypoint> callbackA = null, Action<CharacterModel, Image, WaypointEvent> callbackB = null)
     {
         // Add the handle mouse event trigger
         EventTrigger evt = image.gameObject.AddComponent<EventTrigger>();
@@ -458,6 +542,15 @@ public class DashboardOSController : PageController
         {
             entry.callback.AddListener((eventData) => { callbackA(characterModel, waypoint); });
         }
+        if(callbackB != null)
+        {
+            entry.callback.AddListener((eventData) => { callbackB(characterModel, image, waypoint.waypointEvent); });
+        }
+    }
+
+    public void AssignGameWaypointData(CharacterModel c, Image image, WaypointEvent e)
+    {
+
     }
 
     /// <summary>
@@ -468,13 +561,10 @@ public class DashboardOSController : PageController
     /// <returns></returns>
     public void AssignQuadrantData(CharacterModel c, GameWaypoint quadrantWaypoint)
     {
-        if(c.InQuadrant > -1)
+        if(c.InQuadrant > -1 || SeasonController.currentGameState != SeasonController.GAME_STATE.QUADRANT_SELECTION)
         {
-            Debug.Log("Already in a quadrant or heading there.");
             return;
         }
-
-        Debug.Log("clicked on quadrant icon!");
         // Make the character go to quadrantWaypoint
         // Assign new owner for that waypoint in SeasonController using the intKey property
         switch (quadrantWaypoint.intKey)
@@ -532,8 +622,30 @@ public class DashboardOSController : PageController
                 break;
         }
         c.InQuadrant = quadrantWaypoint.intKey;
-        c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);         // Assign game object quadrant for the Bot.cs component to move there
-        // TODO Delete this quadrant icon or alert the others that the quadrant at that icon is unavailable now
+
+        c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);
+        SeasonController.ScavengingPhaseFlag(addedQuadrantIconsList);
+    }
+
+    /// <summary>
+    /// Deletes a list of image actions.
+    /// </summary>
+    /// <param name="images">The list of images to delete.</param>
+    public static void ClearQuadrantUIActions(List<Image> images)
+    {
+        foreach (Image image in images)
+        {
+            Destroy(image.gameObject);
+        }
+    }
+
+    /// <summary>
+    /// Deletes individual actions.
+    /// </summary>
+    /// <param name="image">The image to delete.</param>
+    public static void ClearQuadrantUIAction(Image image)
+    {
+        Destroy(image.gameObject);
     }
 
     /// <summary>
@@ -561,6 +673,8 @@ public class DashboardOSController : PageController
         return result;
     }
 
+    // We're getting indexes from 0-3 and we want them remapped from 0-3,4-7,8-11,12,15
+    // The awkward index i is used to adjust the new from2 parameter (for translating the desired base or origin translation).
     public void SetQuadrantUIOnClick(CharacterModel character, GameObject[] quadrantIcons, Transform parent)
     {
         if (GameController == null || GameController.Colonists == null)
@@ -574,8 +688,6 @@ public class DashboardOSController : PageController
         {
             Image quadrantIcon = Instantiate(quadrantIcons[i].GetComponent<Image>(), parent, true);
             addedQuadrantIconsList.Add(quadrantIcon);
-            // We're getting indexes from 0-3 and we want them remapped from 0-3,4-7,8-11,12,15
-            // The awkward index i is used to adjust the new from2 parameter (for translating the desired base or origin translation).
             mappedWaypointIndex = remap(i, 0, quadrantIcons.Length, i + (3 * i) + 1, i * 4 + 4);
             AddEventListener(quadrantIcon, character, waypoints[mappedWaypointIndex], AssignQuadrantData);
         }

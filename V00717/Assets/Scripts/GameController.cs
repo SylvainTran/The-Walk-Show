@@ -13,15 +13,15 @@ public class GameController : MonoBehaviour
     public CharacterModelObject CharacterModel { get { return characterModel; } set { characterModel = value; } }
     private CreationController creationController = null;
     public CreationController CreationController { get { return creationController; } set { creationController = value; } }
-    GameClockEventController gameClockEventController = null;
+    public GameClockEventController gameClockEventController = null;
     private float donationMoney = 0.0f;
     public float DonationMoney { get { return donationMoney; } set { donationMoney = value; } }
 
     public CreationMenuController creationMenuController = null;
     public Button submitButton = null;
 
-
     private PlayerStatistics playerStatistics;
+    public DashboardOSController dashboardOSController;
 
     public PlayerStatistics GetPlayerStatistics()
     {
@@ -124,6 +124,8 @@ public class GameController : MonoBehaviour
 
         // Set game state to the intro
         seasonController = new SeasonController(SeasonController.GAME_STATE.SEASON_INTRO);
+        // Validate the stage we're in
+        ValidateCharactersState();
     }
 
     public void LoadGameCharacters()
@@ -222,11 +224,22 @@ public class GameController : MonoBehaviour
     // Called on finalize creation menu
     public void AddNewColonistToRegistry()
     {
-        if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
+        if (!CreationMenuController.validEntry || colonists.Count >= CreationController.MAX_COLONISTS)
         {
             return;
         }
         CreationController.CreateNewColonist();
+    }
+
+    /// <summary>
+    /// Used to validate character status on loading a new game or in the game
+    /// </summary>
+    public void ValidateCharactersState()
+    {
+        if (colonists.Count >= CreationController.MAX_COLONISTS) // SeasonController.cs can change the state to quadrant selection phase
+        {
+            SeasonController.SetQuadrantSelection();
+        }
     }
 
     // The save method service for the client - FIXME this is for through the creation menu

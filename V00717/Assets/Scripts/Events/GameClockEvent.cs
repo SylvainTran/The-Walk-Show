@@ -1,5 +1,7 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
+
 public abstract class GameClockEvent
 {
     // The chance that the event actually triggers
@@ -14,6 +16,11 @@ public abstract class GameClockEvent
     public delegate void OnColonistIsDead(GameClockEvent e, GameObject c);
     public static event OnColonistIsDead _OnColonistIsDead;
 
+    public GameClockEvent()
+    {
+        this.triggerChance = 50.0f;
+    }
+
     public GameClockEvent(float triggerChance)
     {
         this.triggerChance = triggerChance;
@@ -27,7 +34,8 @@ public abstract class GameClockEvent
             Debug.Log("Colonist is already dead.");
             return false;
         }
-        Debug.Log($"Colonist {b.Name()} received an event: {GetType()}");
+        Debug.Log($"Colonist {b.Name()} received an event: {GetType()}");      
+
         return true;
     }
 
@@ -62,4 +70,6 @@ public abstract class GameClockEvent
     {
         return other.GetType() == this.GetType();
     }
+
+    public abstract Image GetEventIcon();
 }

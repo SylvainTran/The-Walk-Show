@@ -17,12 +17,21 @@ public class Bot : MonoBehaviour
     public float stoppingRange = 0.01f;
     public Vector3 quadrantSize = Vector3.zero;
 
+    private void OnEnable()
+    {
+        SeasonController._OnScavengingStateAction += SeekWithinQuadrant;
+    }
+
+    private void OnDisable()
+    {
+        SeasonController._OnScavengingStateAction -= SeekWithinQuadrant;
+    }
     // Start is called before the first frame update
     public void Start()
     {
         agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
         characterModel = GetComponent<CharacterModel>();
-        quadrantSize = new Vector3(400.0f, 0.0f, 400.0f); // Get this from actual mesh/plane size
+        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
     }
 
     public void Seek(Vector3 location)
@@ -62,7 +71,7 @@ public class Bot : MonoBehaviour
         Seek(targetWorld);
     }
 
-    protected bool coolDown = false;
+    protected bool coolDown = true;
     public void BehaviourCoolDown(bool state)
     {
         coolDown = state;
@@ -91,7 +100,6 @@ public class Bot : MonoBehaviour
 
     public void MoveToQuadrant(GameWaypoint v)
     {
-        //BehaviourCoolDown(true);
         if(v != null)
         {
             quadrantTarget = v;
@@ -106,12 +114,9 @@ public class Bot : MonoBehaviour
         {
             return;
         }
-        if (Vector3.Distance(quadrantTarget.transform.position, transform.position) <= stoppingRange)
-        {
-            //BehaviourCoolDown(false);
-            // Clamp wander radius from the quadrantTarget position
-            wanderDistance = quadrantSize.z;
-        }
+        BehaviourCoolDown(false);
+        // Clamp wander radius from the quadrantTarget position
+        // wanderDistance = quadrantSize.z;
     }
 
     public void WrapQuadrant()
@@ -120,7 +125,7 @@ public class Bot : MonoBehaviour
         {
             return;
         }
-        if (Vector3.Distance(quadrantTarget.transform.position, transform.position) >= quadrantSize.z)
+        if (Vector3.Distance(quadrantTarget.transform.position, transform.position) >= Vector3.Distance(quadrantTarget.transform.position, quadrantSize))
         {
             MoveToQuadrant(quadrantTarget);
             // Another way
@@ -133,9 +138,8 @@ public class Bot : MonoBehaviour
     {
         //if (!coolDown)
         //{
-        //    Wander();
+            //Wander();
         //}
-        //SeekWithinQuadrant();
         //WrapQuadrant();
     }
 }
