@@ -10,7 +10,7 @@ public class SeasonController
     /// </summary>
     public enum GAME_STATE
     {
-        SEASON_INTRO, // When characters are created by the player
+        SEASON_INTRO, // When auditioning characters are casted by the player
         QUADRANT_SELECTION, // The player assigns a quadrant for each character
         SCAVENGING, // Characters seek food and establish a base
         RESOLUTION, // When events occur
@@ -41,11 +41,14 @@ public class SeasonController
     public static int QUADRANTS_ASSIGNED = 0;
     public static int QUADRANTS_REACHED = 0;
 
+    public GameController gameController;
 
-    public SeasonController(GAME_STATE startingState)
+    public SeasonController(GAME_STATE startingState, GameController gameController)
     {
         currentGameState = startingState;
-        if(startingState == GAME_STATE.SEASON_INTRO)
+        this.gameController = gameController;
+
+        if (startingState == GAME_STATE.SEASON_INTRO)
         {
             // Play cinematic video clip
             PlaySeasonIntroVideo();
@@ -55,6 +58,13 @@ public class SeasonController
     public void PlaySeasonIntroVideo()
     {
 
+    }
+
+    public int rejectedAuditions = 0;
+
+    public void EndAuditions()
+    {
+        SetQuadrantSelection();
     }
 
     public delegate void SeasonIntroAction();

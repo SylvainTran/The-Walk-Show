@@ -6,6 +6,7 @@ using System.IO;
 using UnityEditor;
 using Cinemachine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
@@ -17,11 +18,16 @@ public class GameController : MonoBehaviour
     private float donationMoney = 0.0f;
     public float DonationMoney { get { return donationMoney; } set { donationMoney = value; } }
 
-    public CreationMenuController creationMenuController = null;
-    public Button submitButton = null;
-
     private PlayerStatistics playerStatistics;
     public DashboardOSController dashboardOSController;
+    /// <summary>
+    /// The prefab of the audition menu. Comes with AuditionEditor component that randomizes its fields at start.
+    /// </summary>
+    public GameObject auditionEditorPrefab;
+    /// <summary>
+    /// The GO with Vertical Layout to parent the audition editor prefabs in.
+    /// </summary>
+    public Transform auditionEditorContainer;
 
     public PlayerStatistics GetPlayerStatistics()
     {
@@ -76,16 +82,25 @@ public class GameController : MonoBehaviour
     /// </summary>
     public SeasonController seasonController;
 
+    /// <summary>
+    /// The channel controller for viewer reactions.
+    /// </summary>
+    public ChannelController channelController;
+
+    public TMP_Text auditionStatus;
+
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         TimeController._OnUpdateEventClock += OnEventClockUpdate;
+        SeasonController._OnSeasonIntroAction += InitAuditions;
     }
 
     private void OnDisable()
     {
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         TimeController._OnUpdateEventClock -= OnEventClockUpdate;
+        SeasonController._OnSeasonIntroAction -= InitAuditions;
     }
 
     private void Start()
@@ -123,7 +138,9 @@ public class GameController : MonoBehaviour
         LoadGameCharacters();
 
         // Set game state to the intro
-        seasonController = new SeasonController(SeasonController.GAME_STATE.SEASON_INTRO);
+        seasonController = new SeasonController(SeasonController.GAME_STATE.SEASON_INTRO, this);
+        SeasonController.SetSeasonIntro();
+
         // Validate the stage we're in
         ValidateCharactersState();
     }
@@ -221,11 +238,21 @@ public class GameController : MonoBehaviour
         _OnSaveAction("colonists", deadColonists, "deadColonists.json");
     }
 
+    public void InitAuditions()
+    {
+        StartAuditions(CreationController.MAX_COLONISTS - colonists.Count);
+    }
+
     // Called on finalize creation menu
     public void AddNewColonistToRegistry()
     {
-        if (!CreationMenuController.validEntry || colonists.Count >= CreationController.MAX_COLONISTS)
+        if (!CreationMenuController.validEntry || CreationController == null)
         {
+            return;
+        } else if (colonists.Count >= CreationController.MAX_COLONISTS)
+        {
+            seasonController.EndAuditions();
+            auditionStatus.enabled = true;
             return;
         }
         CreationController.CreateNewColonist();
@@ -234,16 +261,51 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Used to validate character status on loading a new game or in the game
     /// </summary>
-    public void ValidateCharactersState()
+    public bool ValidateCharactersState()
     {
-        if (colonists.Count >= CreationController.MAX_COLONISTS) // SeasonController.cs can change the state to quadrant selection phase
+        if (colonists.Count < CreationController.MAX_COLONISTS)
+        {
+            return true;
+        }
+        else
         {
             SeasonController.SetQuadrantSelection();
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// This is the character casting (creation) step.
+    /// </summary>
+    public void StartAuditions(int n)
+    {
+        // Take the prefab and randomize starting fields exposed in the AuditorEditor's fields including mesh choices
+        for (int i = 0; i < n; i++)
+        {
+            StartCoroutine(CreateNewEditor(i * 10));
+        }
+    }
+
+    public void CreateNewAuditionEditor()
+    {
+        Instantiate(auditionEditorPrefab, auditionEditorContainer.transform, true);
+    }
+
+    public IEnumerator CreateNewEditor(float delay)
+    {
+        if(ValidateCharactersState())
+        {
+            yield return new WaitForSeconds(delay);
+            CreateNewAuditionEditor();
+        }
+        else
+        {
+            auditionStatus.enabled = true;
         }
     }
 
     // The save method service for the client - FIXME this is for through the creation menu
-    public void Save(bool checkMaxElements)
+    public void Save()
     {
         // Event to save the current baby template to a file
         if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
@@ -252,7 +314,7 @@ public class GameController : MonoBehaviour
         }
         int count = colonists.Count;
         // We don't check for max elements if saving dead colonists (for now)
-        if (!checkMaxElements || count <= CreationController.MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
+        if (count <= CreationController.MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
         {
             // TODO add dead colonists unique ID too?
             //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
@@ -265,10 +327,6 @@ public class GameController : MonoBehaviour
                 // Needs to load up the previous dead colonists first before rewriting
                 _OnSaveAction("colonists", deadColonists, "deadColonists.json");
             }
-            // Reset input fields to prevent creating multiple characters in a row - TODO make the submit button disappear/set inactive for a while
-            submitButton.interactable = false;
-            StartCoroutine(ResetButton(submitButton, 3.0f));
-            creationMenuController.ResetFields();
         }
         else
         {

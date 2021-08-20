@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 // Deals with view render changes
-public class CharacterCreationView : UIView
+public class CharacterCreationView : MonoBehaviour
 {
     // The Baby Model GOs to render/change mesh, and the scriptable object to pull data from
     public Renderer BabyModelHeadRenderer;
@@ -25,6 +25,9 @@ public class CharacterCreationView : UIView
     public delegate void SexChangeAction(string sex);
     public static event SexChangeAction _OnSexChanged; // listened to by SoundController.cs
 
+    public static Vector3 characterModelPrefabCoords = Vector3.zero;
+    public static Vector3 characterModelPrefabInstanceCoords = Vector3.zero;
+
     // Attach the event listeners
     public new void OnEnable()
     {
@@ -40,6 +43,13 @@ public class CharacterCreationView : UIView
     // Updates the colonist uuid text on start
     private void Start()
     {
+        // Create a new character template mesh
+        GameController = GameObject.FindObjectOfType<GameController>();
+        characterModelPrefabCoords = new Vector3(-2.14f, 0.75f, 2.9f);
+        characterModelPrefabInstanceCoords = new Vector3(2.14f, 0.75f, characterModelPrefabCoords.z += 50.0f);
+        GameObject characterModelPrefab = GameController.characterModelPrefab;
+        Instantiate(characterModelPrefab, characterModelPrefabInstanceCoords, Quaternion.identity);
+        // Setup its camera and render texture
         UpdateColonistUUIDText();
     }
 
@@ -79,7 +89,10 @@ public class CharacterCreationView : UIView
     // Updates the colonist uuid text in identification tab
     public void UpdateColonistUUIDText()
     {
-        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {CharacterModelObject.uniqueColonistPersonnelID}");
+        if(uniqueColonistPersonnelID_CC)
+        {
+            uniqueColonistPersonnelID_CC.SetText($"Unique Actor Union ID: {CharacterModelObject.uniqueColonistPersonnelID}");
+        }
     }
 
     // Procedure to update the skin color of BabyModelGO's game object's children

@@ -177,7 +177,7 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
             return;
         }
 
-        int randIndex = UnityEngine.Random.Range(0, 100);
+        int randIndex = 100; // DEBUG MODE  UnityEngine.Random.Range(0, 100);
         if(randIndex > e.TriggerChance) //DEBUG MODE: Set this to > 0; randIndex > e.TriggerChance
         {
             e.ApplyEvent(this);

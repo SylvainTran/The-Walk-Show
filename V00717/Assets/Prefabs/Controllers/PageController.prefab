@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9195242676975827586}
   - component: {fileID: 4019157595204140034}
-  - component: {fileID: 4019157595204140061}
   m_Layer: 0
   m_Name: PageController
   m_TagString: Untagged
@@ -51,42 +50,34 @@ MonoBehaviour:
   - {fileID: 0}
   UIAssets: {fileID: 11400000, guid: d48ac93a047ba4e3589ed85b3e7f8126, type: 2}
   NavigationButtonCanvas: {fileID: 0}
-  confirmPageButton: {fileID: 0}
-  finalizeButton: {fileID: 0}
+  GameController: {fileID: 0}
+  chatDatabaseSO: {fileID: 0}
   dashboardOS: {fileID: 0}
+  creatorBridgePage: {fileID: 0}
+  onAirCanvas: {fileID: 0}
+  livestreamChat: {fileID: 0}
+  jukeboxPage: {fileID: 0}
+  evaNewsPage: {fileID: 0}
+  cameraLane1TargetCallTransform: {fileID: 0}
+  cameraLane2TargetCallTransform: {fileID: 0}
+  cameraLane3TargetCallTransform: {fileID: 0}
+  cameraLane4TargetCallTransform: {fileID: 0}
   dashboardNav: {fileID: 0}
-  loginPage: {fileID: 0}
   aliveColonistsVerticalGroupLayout: {fileID: 0}
   deadColonistsVerticalGroupLayout: {fileID: 0}
   colonistIconSize: {x: 3, y: 3, z: 0}
   eventLogVerticalLayout: {fileID: 0}
   eventCount: 0
   eventLogText: {fileID: 0}
+  livestreamChatText: {fileID: 0}
   eventLogYOffset: 0
   eventLogYOffsetDecrement: 5
   eventLogTextTopMargin: 45
   obituaryOverlayCanvas: {fileID: 0}
---- !u!114 &4019157595204140061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9195242676975827588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd69372ad146946a591216a6faf2b630, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pages:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  UIAssets: {fileID: 11400000, guid: d48ac93a047ba4e3589ed85b3e7f8126, type: 2}
-  NavigationButtonCanvas: {fileID: 0}
-  confirmPageButton: {fileID: 0}
-  finalizeButton: {fileID: 0}
-  parentCanvasWorld: {fileID: 0}
-  parentCanvasOverlay: {fileID: 0}
+  obituaryDescription: {fileID: 0}
+  obituaryIcon: {fileID: 0}
+  chatCallOverlayCanvas: {fileID: 0}
+  chatDialogue: {fileID: 0}
+  chatterIcon: {fileID: 0}
+  addedQuadrantIconsList: []
+  addedQuadrantActionUIEventList: []

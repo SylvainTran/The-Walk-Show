@@ -12,7 +12,7 @@ public class QuadrantMapper : MonoBehaviour
     public GameObject[] gameWaypointsCameraUILayouts;
 
     // Map for the buttons parented to their horizontal layout UI associated with each gameWayPoint
-    public Dictionary<int, GameObject> gameWaypointToCameraUIMap;
+    public GameObject[] gameWaypointToCameraUIMap;
 
     public bool isDirected = false;
 
@@ -20,10 +20,10 @@ public class QuadrantMapper : MonoBehaviour
     {
         adjacencyMatrix = new AdjacencyMatrix(edgeObjects);
         adjacencyMap = new AdjacencyMap(isDirected);
-        gameWaypointToCameraUIMap = new Dictionary<int, GameObject>();
-        for(int i = 0; i < gameWaypointsCameraUILayouts.Length; i++)
+        gameWaypointToCameraUIMap = new GameObject[gameWayPoints.Length];
+        for(int i = 0; i < gameWayPoints.Length; i++)
         {
-            gameWaypointToCameraUIMap.Add(gameWayPoints[i].intKey, gameWaypointsCameraUILayouts[i]);
+            gameWaypointToCameraUIMap[i] = gameWaypointsCameraUILayouts[i];
         }
     }
 

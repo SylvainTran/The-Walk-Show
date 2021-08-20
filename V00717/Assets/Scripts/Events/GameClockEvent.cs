@@ -4,12 +4,12 @@ using UnityEngine.UI;
 
 public abstract class GameClockEvent
 {
-    // The chance that the event actually triggers
-    private float triggerChance = default;
+    // The chance that the event actually triggers - gameclockeventreaction also inherits it
+    protected float triggerChance = default;
     public float TriggerChance { get { return triggerChance; } set { triggerChance = value; } }
 
-    // Message to display in the event log
-    private string message = default;
+    // Message to display in the event log - the gameclockeventreaction also inherits it
+    protected string message = default;
     public string Message { get { return message; } set { message = value; } }
 
     // Dead colonist event (by injury, illness, battle, etc.)

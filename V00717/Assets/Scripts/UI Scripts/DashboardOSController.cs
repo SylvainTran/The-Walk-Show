@@ -60,7 +60,11 @@ public class DashboardOSController : PageController
     private const int MAX_EVENT_COUNT = 100;
     private int MAX_UIACTION_EVENT = CreationController.MAX_COLONISTS * 2;
 
+    /// <summary>
+    /// The event log go to append the texts
+    /// </summary>
     public TMP_Text eventLogText = null;
+    public TMP_Text livestreamChatText = null;
 
     public float eventLogYOffset = 0.0f; // Starts at 0 (anchored at top of parent container), then decreases by the decrement to go down
     public float eventLogYOffsetDecrement = 5.0f; // Default value
@@ -68,7 +72,7 @@ public class DashboardOSController : PageController
 
     // Queue of generated event logs (we dequeue first ones when max reached)
     private Queue<string> eventLogQueue;
-    private Queue<WaypointEvent> eventQueue;
+    private Queue<string> viewerLogQueue;
 
     // Obituary overlay to fade in/out when clicking on dead colonist icon
     public Canvas obituaryOverlayCanvas;
@@ -95,10 +99,11 @@ public class DashboardOSController : PageController
         StarterAssetsInputs._OnTriggerOpenDashboardOS += SetActiveMenuCanvas;
         CreationController._OnRequestColonistDataResponse += OnServerReply;
         SaveSystem._SuccessfulSaveAction += ReadSaveList;
-        CharacterModel._OnGameClockEventProcessed += UpdateEventLog;
+        CharacterModel._OnGameClockEventProcessed += ProcessEventFromCharacter;
+        CharacterModel._OnGameClockEventProcessed += ProcessEventFromViewer;
         PendingCallEvent._OnPendingCallEvent += UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead += OnColonistDied;
-        BattleEvent._OnBattleEnded += UpdateEventLog;
+        BattleEvent._OnBattleEnded += ProcessEventFromCharacter;
         SeasonController._OnQuadrantSelectionAction += UpdateQuadrantSelectionUI;
     }
 
@@ -107,18 +112,20 @@ public class DashboardOSController : PageController
         StarterAssetsInputs._OnTriggerOpenDashboardOS -= SetActiveMenuCanvas;
         CreationController._OnRequestColonistDataResponse -= OnServerReply;
         SaveSystem._SuccessfulSaveAction -= ReadSaveList;
-        CharacterModel._OnGameClockEventProcessed -= UpdateEventLog;
+        CharacterModel._OnGameClockEventProcessed -= ProcessEventFromCharacter;
+        CharacterModel._OnGameClockEventProcessed -= ProcessEventFromViewer;
         PendingCallEvent._OnPendingCallEvent -= UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
-        BattleEvent._OnBattleEnded -= UpdateEventLog;
+        BattleEvent._OnBattleEnded -= ProcessEventFromCharacter;
         SeasonController._OnQuadrantSelectionAction -= UpdateQuadrantSelectionUI;
     }
 
     private void Start()
     {
         eventLogQueue = new Queue<string>(MAX_EVENT_COUNT);
+        viewerLogQueue = new Queue<string>(MAX_EVENT_COUNT);
+
         addedQuadrantIconsList = new List<Image>();
-        eventQueue = new Queue<WaypointEvent>(MAX_UIACTION_EVENT);
         addedQuadrantActionUIEventList = new List<Image>();
 
         if (GameController == null)
@@ -127,11 +134,36 @@ public class DashboardOSController : PageController
         }
     }
 
-    private void UpdateEventLog(GameClockEvent e)
+    /// <summary>
+    /// The event log handler
+    /// </summary>
+    /// <param name="e"></param>
+    public void ProcessEventFromCharacter(GameClockEvent e)
+    {
+        UpdateEventLog(e, eventLogText, eventLogQueue);
+    }
+    /// <summary>
+    /// The viewer reaction handler
+    /// </summary>
+    /// <param name="e"></param>
+    public void ProcessEventFromViewer(GameClockEvent e)
+    {
+        // Generate new viewer reaction text
+        // GameClockEventReaction reaction = GameController.channelController.GenerateReaction(e);
+        // UpdateEventLog(reaction, livestreamChatText, viewerLogQueue);
+    }
+
+    /// <summary>
+    /// Used for both the event log and the viewers.
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="textParent"></param>
+    /// <param name="logQueue"></param>
+    private void UpdateEventLog(GameClockEvent e, TMP_Text textParent, Queue<string> logQueue)
     {
         if(eventCount < MAX_EVENT_COUNT)
         {
-            AppendEventLogTMPProText(e);
+            AppendEventLogTMPProText(e, textParent, logQueue);
             ++eventCount;
         } else
         {
@@ -140,18 +172,19 @@ public class DashboardOSController : PageController
             int eraseCount = 10;
             for(int i = 0; i < eraseCount; i++)
             {
-                eventLogQueue.Dequeue();
+                logQueue.Dequeue();
                 --eventCount;
             }
-            eventLogText.SetText("");
+            textParent.SetText("");
             string rebuiltLog = "";
-            foreach(string message in eventLogQueue)
+            foreach(string message in logQueue)
             {
                 rebuiltLog += message;
             }
-            eventLogText.SetText(rebuiltLog);
+            textParent.SetText(rebuiltLog);
         }
     }
+
     /// <summary>
     /// Updates the quadrants with selection UI.
     /// </summary>
@@ -179,9 +212,20 @@ public class DashboardOSController : PageController
 
             // The randSubQuadrant should be in the same quadrant than the randCharacter
             // We can use the outgoing edges of the graph for this - it will only use the edges of the current waypoint, like a path
-            GameWaypoint currentWaypoint = GameController.quadrantMapper.gameWayPoints[randCharacter.InQuadrant];
-            EdgeObject[] waypoints = currentWaypoint.edges;
+            GameWaypoint currentWaypoint = null;
+            EdgeObject[] waypoints = null;
             GameWaypoint newWaypoint = null;
+
+            try
+            {
+                currentWaypoint = GameController.quadrantMapper.gameWayPoints[randCharacter.InQuadrant];
+                waypoints = currentWaypoint.edges;
+                newWaypoint = null;
+            } catch(IndexOutOfRangeException e)
+            {
+                Debug.LogError(e.Message);
+                return;
+            }
 
             for (int i = 0; i < waypoints.Length; i++)
             {
@@ -216,8 +260,8 @@ public class DashboardOSController : PageController
     public void SpawnQuadrantUIActionEvent(GameWaypoint newWaypoint, WaypointEvent waypointEvent, CharacterModel randCharacter)
     {
         // need the parent transform to put it in
-        Dictionary<int, GameObject> gameWaypointToCameraUIMap = GameController.quadrantMapper.gameWaypointToCameraUIMap;
-        if(gameWaypointToCameraUIMap.Count == 0 || waypointEvent.actionMethodPointers == null)
+        GameObject[] gameWaypointToCameraUIMap = GameController.quadrantMapper.gameWaypointToCameraUIMap;
+        if(gameWaypointToCameraUIMap.Length == 0 || waypointEvent.actionMethodPointers == null)
         {
             return;
         }
@@ -247,6 +291,8 @@ public class DashboardOSController : PageController
                 action(randCharacter, newWaypoint);
                 // Event log
                 randCharacter.OnGameClockEventGenerated(waypointEvent);
+                // Livestream chat reactions + subscribers special comment/request chance
+
                 // Remove event
                 newWaypoint.waypointEvent = null;
                 // may have been deleted from auto timer already
@@ -300,21 +346,13 @@ public class DashboardOSController : PageController
     {
         // If the bridge page is open, make it the previous page
         GameObject previouslyActiveCanvas = null;
-        if(creatorBridgePage.activeInHierarchy)
+        for (int i = 0; i < pages.Length; i++)
         {
-            previouslyActiveCanvas = creatorBridgePage;
-        } else if (onAirCanvas.activeInHierarchy)
-        {
-            previouslyActiveCanvas = onAirCanvas;
-        } else if (livestreamChat.activeInHierarchy)
-        {
-            previouslyActiveCanvas = livestreamChat;
-        } else if (jukeboxPage.activeInHierarchy)
-        {
-            previouslyActiveCanvas = jukeboxPage;
-        } else if (evaNewsPage.activeInHierarchy)
-        {
-            previouslyActiveCanvas = evaNewsPage;
+            if (pages[i].activeInHierarchy)
+            {
+                previouslyActiveCanvas = pages[i];
+                break;
+            }
         }
         StarterAssetsInputs.previouslyActiveCanvas = previouslyActiveCanvas;
 
@@ -358,7 +396,7 @@ public class DashboardOSController : PageController
     // On colonist dead, need to put X medical bay and also exclude that colonist from next save instance
     public void OnColonistDied(GameClockEvent e, GameObject c)
     {
-        UpdateEventLog(e);
+        //UpdateEventLog(e);
         ClearColonistIcons(c);        
     }
 
@@ -392,19 +430,20 @@ public class DashboardOSController : PageController
     }
 
     // TODO refactor out a writer component to re-use elsewhere
-    public void AppendEventLogTMPProText(GameClockEvent e)
+    public void AppendEventLogTMPProText(GameClockEvent e, TMP_Text parentText, Queue<string> logQueue)
     {
-        if(eventLogText == null)
+        if(parentText == null)
         {
             CreateEventLogTMProText(e);
         } else
         {
-            TextMeshProUGUI existingText = eventLogText.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI existingText = parentText.GetComponent<TextMeshProUGUI>();
             string appendText = existingText.text;
             appendText += "\n\n" + e.Message;
             existingText.SetText(appendText);
         }
-        eventLogQueue.Enqueue(e.Message);
+
+        logQueue.Enqueue(e.Message);
     }
 
     public void CreateEventLogTMProText(GameClockEvent e)
