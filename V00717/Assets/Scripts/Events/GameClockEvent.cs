@@ -71,5 +71,5 @@ public abstract class GameClockEvent
         return other.GetType() == this.GetType();
     }
 
-    public abstract Image GetEventIcon();
+    public abstract Texture2D GetEventIcon();
 }

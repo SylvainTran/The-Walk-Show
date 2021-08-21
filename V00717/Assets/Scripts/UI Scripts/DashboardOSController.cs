@@ -88,8 +88,8 @@ public class DashboardOSController : PageController
     /// The icons of the quadrants (NE, NW, SW, SE).
     /// Cached to destroy them when the selection stage is cleared.
     /// </summary>
-    public List<Image> addedQuadrantIconsList;
-    public List<Image> addedQuadrantActionUIEventList;
+    public List<GameObject> addedQuadrantIconsList;
+    public List<GameObject> addedQuadrantActionUIEventList;
 
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
@@ -125,8 +125,8 @@ public class DashboardOSController : PageController
         eventLogQueue = new Queue<string>(MAX_EVENT_COUNT);
         viewerLogQueue = new Queue<string>(MAX_EVENT_COUNT);
 
-        addedQuadrantIconsList = new List<Image>();
-        addedQuadrantActionUIEventList = new List<Image>();
+        addedQuadrantIconsList = new List<GameObject>();
+        addedQuadrantActionUIEventList = new List<GameObject>();
 
         if (GameController == null)
         {
@@ -191,7 +191,7 @@ public class DashboardOSController : PageController
     public void UpdateQuadrantSelectionUI()
     {
         Transform[] cameraLanes = { cameraLane1TargetCallTransform, cameraLane2TargetCallTransform, cameraLane3TargetCallTransform, cameraLane4TargetCallTransform };
-        GameObject[] quadrantIcons = new GameObject[] { UIAssets.UIQuadrantIcon, UIAssets.UIQuadrantIcon, UIAssets.UIQuadrantIcon, UIAssets.UIQuadrantIcon };
+        GameObject[] quadrantIcons = UIAssets.UIQuadrantIconsGO;
         for(int i = 0; i < cameraLanes.Length; i++)
         {
             SetQuadrantUIOnClick(GameController.Colonists[i].GetComponent<CharacterModel>(), quadrantIcons, cameraLanes[i]);
@@ -266,20 +266,27 @@ public class DashboardOSController : PageController
             return;
         }
         Transform parentTransform = gameWaypointToCameraUIMap[newWaypoint.intKey].transform;
-        //Image icon = e.GetEventIcon();
+        //Image icon = waypointEvent.GetEventIcon();
 
         // Check what to spawn depending on the waypoint event (e.g., cue to go, cue to avoid)
-        Image quadrantIcon;
+        //GameObject quadrantIcon = new GameObject();
+        //Texture2D texture = null; // waypointEvent.GetEventIcon();
+        // REPLACE WITH SIMPLY CLICKING ON THE SCREEN TO GO THERE
+        // WARNING YELLOW SIGN FADE IN AND OUT QUICKLY TO SIGNAL SOMETHING OCCURRED IN THAT LANE
 
-        foreach(Action<CharacterModel, GameWaypoint> action in waypointEvent.actionMethodPointers)
+
+        // VERY SPECIAL ICONS FOR CRITICAL MOMENTS? LIKE DEATH-NEARING EVENTS (CALL FOR HELP, ETC.)
+        //texture = (Texture2D)Resources.Load($"Art/Icons/go");
+        //quadrantIconImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+
+        foreach (Action<CharacterModel, GameWaypoint> action in waypointEvent.actionMethodPointers)
         {
             // Create a new quadrantIcon with this action as callback for all of the actions in the waypoint event
             // TODO put fancy icons in the events - need the same with quadrants selection
-            quadrantIcon = Instantiate(UIAssets.UIQuadrantIcon.GetComponent<Image>(), parentTransform, true);
+            Image quadrantIcon = Instantiate(UIAssets.UIAlertIcon.GetComponent<Image>(), parentTransform, true);
             // Start timeout to destroy the event
-            StartCoroutine(DestroyQuadrantUIEvent(newWaypoint, quadrantIcon, 5.0f));
+            StartCoroutine(DestroyQuadrantUIEvent(newWaypoint, quadrantIcon.gameObject, 5.0f));
             // TODO show timer
-
             // TODO refactor into this method (work with method group?):
             //AddEventListener(quadrantIcon, target.GetComponent<CharacterModel>(), GameController.quadrantMapper.gameWayPoints[randSubQuadrant], ,AssignGameWaypointData);
             // Add the handle mouse event trigger
@@ -300,14 +307,14 @@ public class DashboardOSController : PageController
                 {
                     Destroy(quadrantIcon.gameObject);
                 }
-                addedQuadrantActionUIEventList.Remove(quadrantIcon);
+                addedQuadrantActionUIEventList.Remove(quadrantIcon.gameObject);
             });
 
-            addedQuadrantActionUIEventList.Add(quadrantIcon);
+            addedQuadrantActionUIEventList.Add(quadrantIcon.gameObject);
         }
     }
 
-    public IEnumerator DestroyQuadrantUIEvent(GameWaypoint newWaypoint, Image quadrantIcon, float delay)
+    public IEnumerator DestroyQuadrantUIEvent(GameWaypoint newWaypoint, GameObject quadrantIcon, float delay)
     {
         yield return new WaitForSeconds(delay);
         // also remove the actual waypoint event
@@ -599,6 +606,7 @@ public class DashboardOSController : PageController
         if(callbackA != null)
         {
             entry.callback.AddListener((eventData) => { callbackA(characterModel, waypoint); });
+            //image.GetComponent<Button>().onClick.AddListener(delegate() { callbackA(characterModel, waypoint); } );
         }
         if(callbackB != null)
         {
@@ -619,6 +627,7 @@ public class DashboardOSController : PageController
     /// <returns></returns>
     public void AssignQuadrantData(CharacterModel c, GameWaypoint quadrantWaypoint)
     {
+        Debug.Log("Assigning quadrant data onclick!");
         if(c.InQuadrant > -1 || SeasonController.currentGameState != SeasonController.GAME_STATE.QUADRANT_SELECTION)
         {
             return;
@@ -680,7 +689,6 @@ public class DashboardOSController : PageController
                 break;
         }
         c.InQuadrant = quadrantWaypoint.intKey;
-
         c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);
         SeasonController.ScavengingPhaseFlag(addedQuadrantIconsList);
     }
@@ -689,9 +697,9 @@ public class DashboardOSController : PageController
     /// Deletes a list of image actions.
     /// </summary>
     /// <param name="images">The list of images to delete.</param>
-    public static void ClearQuadrantUIActions(List<Image> images)
+    public static void ClearQuadrantUIActions(List<GameObject> images)
     {
-        foreach (Image image in images)
+        foreach (GameObject image in images)
         {
             Destroy(image.gameObject);
         }
@@ -745,7 +753,7 @@ public class DashboardOSController : PageController
         for (int i = 0; i < quadrantIcons.Length; i++)
         {
             Image quadrantIcon = Instantiate(quadrantIcons[i].GetComponent<Image>(), parent, true);
-            addedQuadrantIconsList.Add(quadrantIcon);
+            addedQuadrantIconsList.Add(quadrantIcon.gameObject);
             mappedWaypointIndex = remap(i, 0, quadrantIcons.Length, i + (3 * i) + 1, i * 4 + 4);
             AddEventListener(quadrantIcon, character, waypoints[mappedWaypointIndex], AssignQuadrantData);
         }

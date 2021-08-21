@@ -17,4 +17,11 @@ MonoBehaviour:
   colonistIcon: {fileID: 4512165465976959506, guid: 9c400430fe34a489181cbdfc71233c3c, type: 3}
   colonistName: {fileID: 7529235461637587055, guid: d274c31ee43104069ba578221ac6e844, type: 3}
   eventLogText: {fileID: 2141216751153608146, guid: 2b0ba33c2e6784e12940b5287805911d, type: 3}
-  UIQuadrantIcon: {fileID: 4512165465976959506, guid: 5921b5889d68948548b1a78bf3303eb6, type: 3}
+  UIQuadrantUIActionIcons: []
+  UIQuadrantIconsGO:
+  - {fileID: 4512165465976959506, guid: a894b99d512a748dd8209269c199a231, type: 3}
+  - {fileID: 4512165465976959506, guid: 47da0b2ebf62f4669a1bbaf90a802a5d, type: 3}
+  - {fileID: 4512165465976959506, guid: cf397e76875534cfb8aae7695f85c404, type: 3}
+  - {fileID: 4512165465976959506, guid: 5921b5889d68948548b1a78bf3303eb6, type: 3}
+  UIQuadrantIcon: {fileID: 4512165465976959506, guid: 227502e4c4559424c99744aadce87860, type: 3}
+  UIAlertIcon: {fileID: 4512165465976959506, guid: 54213db87b93d4cac9f2c06d2ef5535a, type: 3}

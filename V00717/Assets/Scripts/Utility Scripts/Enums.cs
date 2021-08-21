@@ -4,7 +4,7 @@ public class Enums
     public enum Genders { MALE, FEMALE };
     public enum DashboardPageIndexes { LOGIN, DESKTOP, DATABASE };
     public enum DataRequests { LIVE_COLONISTS, DEAD_COLONISTS };
-    public enum CharacterAchievements { WAS_BORN, GOT_DISEASE, GOT_BATTLE, GOT_INJURY, GOT_REPAIR_SUCCESS, GOT_REPAIR_FAILURE, PENDING_CALLS };
+    public enum CharacterAchievements { WAS_BORN, GOT_DISEASE, GOT_BATTLE, GOT_INJURY, GOT_REPAIR_SUCCESS, GOT_REPAIR_FAILURE, PENDING_CALLS, HEALIE, GOT_SOME_MOVES };
     public enum Sentiments { STRESSED, FEARFUL, ANGRY, SAD, JOYFUL };
     public enum ChatThemes { STRESS_THEME, REGRET_THEME, REALIZATION_THEME, DENIAL_THEME, GUILT_THEME, FEAR_THEME };
 

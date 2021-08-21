@@ -71,7 +71,7 @@ public abstract class BattleEvent : GameClockEvent
         }
     }
 
-    public override Image GetEventIcon()
+    public override Texture2D GetEventIcon()
     {
         throw new NotImplementedException();
     }

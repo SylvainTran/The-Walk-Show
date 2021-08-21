@@ -8,6 +8,9 @@ public class GameClockEventController
 
     // The chance that a game clock event triggers
     public float triggerChance = 50.0f;
+    public string[] colors = { "cyan", "black", "blue", "magenta", "red", "blue", "yellow", "white", "pink", "green", "purple" };
+    public string[] sizes = { "small", "medium", "large", "extra-large", "extra-extra-large"};
+    public string[] adjectives = { "tasty", "sour", "ripe", "delightful", "sweet", "bittersweet" };
 
     public GameClockEventController(GameController GameController, float triggerChance)
     {
@@ -44,12 +47,23 @@ public class GameClockEventController
         WaypointEvent gameClockEvent = null;
         //int randIndex = UnityEngine.Random.Range(0, 4);
         //int randIndex = 3;
-        int randIndex = 0; // DEBUG
+        int randIndex = UnityEngine.Random.Range(0, 3); // DEBUG
+        int randColor = UnityEngine.Random.Range(0, colors.Length);
+        int randSizes = UnityEngine.Random.Range(0, sizes.Length);
+        int randAdjectives = UnityEngine.Random.Range(0, adjectives.Length);
         switch (randIndex)
         {
             case 0:
                 gameClockEvent = new SnakeEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.name} walked into a snake and they got injured."; // TODO vary snake color and size
+                gameClockEvent.Message = $"{character.name} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
+                break;
+            case 1:
+                gameClockEvent = new FruitWaypointEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent.Message = $"{character.name} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
+                break;
+            case 2:
+                gameClockEvent = new DanceWaypointEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent.Message = $"{character.name} couldn't shake the itch to dance away and busted some moves.";
                 break;
             //case 1:
             //    gameClockEvent = new DiseaseEvent(triggerChance);

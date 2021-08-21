@@ -32,7 +32,7 @@ public abstract class DiseaseEvent : WaypointEvent
         return true;
     }
 
-    public override Image GetEventIcon()
+    public override Texture2D GetEventIcon()
     {
         throw new NotImplementedException();
     }

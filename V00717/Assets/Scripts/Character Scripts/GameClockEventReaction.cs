@@ -15,7 +15,7 @@ public class GameClockEventReaction : GameClockEvent
         this.randomSubscriber = randomSubscriber;
     }
 
-    public override Image GetEventIcon()
+    public override Texture2D GetEventIcon()
     {
         throw new System.NotImplementedException();
     }

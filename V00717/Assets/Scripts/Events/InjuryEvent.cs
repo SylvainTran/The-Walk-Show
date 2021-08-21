@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InjuryEvent : WaypointEvent
+public abstract class InjuryEvent : WaypointEvent
 {
     public float injuryDamageMin = 1.0f;
     public float injuryDamageMax = 5.0f;
@@ -26,11 +26,6 @@ public class InjuryEvent : WaypointEvent
             base.NotifyIsDead(b.gameObject);
         }
         return true;
-    }
-
-    public override Image GetEventIcon()
-    {
-        throw new NotImplementedException();
     }
 
     protected override void AddToEventMarkersFeed(CharacterModel b)

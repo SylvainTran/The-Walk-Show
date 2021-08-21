@@ -34,7 +34,7 @@ public class NewSentimentEvent : GameClockEvent
         throw new System.NotImplementedException();
     }
 
-    public override Image GetEventIcon()
+    public override Texture2D GetEventIcon()
     {
         throw new System.NotImplementedException();
     }

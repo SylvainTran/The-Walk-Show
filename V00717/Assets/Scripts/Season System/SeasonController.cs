@@ -53,6 +53,7 @@ public class SeasonController
             // Play cinematic video clip
             PlaySeasonIntroVideo();
         }
+        GameClockEvent._OnColonistIsDead += AnnounceDeath;
     }
 
     public void PlaySeasonIntroVideo()
@@ -65,6 +66,18 @@ public class SeasonController
     public void EndAuditions()
     {
         SetQuadrantSelection();
+    }
+
+    public void AnnounceDeath(GameClockEvent e, GameObject c)
+    {
+        // Narrator voice saying they're dead, video clip popup, counter update
+        if(gameController.Colonists.Count <= 1)
+        {
+            SetIntermissionState();
+            // Show highlights?
+
+            // And then restarts new season from auditions
+        }
     }
 
     public delegate void SeasonIntroAction();
@@ -88,6 +101,7 @@ public class SeasonController
     public static void SetScavengingState()
     {
         currentGameState = GAME_STATE.SCAVENGING;
+        Debug.Log("Starting scavenging phase");
         _OnScavengingStateAction(); //TODO add notifications/sounds/etc. on state change, removed because no subscribers yet
     }
 
@@ -123,18 +137,19 @@ public class SeasonController
         }
        if(QUADRANTS_REACHED == CreationController.MAX_COLONISTS)
         {
-            Debug.Log("Starting scavenging phase");
+            //Debug.Log("Starting scavenging phase");
             SetScavengingState();
         }
     }
 
-    public static void ScavengingPhaseFlag(List<Image> images)
+    public static void ScavengingPhaseFlag(List<GameObject> images)
     {
         QUADRANTS_ASSIGNED++;
 
         if (QUADRANTS_ASSIGNED >= CreationController.MAX_COLONISTS)
         {
             DashboardOSController.ClearQuadrantUIActions(images);
+            SetScavengingState();
         }
     }
 }

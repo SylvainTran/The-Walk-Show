@@ -1,6 +1,7 @@
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 #endif
 
 namespace StarterAssets
@@ -36,6 +37,7 @@ namespace StarterAssets
 		public GameObject lane2Subquadrants;
 		public GameObject lane3Subquadrants;
 		public GameObject lane4Subquadrants;
+		public Image blackMask; 
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
