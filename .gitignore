@@ -66,11 +66,11 @@ crashlytics-build.properties
 # Blender
 /*.json
 /*.blend
-/V00717/Assets/*/*/*.blend
+#/V00717/Assets/*/*/*.blend
 /V00717/Assets/*/*/*.blend1
 /V00717/Assets/*/*/*.blend1.meta
 # this is the base model
-/V00717/Assets/*/*/space_station.blend
+#/V00717/Assets/*/*/space_station.blend
 
 *.bfxrsound
 
