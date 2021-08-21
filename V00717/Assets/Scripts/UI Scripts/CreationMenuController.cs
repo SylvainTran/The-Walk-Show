@@ -13,7 +13,7 @@ public class CreationMenuController : PageController
     //public Canvas parentCanvasWorld;
     //public GameObject parentCanvasOverlay;
     public List<GameObject> inputFieldList;
-    public static bool validEntry = false;
+    public bool validEntry = false;
     // The one liner poetry TMP asset that regenerates after each confirm
     public TMP_Text oneLinerPoetryAsset;
     public GameController GameController;
@@ -49,11 +49,8 @@ public class CreationMenuController : PageController
         // Add event listeners to all buttons
         // Add the handle mouse event trigger
         AddEventListener(confirmPageButton.gameObject, EventTriggerType.PointerClick, 0, null, ConfirmPage);
-        AddEventListener(finalizeButton.gameObject, EventTriggerType.PointerClick, 0, null, ValidateFields);
-        AddEventListener(finalizeButton.gameObject, EventTriggerType.PointerClick, 0, null, GameController.AddNewColonistToRegistry);
-        AddEventListener(finalizeButton.gameObject, EventTriggerType.PointerClick, 0, null, GameController.Save);
-        AddEventListener(finalizeButton.gameObject, EventTriggerType.PointerClick, 0, null, DestroyEditor);
-
+        // TODO button onClick handler or event trigger for all these?
+        //AddEventListener(finalizeButton.gameObject, EventTriggerType.PointerClick, 0, null, GetComponent<CharacterCreationView>().AddNewColonistToRegistry);
         AddEventListener(idPage.gameObject, EventTriggerType.PointerClick, 0, ChangePage, null);
         AddEventListener(profilePage.gameObject, EventTriggerType.PointerClick, 1, ChangePage, null);
         AddEventListener(itemPage.gameObject, EventTriggerType.PointerClick, 4, ChangePage, null);
@@ -172,13 +169,13 @@ public class CreationMenuController : PageController
     }
 
     //Must validate all input fields before going on (no empty fields allowed)
-    public void ValidateFields()
+    public bool ValidateFields()
     {
         if(GameController.Colonists.Count > CreationController.MAX_COLONISTS)
         {
             Debug.LogError("Max characters reached already. Some need to die to leave space for others.");
             validEntry = false;
-            return;
+            return false;
         }
         // If we validated earlier, reset
         if(validEntry)
@@ -191,14 +188,16 @@ public class CreationMenuController : PageController
             {
                 continue;
             }
+            f.GetComponent<TMPro.TMP_InputField>().ForceLabelUpdate();
             if(f.GetComponent<TMPro.TMP_InputField>().text == null || f.GetComponent<TMPro.TMP_InputField>().text.Length <= 0)
             {
                 Debug.Log("Invalid Entry");
                 validEntry = false;
-                return;
+                return false;
             }
         }
         validEntry = true;
+        return true;
     }
 
     public void ResetFields()
@@ -213,10 +212,7 @@ public class CreationMenuController : PageController
 
     public void DestroyEditor()
     {
-        if (validEntry)
-        {
-            Destroy(this.gameObject);
-        }
+        Destroy(this.gameObject);
     }
 
     /// <summary>
@@ -224,6 +220,11 @@ public class CreationMenuController : PageController
     /// </summary>
     public void RejectCandidate()
     {
-        GameController.StartAuditions(UnityEngine.Random.Range(0, CreationController.MAX_COLONISTS - GameController.Colonists.Count));
+        // Destroy its go
+        Destroy(GetComponent<CharacterCreationView>().newCharacterModelInstance.gameObject);
+        if(GameController.Colonists.Count < CreationController.MAX_COLONISTS)
+        {
+            GameController.StartAuditionsAfterDelay(2);
+        }
     }
 }

@@ -14,11 +14,14 @@ public class GameController : MonoBehaviour
     public CharacterModelObject CharacterModel { get { return characterModel; } set { characterModel = value; } }
     private CreationController creationController = null;
     public CreationController CreationController { get { return creationController; } set { creationController = value; } }
+    private CharacterCreationView characterCreationView = null;
+    public CharacterCreationView CharacterCreationView { get { return characterCreationView; } set { characterCreationView = value; }}
     public GameClockEventController gameClockEventController = null;
     private float donationMoney = 0.0f;
     public float DonationMoney { get { return donationMoney; } set { donationMoney = value; } }
 
     private PlayerStatistics playerStatistics;
+    public RandomizedAudition randomizedAuditionDatabase;
     public DashboardOSController dashboardOSController;
     /// <summary>
     /// The prefab of the audition menu. Comes with AuditionEditor component that randomizes its fields at start.
@@ -28,6 +31,8 @@ public class GameController : MonoBehaviour
     /// The GO with Vertical Layout to parent the audition editor prefabs in.
     /// </summary>
     public Transform auditionEditorContainer;
+
+    public List<GameObject> auditionEditorsInGame;
 
     public PlayerStatistics GetPlayerStatistics()
     {
@@ -88,19 +93,16 @@ public class GameController : MonoBehaviour
     public ChannelController channelController;
 
     public TMP_Text auditionStatus;
-
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         TimeController._OnUpdateEventClock += OnEventClockUpdate;
-        SeasonController._OnSeasonIntroAction += InitAuditions;
     }
 
     private void OnDisable()
     {
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         TimeController._OnUpdateEventClock -= OnEventClockUpdate;
-        SeasonController._OnSeasonIntroAction -= InitAuditions;
     }
 
     private void Start()
@@ -135,14 +137,33 @@ public class GameController : MonoBehaviour
 
         creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
         gameClockEventController = new GameClockEventController(this, triggerChance);
+        // Load randomized audition starter
+        string randomizedAudition = System.IO.File.ReadAllText("Assets/Art/Texts/randomizedAudition.json");
+        randomizedAuditionDatabase = JsonUtility.FromJson<RandomizedAudition>(randomizedAudition);
         LoadGameCharacters();
 
         // Set game state to the intro
         seasonController = new SeasonController(SeasonController.GAME_STATE.SEASON_INTRO, this);
-        SeasonController.SetSeasonIntro();
-
         // Validate the stage we're in
-        ValidateCharactersState();
+        if(ValidateCharactersState())
+        {
+            StartAuditions(CreationController.MAX_COLONISTS);
+        }
+    }
+    [Serializable]
+    public struct RandomizedAudition
+    {
+        public AuditionActor[] actors;
+    }
+    [Serializable]
+    public struct AuditionActor
+    {
+        [SerializeField]
+        public int age;
+        [SerializeField]
+        public string name;
+        [SerializeField]
+        public string gender;
     }
 
     public void LoadGameCharacters()
@@ -204,11 +225,11 @@ public class GameController : MonoBehaviour
         {
             if (instantiateGO)
             {
-                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, Vector3.zero, Quaternion.identity);
+                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, new Vector3(0.0f, 25.0f, 0.0f), Quaternion.identity);
                 newCharacter.GetComponent<CharacterModel>().InitCharacterModel(deserializedObjectList[i]); // Should get its uuid from the field, which got its value from previous static uuid, which was updated - we should expect anyways
                 newCharacter.GetComponent<CharacterModel>().InitEventsMarkersFeed(deserializedObjectList[i]);
                 characters.Add(newCharacter);
-            }
+            }            
         }
     }
 
@@ -243,21 +264,6 @@ public class GameController : MonoBehaviour
         StartAuditions(CreationController.MAX_COLONISTS - colonists.Count);
     }
 
-    // Called on finalize creation menu
-    public void AddNewColonistToRegistry()
-    {
-        if (!CreationMenuController.validEntry || CreationController == null)
-        {
-            return;
-        } else if (colonists.Count >= CreationController.MAX_COLONISTS)
-        {
-            seasonController.EndAuditions();
-            auditionStatus.enabled = true;
-            return;
-        }
-        CreationController.CreateNewColonist();
-    }
-
     /// <summary>
     /// Used to validate character status on loading a new game or in the game
     /// </summary>
@@ -269,7 +275,8 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            SeasonController.SetQuadrantSelection();
+            seasonController.EndAuditions();
+            auditionStatus.enabled = true;
             return false;
         }
     }
@@ -279,16 +286,35 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void StartAuditions(int n)
     {
+        auditionEditorsInGame = new List<GameObject>();
         // Take the prefab and randomize starting fields exposed in the AuditorEditor's fields including mesh choices
         for (int i = 0; i < n; i++)
         {
-            StartCoroutine(CreateNewEditor(i * 10));
+            CreateNewAuditionEditor();
         }
     }
 
+    /// <summary>
+    /// This is the character casting (creation) step.
+    /// </summary>
+    public void StartAuditionsAfterDelay(int n)
+    {
+        // Take the prefab and randomize starting fields exposed in the AuditorEditor's fields including mesh choices
+        for (int i = 0; i < n; i++)
+        {
+            StartCoroutine(CreateNewEditor(i * 10 + 5));
+        }
+    }
+
+    // Instantiates a character as well as an audition editor
     public void CreateNewAuditionEditor()
     {
-        Instantiate(auditionEditorPrefab, auditionEditorContainer.transform, true);
+        GameObject ae = Instantiate(auditionEditorPrefab, auditionEditorContainer.transform, true);
+        auditionEditorsInGame.Add(ae);
+        
+        ae.gameObject.GetComponent<CharacterCreationView>().newCharacterModelInstance = Instantiate(characterModelPrefab, CharacterCreationView.characterModelPrefabInstanceCoords + new Vector3(0.0f, 25.0f, 0.0f), Quaternion.identity);
+        ae.gameObject.GetComponent<AuditionEditor>().RandomizeFields();
+        // Todo instanciate camera that tracks the character to show it in the editor
     }
 
     public IEnumerator CreateNewEditor(float delay)
@@ -308,7 +334,7 @@ public class GameController : MonoBehaviour
     public void Save()
     {
         // Event to save the current baby template to a file
-        if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
+        if (colonists.Count > CreationController.MAX_COLONISTS)
         {
             return;
         }

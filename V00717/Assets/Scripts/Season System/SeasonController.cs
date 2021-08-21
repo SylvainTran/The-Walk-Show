@@ -52,6 +52,7 @@ public class SeasonController
         {
             // Play cinematic video clip
             PlaySeasonIntroVideo();
+            SetSeasonIntro();
         }
         GameClockEvent._OnColonistIsDead += AnnounceDeath;
     }
@@ -65,7 +66,16 @@ public class SeasonController
 
     public void EndAuditions()
     {
+        DestroyAuditionEditors();
         SetQuadrantSelection();
+    }
+
+    public void DestroyAuditionEditors()
+    {
+        foreach(GameObject g in gameController.auditionEditorsInGame)
+        {
+            GameObject.Destroy(g.gameObject);
+        }
     }
 
     public void AnnounceDeath(GameClockEvent e, GameObject c)
@@ -85,7 +95,7 @@ public class SeasonController
     public static void SetSeasonIntro()
     {
         currentGameState = GAME_STATE.SEASON_INTRO;
-        _OnSeasonIntroAction();
+        //_OnSeasonIntroAction();
     }
 
     public delegate void QuadrantSelectionAction();

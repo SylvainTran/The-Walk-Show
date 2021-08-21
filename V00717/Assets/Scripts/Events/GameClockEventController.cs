@@ -55,15 +55,15 @@ public class GameClockEventController
         {
             case 0:
                 gameClockEvent = new SnakeEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.name} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
+                gameClockEvent.Message = $"{character.NickName} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
                 break;
             case 1:
                 gameClockEvent = new FruitWaypointEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.name} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
+                gameClockEvent.Message = $"{character.NickName} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
                 break;
             case 2:
                 gameClockEvent = new DanceWaypointEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.name} couldn't shake the itch to dance away and busted some moves.";
+                gameClockEvent.Message = $"{character.NickName} couldn't shake the itch to dance away and busted some moves.";
                 break;
             //case 1:
             //    gameClockEvent = new DiseaseEvent(triggerChance);

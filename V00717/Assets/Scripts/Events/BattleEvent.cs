@@ -7,14 +7,14 @@ using static Enums.CharacterAchievements;
 public abstract class BattleEvent : GameClockEvent
 {
     private Enemy enemyEntity;
-    private string endOfBattleMessage;
+    //private string endOfBattleMessage;
 
     public delegate void OnBattleEnded(BattleEvent b);
     public static event OnBattleEnded _OnBattleEnded;
 
     public BattleEvent(float triggerChance) : base(triggerChance)
     {
-        this.endOfBattleMessage = "End of battle.";
+        //this.endOfBattleMessage = "End of battle.";
     }
 
     public override bool ApplyEvent(CharacterModel b)

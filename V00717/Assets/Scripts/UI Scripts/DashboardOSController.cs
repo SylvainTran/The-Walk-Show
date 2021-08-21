@@ -208,6 +208,12 @@ public class DashboardOSController : PageController
             List<GameObject> characters = GameController.Colonists;
 
             CharacterModel randCharacter = characters[UnityEngine.Random.Range(0, characters.Count)].GetComponent<CharacterModel>();
+            if(randCharacter.InQuadrant == -1)
+            {
+                Debug.Log("Not ready yet.");
+                return;
+            }
+
             WaypointEvent wayPointEvent = GameController.gameClockEventController.GenerateRandomWaypointEvent(randCharacter);
 
             // The randSubQuadrant should be in the same quadrant than the randCharacter

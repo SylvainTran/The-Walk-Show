@@ -8,7 +8,7 @@ using StarterAssets;
 public class CameraController : MonoBehaviour
 {
     // The max virtual camera priority value
-    private int MAX_PRIORITY = 100;
+    // private int MAX_PRIORITY = 100;
     // The default virtual camera priority value
     private int DEFAULT_PRIORITY = 0;
     // To manage the camera lane feeds

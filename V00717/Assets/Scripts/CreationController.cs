@@ -18,6 +18,7 @@ public class CreationController
     /// The possible tracklane positions to start each new character
     /// </summary>
     private Vector3[] trackLanePositions;
+    public Vector3[] TrackLanePositions { get { return trackLanePositions; } set { trackLanePositions = value; }}
     /// <summary>
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
@@ -87,21 +88,6 @@ public class CreationController
     {
         GameController.CharacterModel.SkinColorB = b;
     }
-
-    // Called on finalize creation menu
-    public void CreateNewColonist()
-    {
-        if (!CreationMenuController.validEntry)
-        {
-            return;
-        }
-        // Create a characterModel component to attach to its mesh game object
-        // TODO update UUID in a more reliable new way
-        CharacterModelObject.uniqueColonistPersonnelID++;
-        CreateNewCharacterMesh(GameController.CharacterModel);
-        GameController.ValidateCharactersState();
-    }
-
     public string GetStartingItemKey()
     {
         int tier = 0;
@@ -143,41 +129,6 @@ public class CreationController
     {
        string itemKey = GetStartingItemKey();
        
-    }
-
-    internal void CreateNewCharacterMesh(CharacterModelObject newCharacterModel)
-    {
-        if (!CreationMenuController.validEntry)
-        {
-            return;
-        }
-
-        // Set the new Material runner games character to the last track position (set from live game character count)
-        int trackLanePosition = FindAvailableCameraLane();
-
-        GameObject newCharacterMesh = null;
-        try
-        {
-            newCharacterMesh = GameObject.Instantiate(characterModelPrefab, trackLanePositions[trackLanePosition], Quaternion.Euler(new Vector3(90.0f, 0.0f, 0.0f)));
-            newCharacterMesh.gameObject.name = newCharacterModel.Name();
-            newCharacterMesh.GetComponent<CharacterModel>().InitCharacterModel(newCharacterModel);
-            newCharacterMesh.GetComponent<CharacterModel>().InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
-            newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID; // Sets the uuid field, not the static one as it wont be serialized
-            // Update UUID for application length - then needs to be saved to file
-            GameController.Colonists.Add(newCharacterMesh);
-
-            // TODO Set its mesh to the players' choices using the character model component        
-            SetTrackLanePosition(trackLanePosition, newCharacterMesh.transform);
-        }
-        catch (ArgumentNullException ane)
-        {
-            Debug.Log(ane.Message);
-            Debug.LogError("Error: No prefab model for characters loaded.");
-        }
-        catch (ArgumentException ae)
-        {
-            Debug.LogError(ae.Message);
-        }
     }
 
     public int FindAvailableCameraLane()

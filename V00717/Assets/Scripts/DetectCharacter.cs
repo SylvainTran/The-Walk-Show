@@ -10,17 +10,11 @@ public class DetectCharacter : MonoBehaviour
         {
             return;
         }
-        if(SeasonController.currentGameState != SeasonController.GAME_STATE.QUADRANT_SELECTION)
+        if(other.CompareTag("CharacterBot"))
         {
-            return;
+            other.gameObject.GetComponent<Animator>().SetBool("isWalking", false);
+            other.gameObject.GetComponent<Bot>().quadrantTarget = null;
         }
-        //if(SeasonController.currentGameState == SeasonController.GAME_STATE.QUADRANT_SELECTION)
-        //{
-        //    if (other.gameObject.GetComponent<CharacterModel>().InQuadrant == GetComponent<GameWaypoint>().intKey)
-        //    {
-        //        SeasonController.CheckQuadrantsReached();
-        //    }
-        //}
         if(GetComponent<GameWaypoint>().waypointEvent != null && SeasonController.currentGameState == SeasonController.GAME_STATE.SCAVENGING)
         {
             other.GetComponent<CharacterModel>().OnGameClockEventGenerated(GetComponent<GameWaypoint>().waypointEvent);

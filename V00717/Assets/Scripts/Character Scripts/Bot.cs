@@ -38,6 +38,7 @@ public class Bot : MonoBehaviour
     {
         if (!agent.isOnNavMesh)
         {
+            Debug.Log("Agent not set on navmesh correctly.");
             return;
         }
         agent.SetDestination(location);        
@@ -105,6 +106,9 @@ public class Bot : MonoBehaviour
             quadrantTarget = v;
             Debug.Log("Moving to quadrant waypoint at: " + quadrantTarget.transform.position);
             Seek(quadrantTarget.transform.position);
+
+            // Animation
+            GetComponent<Animator>().SetBool("isWalking", true);
         }
     }
 

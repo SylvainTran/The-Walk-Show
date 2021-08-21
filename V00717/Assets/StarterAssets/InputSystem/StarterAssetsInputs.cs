@@ -15,8 +15,8 @@ namespace StarterAssets
 		public bool sprint;
 
 		// Player interacts with something
-		public delegate void TriggerPlayerInteracted();
-		public static event TriggerPlayerInteracted _OnPlayerInteracted;
+		// public delegate void TriggerPlayerInteracted();
+		// public static event TriggerPlayerInteracted _OnPlayerInteracted;
 
 		// Player opens dashboard OS
 		public delegate void TriggerOpenDashboardOS();
@@ -74,7 +74,7 @@ namespace StarterAssets
 
 		public void OnInteract()
         {
-			_OnPlayerInteracted();
+			//_OnPlayerInteracted();
 		}
 
 		public void OnOpenDashboardOS(InputValue value)
