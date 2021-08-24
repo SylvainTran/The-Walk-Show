@@ -15,7 +15,8 @@ public class DetectCharacter : MonoBehaviour
             if(other.gameObject.GetComponent<Bot>().quadrantTarget.intKey == GetComponent<GameWaypoint>().intKey)
             {
                 other.gameObject.GetComponent<Animator>().SetBool("isWalking", false);
-                //other.gameObject.GetComponent<Bot>().quadrantTarget = null;
+                // Start seeking gold until a higher priority action occurs
+                other.gameObject.GetComponent<Bot>().seekGold = true;
             }
         }
         if(GetComponent<GameWaypoint>().waypointEvent != null && SeasonController.currentGameState == SeasonController.GAME_STATE.SCAVENGING)

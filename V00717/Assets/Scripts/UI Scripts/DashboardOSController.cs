@@ -231,7 +231,8 @@ public class DashboardOSController : PageController
                 return;
             }
 
-            WaypointEvent wayPointEvent = GameController.gameClockEventController.GenerateRandomWaypointEvent(randCharacter);
+            GameClockEvent wayPointEvent = GameController.gameClockEventController.GenerateRandomWaypointEvent(randCharacter);
+            // Match parent transform with UUID/randcharacter/inQuadrant - TODO Also use this to arrange the camera feeds you know why
 
             // The randSubQuadrant should be in the same quadrant than the randCharacter
             // We can use the outgoing edges of the graph for this - it will only use the edges of the current waypoint, like a path
@@ -264,8 +265,8 @@ public class DashboardOSController : PageController
                 return;
             }
 
-            SpawnEventAtWaypoint(newWaypoint, wayPointEvent);
-            SpawnQuadrantUIActionEvent(newWaypoint, wayPointEvent, randCharacter);
+            SpawnEventAtWaypoint(newWaypoint, wayPointEvent as WaypointEvent);
+            SpawnQuadrantUIActionEvent(newWaypoint, wayPointEvent as WaypointEvent, randCharacter);
             SpawnItemAtWaypoint();
         }
     }
@@ -467,7 +468,7 @@ public class DashboardOSController : PageController
     // TODO refactor out a writer component to re-use elsewhere
     public void AppendEventLogTMPProText(GameClockEvent e, TMP_Text parentText, Queue<string> logQueue)
     {
-        if(e == null || parentText == null || logQueue.Count == 0)
+        if(e == null)
         {
             return;
         }
@@ -610,7 +611,7 @@ public class DashboardOSController : PageController
             return;
         }
         // Look up the UUID in the gameCharacterDatabase
-        GameObject target =GameController.Colonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == UUID);
+        GameObject target = GameController.Colonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == UUID);
         if (target == null)
         {
             Debug.Log($"Target UUID {UUID} not found. Check UUID again.");
@@ -775,6 +776,11 @@ public class DashboardOSController : PageController
             }
         }
         // Map used for donator ranking
+        if(donatorListAndAmount.ContainsKey(donatorName))
+        {
+            // TODO handle hash key collisions - linear probing/double hashing/etc.
+            return;
+        }
         donatorListAndAmount.Add(donatorName, donationAmount);
         firstTenDonators = (from donator in donatorListAndAmount orderby donator.Value descending select donator)
                             .Take(10)

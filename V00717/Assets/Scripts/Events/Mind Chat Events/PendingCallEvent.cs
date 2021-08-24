@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,15 +10,11 @@ public class PendingCallEvent : GameClockEvent
     public delegate void OnPendingCallEvent(GameClockEvent e, CharacterModel c);
     public static event OnPendingCallEvent _OnPendingCallEvent;
 
-    public PendingCallEvent() : base(0.0f)
-    {
-
-    }
     public PendingCallEvent(float triggerChance) : base(triggerChance)
     {
 
     }
-    
+
     public override bool ApplyEvent(CharacterModel b)
     {
         if (!b.IsInPendingCall)

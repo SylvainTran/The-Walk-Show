@@ -17,10 +17,13 @@ public class Viewer
     public delegate void NewDonationAction(string donatorName, int donationAmount);
     public static event NewDonationAction _OnNewDonationAction;
 
-    public Viewer(string name, float subscribeChance)
+    public ChannelController ChannelController;
+
+    public Viewer(string name, float subscribeChance, ChannelController ChannelController)
     {
         this.name = name;
         this.subscribeChance = subscribeChance;
+        this.ChannelController = ChannelController;
         this.donationChance = UnityEngine.Random.Range(0, 100); // TODO decide if scale with actual game design parameters
 
         int roll = UnityEngine.Random.Range(0, 100);
@@ -28,7 +31,7 @@ public class Viewer
 
         if(roll >= subscribeChance)
         {
-            new Subscriber(name);
+            ChannelController.subscribers.Add(new Subscriber(name));
             // Notification pops up
             _OnNewSubscriberAction(name);
         }

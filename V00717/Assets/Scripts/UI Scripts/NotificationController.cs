@@ -17,12 +17,16 @@ public class NotificationController : MonoBehaviour
     public TMP_Text FXCanvasMessage;
     public ParticleSystem ps;
     public float notificationFXDuration = 5.0f;
+    public GameObject subscriberRequestWindow;
 
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += TriggerNotification;
         Viewer._OnNewSubscriberAction += TriggerSubscriberNotification;
         Viewer._OnNewDonationAction += TriggerDonationNotification;
+        ChannelController._OnSubscriberRequestAction += TriggerSubscriberRequest;
+        Subscriber._OnNewSubscriberRequestAction += TriggerSubscriberRequest;
+
     }
 
     private void OnDisable()
@@ -30,6 +34,8 @@ public class NotificationController : MonoBehaviour
         GameClockEvent._OnColonistIsDead -= TriggerNotification;
         Viewer._OnNewSubscriberAction -= TriggerSubscriberNotification;
         Viewer._OnNewDonationAction -= TriggerDonationNotification;
+        ChannelController._OnSubscriberRequestAction -= TriggerSubscriberRequest;
+        Subscriber._OnNewSubscriberRequestAction -= TriggerSubscriberRequest;
     }
 
     private void Start()
@@ -64,6 +70,11 @@ public class NotificationController : MonoBehaviour
         StartCoroutine(FadeOutCanvas(FXCanvas, notificationFXDuration));
     }
 
+    public void TriggerSubscriberRequest(string subscriberName, string message)
+    {
+        TriggerTextAnimation(1.0f, 5.0f, false, subscriberRequestWindow, $"{subscriberName} has a special message for you: {message}");
+    }
+
     public IEnumerator FadeOutCanvas(GameObject canvas, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -83,7 +94,10 @@ public class NotificationController : MonoBehaviour
         TriggerTextAnimation($"{go.gameObject.name}'s death data added to the Bar's Vine Cellar");
     }
 
-    // Floating descending text animation
+    /// <summary>
+    /// Default version overload
+    /// </summary>
+    /// <param name="message"></param>
     public void TriggerTextAnimation(string message)
     {
         // Re-enable and lerp the image component's alpha values from 0-1 (in), then 1-0 (out)
@@ -92,9 +106,35 @@ public class NotificationController : MonoBehaviour
         text.enabled = true;
         ecnb.canvasRenderer.SetAlpha(0f);
         text.canvasRenderer.SetAlpha(0f);
-        ecnb.CrossFadeAlpha(1f, 3f, false);
-        text.CrossFadeAlpha(1f, 3f, false);
-        StartCoroutine(FadeOutImage(4.5f, 0f, 3f, 3f, ecnb, text));
+        ecnb.CrossFadeAlpha(1f, 6f, false);
+        text.CrossFadeAlpha(1f, 6f, false);
+        StartCoroutine(FadeOutImage(4.5f, 0f, 3f, 1.5f, ecnb, text));
+    }
+
+    /// <summary>
+    /// The other version for modularity
+    /// </summary>
+    /// <param name="alpha"></param>
+    /// <param name="duration"></param>
+    /// <param name="ignoreTimeScale"></param>
+    /// <param name="window"></param>
+    /// <param name="message"></param>
+    // Floating descending text animation
+    public void TriggerTextAnimation(float alpha, float duration, bool ignoreTimeScale, GameObject window, string message)
+    {
+        // Re-enable and lerp the image component's alpha values from 0-1 (in), then 1-0 (out)
+        Image image = window.GetComponent<Image>();
+        TMP_Text text = window.GetComponentInChildren<TMP_Text>();
+
+        image.enabled = true;
+        text.SetText(message);
+        text.enabled = true;
+
+        image.canvasRenderer.SetAlpha(0f);
+        text.canvasRenderer.SetAlpha(0f);
+        image.CrossFadeAlpha(alpha, duration, false);
+        text.CrossFadeAlpha(alpha, duration/3, false);
+        StartCoroutine(FadeOutImage(15.0f, 0f, 0f, 0f, image, text));
     }
 
     // Fade out the image and its child text components after a certain delay

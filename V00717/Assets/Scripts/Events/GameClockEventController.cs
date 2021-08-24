@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,17 +37,28 @@ public class GameClockEventController
         for(int i = 0; i < randInt; i++)
         {
             GameController.dashboardOSController.AssignNewUIActionEvent();
+            GenerateNewWaypointItem();
         }
         // TODO iterate a new event for each dead colonist too? 
+    }
+
+    public void GenerateNewWaypointItem()
+    {
+        int waypointIndex = UnityEngine.Random.Range(0, GameController.quadrantMapper.gameWayPoints.Length);
+        GameObject waypointGO = GameController.quadrantMapper.gameWayPoints[waypointIndex].WaypointItem;
+        if (waypointGO == null)
+        {
+            waypointGO = GameObject.Instantiate(GameController.coinPrefab, GameController.quadrantMapper.gameWayPoints[waypointIndex].transform, true);
+            GameController.quadrantMapper.gameWayPoints[waypointIndex].WaypointItem = waypointGO;
+        }
     }
 
     // Generates a random event using an index
     public WaypointEvent GenerateRandomWaypointEvent(CharacterModel character)
     {
-        // Polymorphic late binding
         WaypointEvent gameClockEvent = null;
         //int randIndex = UnityEngine.Random.Range(0, 4);
-        //int randIndex = 3;
+        // int randIndex = 3;
         int randIndex = UnityEngine.Random.Range(0, 3); // DEBUG
         int randColor = UnityEngine.Random.Range(0, colors.Length);
         int randSizes = UnityEngine.Random.Range(0, sizes.Length);
@@ -66,18 +78,12 @@ public class GameClockEventController
                 gameClockEvent = new DanceWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} couldn't shake the itch to dance away and busted some {randomAdverb} moves.";
                 break;
-            //case 1:
-            //    gameClockEvent = new DiseaseEvent(triggerChance);
-            //    break;
-            //case 2:
-            //    gameClockEvent = new BattleEvent(triggerChance); // TODO make by encounter with other gos?
-            //    break;
-            //case 3:
-            //    gameClockEvent = new PendingCallEvent(triggerChance / 2);
-            //    break;
-            default: // TODO add death as a bug event?
+            default:
                 break;
         }
         return gameClockEvent;
     }
+    /// Chat events occur in the Bar page now
+    /// So periodically add 'drink requests' there with the addchatcaller handler
+    /// The bar also shows characters' inventory/gold/wishlist
 }

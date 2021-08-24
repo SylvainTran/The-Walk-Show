@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameWaypoint : Vertex
 {
     public WaypointEvent waypointEvent;
-    public WaypointItem WaypointItem;
+    public GameObject WaypointItem;
 
     /// <summary>
     /// The owner of this waypoint at start

@@ -15,17 +15,40 @@ public class ChannelController : MonoBehaviour
     public int MAX_VIEWERS = 1000;
     public int MAX_SUBSCRIBERS = 1000;
     public float SPAWN_DELAY = 5.0f;
-    // Corpus json TODO
+
+    public List<string> subscriberRequestMessages;
+
+    /// <summary>
+    /// To push subscribers' special requests via pop-ups
+    /// </summary>
+    public NotificationController NotificationController;
 
     // Chance that a viewer converts to a subber
     public float subscribeChance;
+    /// <summary>
+    /// Chance that a subscriber requests something
+    /// </summary>
+    public float subscriberRequestChance = 15.0f;
+
+    /// <summary>
+    /// Coroutine variable - assigned and called from GameController to ensure sync
+    /// </summary>
     public Coroutine GenerateRandomViewersCoroutine;
+
+    public delegate void SubscriberRequestAction(string subscriberName, string message);
+    public static SubscriberRequestAction _OnSubscriberRequestAction;
 
     private void Start()
     {
         viewers = new List<Viewer>(MAX_VIEWERS);
         subscribers = new List<Subscriber>(MAX_SUBSCRIBERS);
         // STRETCH: patrons = new List<Patron>();
+
+        subscriberRequestMessages = new List<string>();
+        subscriberRequestMessages.Add("Can you please make of the live actors dance? I'll give you money if you do");
+        subscriberRequestMessages.Add("Put on EVA-D's dope life song on please.");
+        subscriberRequestMessages.Add("Can you have one of the live actors killed? Doesn't matter who... :-)");
+        subscriberRequestMessages.Add("Could you save one of the live actors from danger?");
     }
 
     public IEnumerator GenerateRandomViewers(float delay)
@@ -40,10 +63,9 @@ public class ChannelController : MonoBehaviour
         for(int i = 0; i < total; i++)
         {
             if(viewers.Count < MAX_VIEWERS)
-            {
+            {               
                 string newName = GameController.randomizedAuditionDatabase.actors[UnityEngine.Random.Range(0, 1000)].name;
-                viewers.Add(new Viewer(newName, subscribeChance));
-                Debug.Log($"New viewer: {newName}");
+                viewers.Add(new Viewer(newName, subscribeChance, this));
             }
             else
             {
@@ -79,7 +101,12 @@ public class ChannelController : MonoBehaviour
 
         if (randomSubscriber != null)
         {
-            // Chance for notification or supporter special request 
+            // Chance for notification or supporter special request       
+            int requestChance = UnityEngine.Random.Range(0, 100);
+            if(requestChance < subscriberRequestChance)
+            {
+                _OnSubscriberRequestAction(randomSubscriber.Name, subscriberRequestMessages[UnityEngine.Random.Range(0, subscriberRequestMessages.Count)]);
+            }
         }
 
         return new GameClockEventReaction(message, randomViewer, randomSubscriber);

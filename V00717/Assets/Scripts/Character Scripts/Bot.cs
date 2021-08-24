@@ -17,6 +17,12 @@ public class Bot : MonoBehaviour
     public float stoppingRange = 0.01f;
     public Vector3 quadrantSize = Vector3.zero;
 
+    /// <summary>
+    /// If this is set to true, then the character will focus on finding gold in its quadrant
+    /// unless the player assigns a direct task to them.
+    /// </summary>
+    public bool seekGold = false;
+
     private void OnEnable()
     {
         SeasonController._OnScavengingStateAction += SeekWithinQuadrant;
@@ -158,6 +164,11 @@ public class Bot : MonoBehaviour
 
     public void Update()
     {
+        if(seekGold)
+        {
+            // Circle around connected edges at waypoint and wander off the path occasionally to magnet in gold coins
+
+        }
         //if (!coolDown && quadrantTarget == null)
         //{
         //    Wander();

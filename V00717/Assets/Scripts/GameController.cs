@@ -107,6 +107,12 @@ public class GameController : MonoBehaviour
     public AdverbsDatabase adverbsDatabase;
     public EncouragementDatabase encouragementDatabase;
 
+    /// <summary>
+    /// Actors or Items that can spawn at waypoints and in-between
+    /// </summary>
+    public GameObject coinPrefab;
+    public GameObject snakePrefab;
+
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += OnColonistDied;

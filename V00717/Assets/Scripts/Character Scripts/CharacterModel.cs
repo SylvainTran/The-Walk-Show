@@ -126,6 +126,9 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     private int inQuadrant = -1;
     public int InQuadrant { get { return inQuadrant; } set { inQuadrant = value; } }
 
+    private int goldInventory = 0;
+    public int GoldInventory { get { return goldInventory; } set { goldInventory = value; } }
+
     public void InitCharacterModel(CharacterModelObject other)
     {
         this.nickName = other.NickName;

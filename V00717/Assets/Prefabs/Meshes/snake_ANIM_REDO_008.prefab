@@ -139,6 +139,8 @@ GameObject:
   m_Component:
   - component: {fileID: 125122616738315807}
   - component: {fileID: 6295093914096378981}
+  - component: {fileID: -1354400499161837999}
+  - component: {fileID: 4210364392255378169}
   m_Layer: 0
   m_Name: snake_ANIM_REDO_008
   m_TagString: Untagged
@@ -182,6 +184,34 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &-1354400499161837999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790195882757563557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b20a708f9edc4402eb42e3e68880171e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyDelay: 15
+  goldValue: 0
+  healthValue: -50
+--- !u!65 &4210364392255378169
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790195882757563557}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.5, y: 1, z: 1.5}
+  m_Center: {x: 0.69, y: 0.44, z: 0.26}
 --- !u!1 &940252540596696532
 GameObject:
   m_ObjectHideFlags: 0
