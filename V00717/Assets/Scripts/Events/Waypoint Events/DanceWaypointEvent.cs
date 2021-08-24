@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class DanceWaypointEvent : HealEvent
 {
-    public DanceWaypointEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
+    public DanceWaypointEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
 
     }

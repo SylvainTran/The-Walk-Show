@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CinemachineTarget
   - CharacterBot
+  - SpecialEventRawImage
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - Character Lane 3
   - AuditionEditorUI
   - UIActionButton
-  - 
+  - CanvasFX Layer
   - 
   - 
   - 

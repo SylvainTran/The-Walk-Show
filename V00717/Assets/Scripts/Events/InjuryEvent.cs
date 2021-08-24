@@ -9,7 +9,7 @@ public abstract class InjuryEvent : WaypointEvent
     public float injuryDamageMin = 1.0f;
     public float injuryDamageMax = 5.0f;
 
-    public InjuryEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
+    public InjuryEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
 
     }

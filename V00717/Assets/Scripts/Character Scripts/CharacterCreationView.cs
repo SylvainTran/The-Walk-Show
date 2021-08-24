@@ -31,6 +31,9 @@ public class CharacterCreationView : MonoBehaviour
     public static Vector3 characterModelPrefabCoords = Vector3.zero;
     public static Vector3 characterModelPrefabInstanceCoords = Vector3.zero;
 
+    // Queue of editors to spawn (and destroy later if unrequired)
+    public Queue<GameObject> auditionEditorToSpawn;
+
     // Attach the event listeners
     public void OnEnable()
     {
@@ -59,7 +62,8 @@ public class CharacterCreationView : MonoBehaviour
         BabyModelTorsoMeshFilter = newCharacterModelInstance.GetComponent<MeshFilter>();
         // Setup its camera and render texture
         UpdateColonistUUIDText();
-    }
+        auditionEditorToSpawn = new Queue<GameObject>();
+}
 
     // Setter for new colonist nickname
     public void OnNickNameChanged(string nickName)
@@ -176,51 +180,43 @@ public class CharacterCreationView : MonoBehaviour
         }
     }
 
-    // Called on finalize creation menu
+    // Called from creation menu (cast button)
     public void AddNewColonistToRegistry()
     {
-        if (GameController.Colonists.Count >= CreationController.MAX_COLONISTS)
+        if (!GameController.NumberOfCharactersBelowMax())
         {
             Debug.Log("max characters already");
-            GameController.seasonController.EndAuditions();
-            GameController.auditionStatus.enabled = true;
             return;
         }
-        if(CreateNewColonist())
-        {
-            GameController.Save();
-            GetComponent<CreationMenuController>().DestroyEditor();
+        CharacterModelObject.uniqueColonistPersonnelID++;
+        CreateNewColonist();
+        GameController.Save();
+        GetComponent<CreationMenuController>().DestroyEditor();
 
-            if(GameController.Colonists.Count < CreationController.MAX_COLONISTS)
+        if(GameController.NumberOfCharactersBelowMax())
+        {
+            GameController.StartAuditionsAfterDelay(1);
+        } else
+        {
+            GameController.SetupQuadrantSelectionPhase();
+            GameController.seasonController.EndAuditions();
+            GameController.auditionStatus.enabled = true;
+            StartCoroutine(GameController.CloseAfterDelay(GameController.CloseSpecialEventsWindow, 5.0f));
+            // Clear any pending audition window to spawn
+            foreach(GameObject g in GameController.auditionEditorsInGame)
             {
-                GameController.StartAuditionsAfterDelay(1);
+                Destroy(g.gameObject);
             }
         }
     }
 
-    // Called on finalize creation menu
-    public bool CreateNewColonist()
+    public void CreateNewColonist()
     {
-        //if (!GetComponent<CreationMenuController>().validEntry)
-        //{
-        //    Debug.Log("Invalid entry");
-        //    return false;
-        //}
-        // Create a characterModel component to attach to its mesh game object
-        // TODO update UUID in a more reliable new way
-        CharacterModelObject.uniqueColonistPersonnelID++;
-        CreateNewCharacterMesh();
-        GameController.ValidateCharactersState();
-        return true;
+        SetupNewCharacter();
     }
 
-    
-    public void CreateNewCharacterMesh()
+    public void SetupNewCharacter()
     {
-        // if(!GetComponent<CreationMenuController>().validEntry)
-        // {
-        //     return;
-        // }
         CreationController creationController = GameController.CreationController;
 
         // Set the new Material runner games character to the last track position (set from live game character count)
@@ -229,16 +225,12 @@ public class CharacterCreationView : MonoBehaviour
         GameObject newCharacterMesh = newCharacterModelInstance;
         try
         {
-            CharacterModel newCharacterModel = newCharacterMesh.GetComponent<CharacterModel>();
-            newCharacterMesh.transform.position = creationController.TrackLanePositions[trackLanePosition];
-            newCharacterMesh.gameObject.name = newCharacterModel.NickName;
-            newCharacterModel.InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
-            newCharacterModel.UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID; // Sets the uuid field, not the static one as it wont be serialized
-            // Update UUID for application length - then needs to be saved to file
-            GameController.Colonists.Add(newCharacterMesh);
-
-            // TODO Set its mesh to the players' choices using the character model component        
-            creationController.SetTrackLanePosition(trackLanePosition, newCharacterMesh.transform);
+            newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
+            RenameGameObject(newCharacterMesh, newCharacterMesh.GetComponent<CharacterModel>().NickName);
+            AddGameObjectToList(newCharacterMesh);
+            SetupTransformPosition(newCharacterMesh.transform, creationController.TrackLanePositions[trackLanePosition].transform.position);
+            newCharacterMesh.transform.SetParent(creationController.TrackLanePositions[trackLanePosition].transform);
+            SetCameraTarget(creationController, newCharacterMesh.transform, trackLanePosition);
         }
         catch (ArgumentNullException ane)
         {
@@ -249,5 +241,23 @@ public class CharacterCreationView : MonoBehaviour
         {
             Debug.LogError(ae.Message);
         }
+    }
+
+    public void RenameGameObject(GameObject renamed, string newName)
+    {
+        renamed.gameObject.name = newName;
+    }
+    public void AddGameObjectToList(GameObject gameObject)
+    {
+       GameController.Colonists.Add(gameObject);
+    }
+    public void SetCameraTarget(CreationController cameraController, Transform target, int trackLanePosition)
+    {
+        // TODO Set its mesh to the players' choices using the character model component        
+        cameraController.SetTrackLanePosition(trackLanePosition, target);
+    }
+    public void SetupTransformPosition(Transform moved, Vector3 position)
+    {
+        moved.position = position;
     }
 }

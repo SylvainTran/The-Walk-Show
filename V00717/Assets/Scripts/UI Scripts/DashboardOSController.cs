@@ -91,6 +91,12 @@ public class DashboardOSController : PageController
     public List<GameObject> addedQuadrantIconsList;
     public List<GameObject> addedQuadrantActionUIEventList;
 
+    public Dictionary<string, int> donatorListAndAmount;
+    public TMP_Text donationTotalText;
+    public TMP_Text donatorRankingList;
+    // To erase first ten or display
+    Dictionary<string, int> firstTenDonators;
+
     public delegate void RequestColonistData(DataRequests requestPort);
     public static event RequestColonistData _OnRequestColonistData;
 
@@ -105,6 +111,7 @@ public class DashboardOSController : PageController
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         BattleEvent._OnBattleEnded += ProcessEventFromCharacter;
         SeasonController._OnQuadrantSelectionAction += UpdateQuadrantSelectionUI;
+        Viewer._OnNewDonationAction += SetDonationMoneyView;
     }
 
     private void OnDisable()
@@ -118,6 +125,7 @@ public class DashboardOSController : PageController
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         BattleEvent._OnBattleEnded -= ProcessEventFromCharacter;
         SeasonController._OnQuadrantSelectionAction -= UpdateQuadrantSelectionUI;
+        Viewer._OnNewDonationAction -= SetDonationMoneyView;
     }
 
     private void Start()
@@ -127,6 +135,9 @@ public class DashboardOSController : PageController
 
         addedQuadrantIconsList = new List<GameObject>();
         addedQuadrantActionUIEventList = new List<GameObject>();
+
+        donatorListAndAmount = new Dictionary<string, int>();
+        firstTenDonators = new Dictionary<string, int>();
 
         if (GameController == null)
         {
@@ -144,13 +155,19 @@ public class DashboardOSController : PageController
     }
     /// <summary>
     /// The viewer reaction handler
+    /// 
+    /// TODO should not kick in until GameController and others are initialized.
     /// </summary>
     /// <param name="e"></param>
     public void ProcessEventFromViewer(GameClockEvent e)
     {
+        if(GameController == null || GameController.randomizedAuditionDatabase.actors == null || GameController.randomizedAuditionDatabase.actors.Length == 0)
+        {
+            return;
+        }
         // Generate new viewer reaction text
-        // GameClockEventReaction reaction = GameController.channelController.GenerateReaction(e);
-        // UpdateEventLog(reaction, livestreamChatText, viewerLogQueue);
+        GameClockEventReaction reaction = GameController.channelController.GenerateReaction(e);
+        UpdateEventLog(reaction, livestreamChatText, viewerLogQueue);
     }
 
     /// <summary>
@@ -285,7 +302,7 @@ public class DashboardOSController : PageController
         //texture = (Texture2D)Resources.Load($"Art/Icons/go");
         //quadrantIconImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
 
-        foreach (Action<CharacterModel, GameWaypoint> action in waypointEvent.actionMethodPointers)
+        foreach (System.Delegate del in waypointEvent.actionMethodPointers)
         {
             // Create a new quadrantIcon with this action as callback for all of the actions in the waypoint event
             // TODO put fancy icons in the events - need the same with quadrants selection
@@ -301,7 +318,12 @@ public class DashboardOSController : PageController
             entry.eventID = EventTriggerType.PointerClick;
             evt.triggers.Add(entry);
             entry.callback.AddListener((eventData) => {
-                action(randCharacter, newWaypoint);
+                bool successful = GameController.quadrantMapper.GoToQuadrant(randCharacter, newWaypoint);
+                // Navmesh issues
+                if(!successful)
+                {
+                    return;
+                }
                 // Event log
                 randCharacter.OnGameClockEventGenerated(waypointEvent);
                 // Livestream chat reactions + subscribers special comment/request chance
@@ -445,6 +467,10 @@ public class DashboardOSController : PageController
     // TODO refactor out a writer component to re-use elsewhere
     public void AppendEventLogTMPProText(GameClockEvent e, TMP_Text parentText, Queue<string> logQueue)
     {
+        if(e == null || parentText == null || logQueue.Count == 0)
+        {
+            return;
+        }
         if(parentText == null)
         {
             CreateEventLogTMProText(e);
@@ -561,7 +587,6 @@ public class DashboardOSController : PageController
         }
         CharacterModel targetComponent = target.GetComponent<CharacterModel>();
         Debug.Log($"Target icon clicked: {target}");
-        Debug.Log($"UUID: {target.GetHashCode()}.");
         Debug.Log($"Name: {targetComponent.Name()}.");
 
         // Toggle on the obituary overlay
@@ -602,7 +627,16 @@ public class DashboardOSController : PageController
         StartCoroutine(ClearChat(caller, callerIcon, callerName, 5.0f));
     }
 
-    public void AddEventListener(Image image, CharacterModel characterModel, GameWaypoint waypoint, Action<CharacterModel, GameWaypoint> callbackA = null, Action<CharacterModel, Image, WaypointEvent> callbackB = null)
+    /// <summary>
+    /// Can return false if navigation was unsuccessful. In that case, don't destroy the icon.
+    ///  
+    /// </summary>
+    /// <param name="characterModel"></param>
+    /// <param name="gameWaypoint"></param>
+    /// <returns></returns>
+    public delegate void CallBackA(CharacterModel characterModel, GameWaypoint gameWaypoint);
+
+    public void AddEventListener(Image image, CharacterModel characterModel, GameWaypoint waypoint, CallBackA callbackA = null, Action<CharacterModel, Image, WaypointEvent> callbackB = null)
     {
         // Add the handle mouse event trigger
         EventTrigger evt = image.gameObject.AddComponent<EventTrigger>();
@@ -618,11 +652,6 @@ public class DashboardOSController : PageController
         {
             entry.callback.AddListener((eventData) => { callbackB(characterModel, image, waypoint.waypointEvent); });
         }
-    }
-
-    public void AssignGameWaypointData(CharacterModel c, Image image, WaypointEvent e)
-    {
-
     }
 
     /// <summary>
@@ -695,8 +724,14 @@ public class DashboardOSController : PageController
                 break;
         }
         c.InQuadrant = quadrantWaypoint.intKey;
-        c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);
-        SeasonController.ScavengingPhaseFlag(addedQuadrantIconsList);
+        bool successfulNavigation = c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);
+        if(successfulNavigation)
+        {
+            SeasonController.ScavengingPhaseFlag(addedQuadrantIconsList);
+        } else
+        {
+            Debug.Log("A character failed to navigate successfully; not doing anything");
+        }
     }
 
     /// <summary>
@@ -718,6 +753,40 @@ public class DashboardOSController : PageController
     public static void ClearQuadrantUIAction(Image image)
     {
         Destroy(image.gameObject);
+    }
+
+    /// <summary>
+    /// TODO Sponsors money
+    /// </summary>
+    /// <param name="donatorName"></param>
+    /// <param name="donationAmount"></param>
+    public void SetDonationMoneyView(string donatorName, int donationAmount)
+    {
+        if(donatorListAndAmount.Count >= 100)
+        {
+            // Erase first few...
+            // Keep the biggest ones first
+            Dictionary<string, int> lastFiftyDonators = (from donator in donatorListAndAmount orderby donator.Value ascending select donator)
+                                                            .Take(50)
+                                                                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            foreach(string donator in lastFiftyDonators.Keys)
+            {
+                donatorListAndAmount.Remove(donator);
+            }
+        }
+        // Map used for donator ranking
+        donatorListAndAmount.Add(donatorName, donationAmount);
+        firstTenDonators = (from donator in donatorListAndAmount orderby donator.Value descending select donator)
+                            .Take(10)
+                                .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        string donatorList = null;
+        foreach(KeyValuePair<string, int> donator in firstTenDonators)
+        {
+            donatorList += $"{donator.Key}: ${donator.Value}\n";
+        }
+        donatorRankingList.text = donatorList;
+        donationTotalText.text = $"Total donation money received: ${GameController.DonationMoney}";
     }
 
     /// <summary>

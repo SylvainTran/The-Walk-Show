@@ -93,16 +93,33 @@ public class QuadrantMapper : MonoBehaviour
             adjacencyMap.EnableEdge(v.Outgoing[e]);
         }
     }
+
+
+    public delegate bool NavigationAttempt(CharacterModel characterModel, GameWaypoint newWaypoint);
     /// <summary>
     /// Seek the quadrant at the int key.
     /// </summary>
     /// <param name="character"></param>
     /// <param name="quadrantIntKey"></param>
-    public void GoToQuadrant(CharacterModel character, GameWaypoint newWaypoint)
+    public bool GoToQuadrant(CharacterModel character, GameWaypoint newWaypoint)
     {
         // Update the current quadrant location for the calculation of the next paths
         character.InQuadrant = newWaypoint.intKey;
-        character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+        bool successful = character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+
+        // Do something if unsuccessful
+        int attempt = 0;
+        int MAX_ATTEMPTS = 50;
+
+        if(!successful)
+        {
+            while (attempt < MAX_ATTEMPTS)
+            {
+                successful = character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+                ++attempt;
+            }
+        }
+        return successful;
     }
 
     /// <summary>
@@ -112,6 +129,6 @@ public class QuadrantMapper : MonoBehaviour
     /// <param name="quadrantIntKey"></param>
     public void EvadeQuadrant(CharacterModel character, int quadrantIntKey)
     {
-        character.GetComponent<Bot>().Flee(gameWayPoints[quadrantIntKey].transform.position);
+        //character.GetComponent<Bot>().Flee(gameWayPoints[quadrantIntKey].transform.position);
     }
 }

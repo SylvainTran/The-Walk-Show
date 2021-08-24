@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class FruitWaypointEvent : HealEvent
 {
-    public FruitWaypointEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
+    public FruitWaypointEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
 
     }

@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public abstract class WaypointEvent : GameClockEvent
 {
-    public Action<CharacterModel, GameWaypoint>[] actionMethodPointers = null;
+    public System.Delegate[] actionMethodPointers = null;
 
-    public WaypointEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance)
+    public WaypointEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance)
     {
         this.actionMethodPointers = actionMethodPointers;
     }

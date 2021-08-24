@@ -37,7 +37,9 @@ namespace StarterAssets
 		public GameObject lane2Subquadrants;
 		public GameObject lane3Subquadrants;
 		public GameObject lane4Subquadrants;
-		public Image blackMask; 
+		public Image blackMask;
+
+		public GameObject specialEventsWindow;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -94,9 +96,14 @@ namespace StarterAssets
 				_OnTriggerCloseOverlay();
 				return;
 			}
+			if (specialEventsWindow.gameObject.activeInHierarchy)
+            {
+				specialEventsWindow.gameObject.SetActive(false);
+				return;
+			}
 			//if (activeMenuCanvas != null)
             //{
-				_OnTriggerCloseActiveMenu();				
+			//_OnTriggerCloseActiveMenu();				
             //}
 			Cursor.visible = false;
 		}

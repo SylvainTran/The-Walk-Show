@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class SnakeEvent : InjuryEvent
 {
-    public SnakeEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
+    public SnakeEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
     }
 

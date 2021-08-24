@@ -11,7 +11,6 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     public string NickName { get { return nickName; } set { nickName = value; } }
 
     // Colonist unique personnel ID
-    public static int uniqueColonistPersonnelID = 0;
     [SerializeField] private int uniqueColonistPersonnelID_ = 0;
     public int UniqueColonistPersonnelID_ { get { return uniqueColonistPersonnelID_; } set { uniqueColonistPersonnelID_ = value; } }
 

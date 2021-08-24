@@ -9,7 +9,7 @@ public abstract class HealEvent : WaypointEvent
     public float foodHealMin = 1.0f;
     public float foodHealMax = 5.0f;
 
-    public HealEvent(float triggerChance, Action<CharacterModel, GameWaypoint>[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
+    public HealEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
         
     }

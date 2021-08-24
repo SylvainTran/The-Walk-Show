@@ -34,16 +34,30 @@ public class Bot : MonoBehaviour
         quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
     }
 
-    public void Seek(Vector3 location)
+    public bool Seek(Vector3 location)
     {
         if (!agent.isOnNavMesh)
         {
             Debug.Log("Agent not set on navmesh correctly.");
-            return;
+            return false;
         }
-        agent.SetDestination(location);        
-    }
+        bool successful = agent.SetDestination(location);
 
+        if (successful)
+        {
+            GetComponent<Animator>().SetBool("isWalking", true);
+            return true;
+        } else
+        {
+            Debug.Log("Failed to set a new path.");
+            
+            if(agent.pathPending)
+            {
+                Debug.Log("The path is pending but hanged");
+            }
+            return false;
+        }
+    }
     public void Flee(Vector3 location)
     {
         if (!agent.isOnNavMesh)
@@ -99,17 +113,21 @@ public class Bot : MonoBehaviour
         GetComponent<NavMeshAgent>().isStopped = true;
     }
 
-    public void MoveToQuadrant(GameWaypoint v)
+    public bool MoveToQuadrant(GameWaypoint v)
     {
         if(v != null)
         {
             quadrantTarget = v;
             Debug.Log("Moving to quadrant waypoint at: " + quadrantTarget.transform.position);
-            Seek(quadrantTarget.transform.position);
-
-            // Animation
-            GetComponent<Animator>().SetBool("isWalking", true);
+            if(Seek(quadrantTarget.transform.position))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
+        return false;
     }
 
     public void SeekWithinQuadrant()
@@ -140,9 +158,9 @@ public class Bot : MonoBehaviour
 
     public void Update()
     {
-        //if (!coolDown)
+        //if (!coolDown && quadrantTarget == null)
         //{
-            //Wander();
+        //    Wander();
         //}
         //WrapQuadrant();
     }

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using System;
+using System.Collections;
 
 public class SeasonController
 {
@@ -41,16 +44,14 @@ public class SeasonController
     public static int QUADRANTS_ASSIGNED = 0;
     public static int QUADRANTS_REACHED = 0;
 
-    public GameController gameController;
+    public static GameController gameController;
 
-    public SeasonController(GAME_STATE startingState, GameController gameController)
+    public SeasonController(GameController gameController)
     {
-        currentGameState = startingState;
-        this.gameController = gameController;
+        SeasonController.gameController = gameController;
 
-        if (startingState == GAME_STATE.SEASON_INTRO)
+        if (currentGameState == GAME_STATE.SEASON_INTRO)
         {
-            // Play cinematic video clip
             PlaySeasonIntroVideo();
             SetSeasonIntro();
         }
@@ -68,6 +69,7 @@ public class SeasonController
     {
         DestroyAuditionEditors();
         SetQuadrantSelection();
+        gameController.CloseSpecialEventsWindow();
     }
 
     public void DestroyAuditionEditors()
@@ -95,7 +97,8 @@ public class SeasonController
     public static void SetSeasonIntro()
     {
         currentGameState = GAME_STATE.SEASON_INTRO;
-        //_OnSeasonIntroAction();
+        //gameController._OnSeasonIntroAction();
+        gameController.SetupIntroPhase();
     }
 
     public delegate void QuadrantSelectionAction();
@@ -112,7 +115,8 @@ public class SeasonController
     {
         currentGameState = GAME_STATE.SCAVENGING;
         Debug.Log("Starting scavenging phase");
-        _OnScavengingStateAction(); //TODO add notifications/sounds/etc. on state change, removed because no subscribers yet
+        _OnScavengingStateAction();
+        //TODO add notifications/sounds/etc. on state change, removed because no subscribers yet
     }
 
     public delegate void ResolutionStateAction();

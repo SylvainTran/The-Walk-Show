@@ -42,6 +42,12 @@ public class ObituaryGenerator
     // Basic cut up technique
     public string GenerateMajorEventText()
     {
+        if(target.eventMarkersMap.EventMarkersFeed.Count == 0 || target.eventMarkersMap.EventMarkersFeed == null)
+        {
+            Debug.LogError("Event markers map should not be null or empty.");
+            return null;
+        }
+            
         string maxFrequency = target.eventMarkersMap.EventMarkersFeed.Aggregate((accumulator, current) => accumulator.Value > current.Value ? accumulator : current).Key;
         int highestFrequencyEvent = target.eventMarkersMap.EventMarkersFeed[maxFrequency];
 

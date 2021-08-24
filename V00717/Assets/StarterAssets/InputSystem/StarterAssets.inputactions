@@ -124,6 +124,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "SpecialCameraToggle",
+                    "type": "Button",
+                    "id": "6649ad29-3302-4e9a-a518-88ce7f0eb5d3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -421,6 +429,17 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "Lane4PerspectiveToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ee6d1b3-656d-4e55-afd8-3166cd943a01",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SpecialCameraToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

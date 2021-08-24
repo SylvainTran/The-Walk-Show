@@ -17,8 +17,8 @@ public class CreationController
     /// <summary>
     /// The possible tracklane positions to start each new character
     /// </summary>
-    private Vector3[] trackLanePositions;
-    public Vector3[] TrackLanePositions { get { return trackLanePositions; } set { trackLanePositions = value; }}
+    private GameObject[] trackLanePositions;
+    public GameObject[] TrackLanePositions { get { return trackLanePositions; } set { trackLanePositions = value; }}
     /// <summary>
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
@@ -29,7 +29,7 @@ public class CreationController
     public delegate void RequestColonistDataResponse(List<GameObject> colonists, Enums.DataRequests request);
     public static event RequestColonistDataResponse _OnRequestColonistDataResponse;
 
-    public CreationController(GameObject characterModelPrefab, Vector3[] trackLanePositions, Camera[] laneFeedCams)
+    public CreationController(GameObject characterModelPrefab, GameObject[] trackLanePositions, Camera[] laneFeedCams)
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
         DashboardOSController._OnRequestColonistData += OnServerReply;

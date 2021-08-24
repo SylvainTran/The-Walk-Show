@@ -51,19 +51,20 @@ public class GameClockEventController
         int randColor = UnityEngine.Random.Range(0, colors.Length);
         int randSizes = UnityEngine.Random.Range(0, sizes.Length);
         int randAdjectives = UnityEngine.Random.Range(0, adjectives.Length);
+        string randomAdverb = GameController.adverbsDatabase.adverbs[UnityEngine.Random.Range(0, GameController.adverbsDatabase.adverbs.Length)];
         switch (randIndex)
         {
             case 0:
-                gameClockEvent = new SnakeEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.NickName} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
+                gameClockEvent = new SnakeEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent.Message = $"{character.NickName} {randomAdverb} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
                 break;
             case 1:
-                gameClockEvent = new FruitWaypointEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.NickName} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
+                gameClockEvent = new FruitWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent.Message = $"{character.NickName} {randomAdverb} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
                 break;
             case 2:
-                gameClockEvent = new DanceWaypointEvent(triggerChance, new Action<CharacterModel, GameWaypoint>[] { GameController.quadrantMapper.GoToQuadrant });
-                gameClockEvent.Message = $"{character.NickName} couldn't shake the itch to dance away and busted some moves.";
+                gameClockEvent = new DanceWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent.Message = $"{character.NickName} couldn't shake the itch to dance away and busted some {randomAdverb} moves.";
                 break;
             //case 1:
             //    gameClockEvent = new DiseaseEvent(triggerChance);

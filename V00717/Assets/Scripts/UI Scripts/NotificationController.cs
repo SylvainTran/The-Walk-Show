@@ -11,22 +11,76 @@ public class NotificationController : MonoBehaviour
     public TMP_Text tooltipGO;
     public Image ecnb = null;
     public TMP_Text text = null;
-    // The price tip
-    public TMP_Text priceTip;
+    public GameController GameController;
+    public GameObject FXCanvas;
+    public GameObject FXParticleSystem;
+    public TMP_Text FXCanvasMessage;
+    public ParticleSystem ps;
+    public float notificationFXDuration = 5.0f;
 
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += TriggerNotification;
+        Viewer._OnNewSubscriberAction += TriggerSubscriberNotification;
+        Viewer._OnNewDonationAction += TriggerDonationNotification;
     }
 
     private void OnDisable()
     {
+        GameClockEvent._OnColonistIsDead -= TriggerNotification;
+        Viewer._OnNewSubscriberAction -= TriggerSubscriberNotification;
+        Viewer._OnNewDonationAction -= TriggerDonationNotification;
+    }
+
+    private void Start()
+    {
+        ps = FXParticleSystem.GetComponent<ParticleSystem>();
+    }
+    public void TriggerSubscriberNotification(string subscriberName)
+    {
+        // Pop up notification button at the top
+        TriggerTextAnimation($"{subscriberName} just subscribed to the channel! {GameController.encouragementDatabase.encouragements[UnityEngine.Random.Range(0, GameController.encouragementDatabase.encouragements.Length)]}");
+
+        // Confetti animation pops up from FX Canvas bottom right
+        if (ps != null || !ps.isPlaying || ps.isPaused || ps.isStopped)
+        {
+            ps.Play();
+        }
+        FXCanvas.GetComponentInChildren<TMP_Text>().SetText($"{subscriberName} started following you.");
+        FXCanvas.SetActive(true);
         
+        StartCoroutine(FadeOutCanvas(FXCanvas, notificationFXDuration));
+    }
+
+    public void TriggerDonationNotification(string donatorName, int donationAmount)
+    {
+        TriggerTextAnimation($"{donatorName} just donated to the cause. {GameController.encouragementDatabase.encouragements[UnityEngine.Random.Range(0, GameController.encouragementDatabase.encouragements.Length)]}");
+        if (ps != null || !ps.isPlaying || ps.isPaused || ps.isStopped)
+        {
+            ps.Play();
+        }
+        FXCanvasMessage.SetText($"{donatorName} just donated ${donationAmount}.");
+        FXCanvas.SetActive(true);
+        StartCoroutine(FadeOutCanvas(FXCanvas, notificationFXDuration));
+    }
+
+    public IEnumerator FadeOutCanvas(GameObject canvas, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        canvas.SetActive(false);
+        
+        if (ps != null)
+        {
+            if (ps.isPlaying)
+            {
+                ps.Stop();
+            }
+        }
     }
 
     public void TriggerNotification(GameClockEvent e, GameObject go)
     {
-        TriggerTextAnimation($"{go.gameObject.name}'s death added to neural networks.");
+        TriggerTextAnimation($"{go.gameObject.name}'s death data added to the Bar's Vine Cellar");
     }
 
     // Floating descending text animation
@@ -71,17 +125,5 @@ public class NotificationController : MonoBehaviour
     public void ClearToolTip()
     {
         tooltipGO.SetText("");
-    }
-
-    // Update tool tip box content on pointer enter some UI elements
-    public void UpdatePriceTip(string text)
-    {
-        priceTip.SetText(text);
-    }
-
-    // Clear the tool tip canvas's TMP_Text component
-    public void ClearPriceTip()
-    {
-        priceTip.SetText("");
     }
 }

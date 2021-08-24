@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class GameClockEventReaction : GameClockEvent
 {
     private Viewer randomViewer = null;
-    private Viewer randomSubscriber = null;
+    private Subscriber randomSubscriber = null;
 
     public GameClockEventReaction(string message, Viewer randomViewer, Subscriber randomSubscriber) : base()
     {
