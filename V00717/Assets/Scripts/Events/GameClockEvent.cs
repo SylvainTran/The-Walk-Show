@@ -18,7 +18,7 @@ public abstract class GameClockEvent
 
     public GameClockEvent()
     {
-        this.triggerChance = 50.0f;
+        this.triggerChance = 65.0f;
     }
 
     public GameClockEvent(float triggerChance)

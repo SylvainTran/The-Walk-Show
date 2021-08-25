@@ -322,6 +322,7 @@ public class DashboardOSController : PageController
                 // Navmesh issues
                 if(!successful)
                 {
+                    // Character should try to go to a random quadrant instead ?
                     return;
                 }
                 // Event log

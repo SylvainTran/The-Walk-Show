@@ -76,15 +76,15 @@ public class GameClockEventController
         switch (randIndex)
         {
             case 0:
-                gameClockEvent = new SnakeEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent = new SnakeEvent(65.0f, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} {randomAdverb} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
                 break;
             case 1:
-                gameClockEvent = new FruitWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent = new FruitWaypointEvent(45.0f, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} {randomAdverb} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
                 break;
             case 2:
-                gameClockEvent = new DanceWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent = new DanceWaypointEvent(20.0f, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} couldn't shake the itch to dance away and busted some {randomAdverb} moves.";
                 break;
             default:

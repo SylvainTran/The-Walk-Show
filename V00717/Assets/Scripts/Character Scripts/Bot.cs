@@ -162,6 +162,12 @@ public class Bot : MonoBehaviour
         }
     }
 
+    public IEnumerator ResetAgentIsStopped(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        this.agent.isStopped = false;
+    }
+
     public void Update()
     {
         if(seekGold)

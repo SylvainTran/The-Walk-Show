@@ -16,9 +16,9 @@ public class DetectCharacter : MonoBehaviour
             if(other.gameObject.GetComponent<Bot>().quadrantTarget.intKey == GetComponent<GameWaypoint>().intKey)
             {
                 other.gameObject.GetComponent<Animator>().SetBool("isWalking", false);
-                // other.gameObject.GetComponent<Bot>().quadrantTarget = null; TODO 
-                // other.gameObject.GetComponent<NavMeshAgent>().isStopped = true;
-
+                other.gameObject.GetComponent<Bot>().quadrantTarget = null;
+                other.gameObject.GetComponent<NavMeshAgent>().isStopped = true;
+                StartCoroutine(other.gameObject.GetComponent<Bot>().ResetAgentIsStopped(5.0f));
                 // Start seeking gold until a higher priority action occurs
                 other.gameObject.GetComponent<Bot>().seekGold = true;
             }
