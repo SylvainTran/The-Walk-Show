@@ -13,12 +13,12 @@ public class TriggerCreationMenu : MonoBehaviour
 
     private void OnEnable()
     {
-        StarterAssetsInputs._OnPlayerInteracted += SetInteractiveState;
+        //StarterAssetsInputs._OnPlayerInteracted += SetInteractiveState;
     }
 
     private void OnDisable()
     {
-        StarterAssetsInputs._OnPlayerInteracted -= SetInteractiveState;
+        //StarterAssetsInputs._OnPlayerInteracted -= SetInteractiveState;
     }
 
     // Toggle interactive state

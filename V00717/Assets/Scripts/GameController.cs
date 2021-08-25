@@ -6,6 +6,9 @@ using System.IO;
 using UnityEditor;
 using Cinemachine;
 using UnityEngine.UI;
+using TMPro;
+using static SeasonController;
+using UnityEngine.AI;
 
 public class GameController : MonoBehaviour
 {
@@ -13,15 +16,26 @@ public class GameController : MonoBehaviour
     public CharacterModelObject CharacterModel { get { return characterModel; } set { characterModel = value; } }
     private CreationController creationController = null;
     public CreationController CreationController { get { return creationController; } set { creationController = value; } }
-    GameClockEventController gameClockEventController = null;
+    private CharacterCreationView characterCreationView = null;
+    public CharacterCreationView CharacterCreationView { get { return characterCreationView; } set { characterCreationView = value; }}
+    public GameClockEventController gameClockEventController = null;
     private float donationMoney = 0.0f;
     public float DonationMoney { get { return donationMoney; } set { donationMoney = value; } }
 
-    public CreationMenuController creationMenuController = null;
-    public Button submitButton = null;
-
-
     private PlayerStatistics playerStatistics;
+    public RandomizedAudition randomizedAuditionDatabase;
+    public DashboardOSController dashboardOSController;
+    /// <summary>
+    /// The prefab of the audition menu. Comes with AuditionEditor component that randomizes its fields at start.
+    /// </summary>
+    public GameObject auditionEditorPrefab;
+    /// <summary>
+    /// The GO with Vertical Layout to parent the audition editor prefabs in.
+    /// </summary>
+    public Transform auditionEditorContainer;
+
+    public List<GameObject> auditionEditorsInGame;
+    public GameObject[] landingPositions;
 
     public PlayerStatistics GetPlayerStatistics()
     {
@@ -52,7 +66,7 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// The possible tracklane positions to start each new character
     /// </summary>
-    public Vector3[] trackLanePositions;
+    public GameObject[] trackLanePositions;
     /// <summary>
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
@@ -63,21 +77,61 @@ public class GameController : MonoBehaviour
     /// </summary>
     public GameObject characterModelPrefab;
 
+    /// <summary>
+    /// Wrapper for the adjacency graph and methods on it
+    /// that'll be used in game.
+    ///
+    /// Set through the inspector for now.
+    /// </summary>
+    public QuadrantMapper quadrantMapper;
+    /// <summary>
+    /// Controls the seasons (game scene order)
+    /// system.
+    /// </summary>
+    public SeasonController seasonController;
+
+    /// <summary>
+    /// The channel controller for viewer reactions.
+    /// </summary>
+    public ChannelController channelController;
+
+    public GameObject EventHighlightCameraRawImage;
+
+    public TMP_Text auditionStatus;
+
+    public GameObject panopticonLift;
+
+    public CuteKaomojiDatabase cuteKaomojiDatabase;
+    public InterjectionDatabase interjectionDatabase;
+    public ExpletivesDatabase expletivesDatabase;
+    public AdverbsDatabase adverbsDatabase;
+    public EncouragementDatabase encouragementDatabase;
+
+    /// <summary>
+    /// Actors or Items that can spawn at waypoints and in-between
+    /// </summary>
+    public GameObject coinPrefab;
+    public GameObject snakePrefab;
+
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         TimeController._OnUpdateEventClock += OnEventClockUpdate;
+        Viewer._OnNewDonationAction += SetDonationMoney;
+        //SeasonController._OnSeasonIntroAction += SetupIntroPhase;
     }
 
     private void OnDisable()
     {
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         TimeController._OnUpdateEventClock -= OnEventClockUpdate;
+        Viewer._OnNewDonationAction -= SetDonationMoney;
+        //SeasonController._OnSeasonIntroAction -= SetupIntroPhase;        
     }
 
-    private void Awake()
+    public void SetDonationMoney(string donatorName, int donationAmount)
     {
-        
+        donationMoney += donationAmount;
     }
 
     private void Start()
@@ -112,12 +166,151 @@ public class GameController : MonoBehaviour
 
         creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
         gameClockEventController = new GameClockEventController(this, triggerChance);
+        string randomizedAudition, cuteKaomojiSource, expletivesSource, encouragementsSource, adverbsSource, interjectionsSource;
+
+        try
+        {
+            // Load JSON corpus databases - TODO put in a function
+            randomizedAudition = System.IO.File.ReadAllText("Assets/Art/Texts/randomizedAudition.json");
+            randomizedAuditionDatabase = JsonUtility.FromJson<RandomizedAudition>(randomizedAudition);
+            cuteKaomojiSource = System.IO.File.ReadAllText("Assets/Art/Texts/emoji/cute_kaomoji.json");
+            cuteKaomojiDatabase = JsonUtility.FromJson<CuteKaomojiDatabase>(cuteKaomojiSource);
+            expletivesSource = System.IO.File.ReadAllText("Assets/Art/Texts/expletives.json");
+            expletivesDatabase = JsonUtility.FromJson<ExpletivesDatabase>(expletivesSource);
+            encouragementsSource = System.IO.File.ReadAllText("Assets/Art/Texts/encouragements.json");
+            encouragementDatabase = JsonUtility.FromJson<EncouragementDatabase>(encouragementsSource);
+            adverbsSource = System.IO.File.ReadAllText("Assets/Art/Texts/adverbs.json");
+            adverbsDatabase = JsonUtility.FromJson<AdverbsDatabase>(adverbsSource);
+            interjectionsSource = System.IO.File.ReadAllText("Assets/Art/Texts/interjections.json");
+            interjectionDatabase = JsonUtility.FromJson<InterjectionDatabase>(interjectionsSource);
+        } catch(FileNotFoundException fnfe)
+        {
+            Debug.LogError(fnfe.Message);
+            return;
+        }
+
         LoadGameCharacters();
+
+        // Set game state to the intro
+        seasonController = new SeasonController(this);
+        // Validate the stage we're in
+        if(currentGameState == GAME_STATE.SEASON_INTRO)
+        {
+            StartAuditions(CreationController.MAX_COLONISTS);
+            SetupIntroPhase();
+        }
+        else
+        {
+            seasonController.EndAuditions();
+            SetupQuadrantSelectionPhase();
+            StartCoroutine(CloseAfterDelay(CloseSpecialEventsWindow, 5.0f));
+            auditionStatus.enabled = true;
+        }
+
+        // Start specific coroutines
+        channelController.GameController = this;
+        channelController.GenerateRandomViewersCoroutine = StartCoroutine(channelController.GenerateRandomViewers(UnityEngine.Random.Range(0, 5)));
+    }
+    [Serializable]
+    public struct RandomizedAudition
+    {
+        public AuditionActor[] actors;
+    }
+    [Serializable]
+    public struct AuditionActor
+    {
+        [SerializeField]
+        public int age;
+        [SerializeField]
+        public string name;
+        [SerializeField]
+        public string gender;
+    }
+    [Serializable]
+    public struct InterjectionDatabase
+    {
+        [SerializeField]
+        public string[] interjections;
+    }
+    [Serializable]
+    public struct ExpletivesDatabase
+    {
+        [SerializeField]
+        public string[] expletives;
+    }
+    [Serializable]
+    public struct EncouragementDatabase
+    {
+        [SerializeField]
+        public string[] encouragements;
+    }
+    [Serializable]
+    public struct AdverbsDatabase
+    {
+        [SerializeField]
+        public string[] adverbs;
+    }
+    [Serializable]
+    public struct CuteKaomojiDatabase
+    {
+        [SerializeField]
+        public string[] cuteKaomoji;
+    }
+
+    public void SetupIntroPhase()
+    {
+        EventHighlightCameraRawImage.gameObject.SetActive(true);
+        ToggleRawImageComponents(EventHighlightCameraRawImage.GetComponentInChildren<RawImage>(), EventHighlightCameraRawImage.GetComponentInChildren<TMP_Text>(), true);
+    }
+
+    public IEnumerator CloseAfterDelay(Action callbackA, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (callbackA != null)
+        {
+            callbackA();
+        }
+    }
+
+    public void CloseSpecialEventsWindow()
+    {
+        ToggleRawImageComponents(EventHighlightCameraRawImage.GetComponentInChildren<RawImage>(), EventHighlightCameraRawImage.GetComponentInChildren<TMP_Text>(), false);
+        EventHighlightCameraRawImage.gameObject.SetActive(false);
+    }
+
+    public void ToggleRawImageComponents(RawImage image, TMP_Text text, bool enabled)
+    {
+        image.enabled = enabled;
+        text.enabled = enabled;
+    }
+
+    public void SetupQuadrantSelectionPhase()
+    {
+        for(int i = 0; i < colonists.Count; i++)
+        {
+            colonists[i].GetComponent<NavMeshAgent>().Warp(landingPositions[i].transform.position);
+            colonists[i].GetComponent<Rigidbody>().useGravity = true;
+        }
     }
 
     public void LoadGameCharacters()
     {
         // First load game if needed (TODO validate contents too, can have bad format and exist)
+        if (SaveSystem.SaveFileExists("PlayerStatistics.json"))
+        {
+            playerStatistics = LoadPlayerStatistics("PlayerStatistics.json");
+            //  Update UUIDs
+            CharacterModelObject.uniqueColonistPersonnelID = playerStatistics.characterUUIDCount;
+            // Load current game state
+            currentGameState = (GAME_STATE)playerStatistics.currentGameState;
+        }
+        else // New game
+        {
+            playerStatistics = new PlayerStatistics();
+            playerStatistics.characterUUIDCount = 0;
+            playerStatistics.currentGameState = 0;
+            currentGameState = 0;
+        }
         if (SaveSystem.SaveFileExists("colonists.json"))
         {
             LoadCharactersFromJSONFile(colonists, "colonists.json", true, true);
@@ -130,17 +323,6 @@ public class GameController : MonoBehaviour
         if (SaveSystem.SaveFileExists("deadColonists.json"))
         {
             LoadCharactersFromJSONFile(deadColonists, "deadColonists.json", false, true);
-        }
-        if (SaveSystem.SaveFileExists("PlayerStatistics.json"))
-        {
-            playerStatistics = LoadPlayerStatistics("PlayerStatistics.json");
-            //  Update UUIDs
-            CharacterModelObject.uniqueColonistPersonnelID = playerStatistics.characterUUIDCount;
-        }
-        else // New game
-        {
-            playerStatistics = new PlayerStatistics();
-            playerStatistics.characterUUIDCount = 0;
         }
     }
 
@@ -155,14 +337,27 @@ public class GameController : MonoBehaviour
     // Creates an array of baby models from the json text read and deserialized from path
     public void LoadCharactersFromJSONFile(List<GameObject> characters, string path, bool deleteIfEmpty, bool instantiateGO)
     {
+        if(path == null || !SaveSystem.SaveFileExists(path))
+        {
+            return;
+        }
         // Generate new characters based on JSON file
-        string text = System.IO.File.ReadAllText(path);
-        SaveSystem.SavedArrayObject deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
-        List<CharacterModelObject> deserializedObjectList = new List<CharacterModelObject>(deserializedObject.colonists);
+        string text = null;
+        SaveSystem.SavedArrayObject deserializedObject;
+        List<CharacterModelObject> deserializedObjectList = null;
+        try
+        {
+            text = System.IO.File.ReadAllText(path);
+            deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
+            deserializedObjectList = new List<CharacterModelObject>(deserializedObject.colonists);
+        } catch(Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
 
         if (deserializedObjectList == null || deserializedObjectList.Count == 0 || deserializedObjectList[0] == null)
         {
-            Debug.Log("No alive/dead colonists to load.");
+            Debug.Log("No characters to load.");
             // Delete file if specified
             if (deleteIfEmpty)
             {
@@ -174,11 +369,14 @@ public class GameController : MonoBehaviour
         {
             if (instantiateGO)
             {
-                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, Vector3.zero, Quaternion.identity);
+                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, creationController.TrackLanePositions[i].transform.position, Quaternion.identity);
+                newCharacter.transform.SetParent(creationController.TrackLanePositions[i].transform);
+                newCharacter.GetComponent<CharacterModel>().InitEventsMarkersFeed();
                 newCharacter.GetComponent<CharacterModel>().InitCharacterModel(deserializedObjectList[i]); // Should get its uuid from the field, which got its value from previous static uuid, which was updated - we should expect anyways
                 newCharacter.GetComponent<CharacterModel>().InitEventsMarkersFeed(deserializedObjectList[i]);
+                newCharacter.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = deserializedObjectList[i].UniqueColonistPersonnelID_; // Sets the uuid field, not the static one as it wont be serialized
                 characters.Add(newCharacter);
-            }
+            }            
         }
     }
 
@@ -208,27 +406,84 @@ public class GameController : MonoBehaviour
         _OnSaveAction("colonists", deadColonists, "deadColonists.json");
     }
 
-    // Called on finalize creation menu
-    public void AddNewColonistToRegistry()
+    public void InitAuditions()
     {
-        if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
+        StartAuditions(CreationController.MAX_COLONISTS - colonists.Count);
+    }
+
+    /// <summary>
+    /// Used to validate character status on loading a new game or in the game
+    /// </summary>
+    public bool NumberOfCharactersBelowMax()
+    {
+        return colonists.Count < CreationController.MAX_COLONISTS;
+    }
+
+    /// <summary>
+    /// This is the character casting (creation) step.
+    /// </summary>
+    public void StartAuditions(int n)
+    {
+        auditionEditorsInGame = new List<GameObject>();
+        // Take the prefab and randomize starting fields exposed in the AuditorEditor's fields including mesh choices
+        for (int i = 0; i < n; i++)
+        {
+            CreateNewAuditionEditor();
+        }
+    }
+
+    /// <summary>
+    /// This is the character casting (creation) step.
+    /// </summary>
+    public void StartAuditionsAfterDelay(int n)
+    {
+        // Take the prefab and randomize starting fields exposed in the AuditorEditor's fields including mesh choices
+        for (int i = 0; i < n; i++)
+        {
+            StartCoroutine(CreateNewEditor(i * 10 + 5));
+        }
+    }
+
+    // Instantiates a character as well as an audition editor
+    public void CreateNewAuditionEditor()
+    {
+        // Sometimes this can get called (using IEnumerator coroutine) after we already changed state, so don't do aynthing if not in intro state
+        if (currentGameState != GAME_STATE.SEASON_INTRO)
         {
             return;
         }
-        CreationController.CreateNewColonist();
+
+        GameObject ae = Instantiate(auditionEditorPrefab, auditionEditorContainer.transform, true);
+        auditionEditorsInGame.Add(ae);
+        ae.gameObject.GetComponent<CharacterCreationView>().newCharacterModelInstance = Instantiate(characterModelPrefab, CharacterCreationView.characterModelPrefabInstanceCoords + new Vector3(0.0f, 25.0f, 0.0f), Quaternion.identity);
+        ae.gameObject.GetComponent<CharacterCreationView>().newCharacterModelInstance.GetComponent<CharacterModel>().InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
+        ae.gameObject.GetComponent<AuditionEditor>().RandomizeFields();
+    }
+
+    public IEnumerator CreateNewEditor(float delay)
+    {
+        if(NumberOfCharactersBelowMax())
+        {
+            yield return new WaitForSeconds(delay);
+            CreateNewAuditionEditor();
+        }
+        else
+        {
+            auditionStatus.enabled = true;
+        }
     }
 
     // The save method service for the client - FIXME this is for through the creation menu
-    public void Save(bool checkMaxElements)
+    public void Save()
     {
         // Event to save the current baby template to a file
-        if (!CreationMenuController.validEntry || colonists.Count > CreationController.MAX_COLONISTS)
+        if (colonists.Count > CreationController.MAX_COLONISTS)
         {
             return;
         }
         int count = colonists.Count;
         // We don't check for max elements if saving dead colonists (for now)
-        if (!checkMaxElements || count <= CreationController.MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
+        if (count <= CreationController.MAX_COLONISTS) // The last one being added makes it equal to MAX_COLONISTS
         {
             // TODO add dead colonists unique ID too?
             //SaveToJSONFile(key, nbElements, savedObject, path, "Save successful");
@@ -241,10 +496,6 @@ public class GameController : MonoBehaviour
                 // Needs to load up the previous dead colonists first before rewriting
                 _OnSaveAction("colonists", deadColonists, "deadColonists.json");
             }
-            // Reset input fields to prevent creating multiple characters in a row - TODO make the submit button disappear/set inactive for a while
-            submitButton.interactable = false;
-            StartCoroutine(ResetButton(submitButton, 3.0f));
-            creationMenuController.ResetFields();
         }
         else
         {
@@ -316,19 +567,6 @@ public class GameController : MonoBehaviour
         chatDatabaseSO.FEAR_THEME = deserializedObject.FEAR_THEME;
     }
 
-    public void UpdateCharacterMesh(Mesh meshToUpdate)
-    {
-        //meshToUpdate.mesh = CharacterCreationView.BabyModelHeadMeshFilter.mesh;
-    }
-
-    /// <summary>
-    /// The camera lanes to watch the characters
-    /// </summary>
-    public void UpdateCameraLanes()
-    {
-
-    }
-
     // DEBUG MODE: Nothing here
     // Update character registry
     private void OnApplicationQuit()
@@ -343,6 +581,7 @@ public class GameController : MonoBehaviour
         }
         // Update the UUID count and save it
         playerStatistics.characterUUIDCount = CharacterModelObject.uniqueColonistPersonnelID;
+        playerStatistics.currentGameState = (int)SeasonController.currentGameState;
         _OnSavePlayerStatisticsAction(playerStatistics, "PlayerStatistics.json", "successfully saved player stats.");
         Debug.Log("Application ending after " + Time.time + " seconds");
     }

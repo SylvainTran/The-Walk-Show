@@ -60,6 +60,78 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Lane1QuadrantToggle",
+                    "type": "Button",
+                    "id": "44a9e186-a0dd-4323-87d3-074692742320",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane2QuadrantToggle",
+                    "type": "Button",
+                    "id": "c2270aa1-4030-4c28-b758-b731dd6b0989",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane3QuadrantToggle",
+                    "type": "Button",
+                    "id": "c25730c2-e6ca-432d-91fa-9d40ecedd049",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane4QuadrantToggle",
+                    "type": "Button",
+                    "id": "51c59d02-d7d2-4808-b54f-6e8c87ee6d2e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane1PerspectiveToggle",
+                    "type": "Button",
+                    "id": "c6b4d61d-bf91-480d-9b7e-feff199326ae",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane2PerspectiveToggle",
+                    "type": "Button",
+                    "id": "b1702765-cac2-4937-93e4-11d9553b77cf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane3PerspectiveToggle",
+                    "type": "Button",
+                    "id": "fdd01f11-d6b4-43bd-8108-c084edc01640",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Lane4PerspectiveToggle",
+                    "type": "Button",
+                    "id": "86d1c27a-91f1-4c55-8307-9c14b3db01bc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "SpecialCameraToggle",
+                    "type": "Button",
+                    "id": "6649ad29-3302-4e9a-a518-88ce7f0eb5d3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -269,6 +341,105 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2f172e9-fec9-46bb-a7ff-6426049e26f1",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane1QuadrantToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ae2f6910-fa6e-4565-8e12-970a9e76f19c",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane2QuadrantToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fe9a7d33-071c-4c70-ab8f-d4b7ac97a339",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane3QuadrantToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "96a24ae0-d7a1-4185-9793-86a96eb4d69a",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane4QuadrantToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8e2c7eca-46ef-4302-9f36-1adf20e28682",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane1PerspectiveToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2c10ba25-140c-407f-b547-52f38e03f633",
+                    "path": "<Keyboard>/6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane2PerspectiveToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "424cad18-6a25-4845-a31b-ca7875551751",
+                    "path": "<Keyboard>/7",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane3PerspectiveToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4b49e551-d226-42b3-9216-87bb8dcbae8b",
+                    "path": "<Keyboard>/8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Lane4PerspectiveToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ee6d1b3-656d-4e55-afd8-3166cd943a01",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SpecialCameraToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

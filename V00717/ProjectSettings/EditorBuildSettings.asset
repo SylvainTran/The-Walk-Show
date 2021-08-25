@@ -9,6 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: a23d5d881aee04ac7b3b127aed29bd58
   - enabled: 1
+    path: Assets/Scenes/Intro Video.unity
+    guid: 02eea164699d85e4f8d0d52f5b8c66ba
+  - enabled: 1
+    path: Assets/Scenes/Intro Video 2.unity
+    guid: 8d789a9d7ead5de4d9d2692785cf2dbc
+  - enabled: 1
     path: Assets/Scenes/SpaceStation.unity
     guid: 440c223e731c34fb7b59994be77c0308
   m_configObjects:

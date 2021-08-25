@@ -12,19 +12,64 @@ public class Bot : MonoBehaviour
     public float wanderDistance;
     public float wanderJitter;
 
+    public CharacterModel characterModel;
+    public GameWaypoint quadrantTarget = null; // Set when the character is assigned one
+    public float stoppingRange = 0.01f;
+    public Vector3 quadrantSize = Vector3.zero;
+
+    /// <summary>
+    /// If this is set to true, then the character will focus on finding gold in its quadrant
+    /// unless the player assigns a direct task to them.
+    /// </summary>
+    public bool seekGold = false;
+
+    private void OnEnable()
+    {
+        SeasonController._OnScavengingStateAction += SeekWithinQuadrant;
+    }
+
+    private void OnDisable()
+    {
+        SeasonController._OnScavengingStateAction -= SeekWithinQuadrant;
+    }
     // Start is called before the first frame update
     public void Start()
     {
         agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        characterModel = GetComponent<CharacterModel>();
+        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
     }
 
-    public void Seek(Vector3 location)
+    public bool Seek(Vector3 location)
     {
-        agent.SetDestination(location);
-    }
+        if (!agent.isOnNavMesh)
+        {
+            Debug.Log("Agent not set on navmesh correctly.");
+            return false;
+        }
+        bool successful = agent.SetDestination(location);
 
+        if (successful)
+        {
+            GetComponent<Animator>().SetBool("isWalking", true);
+            return true;
+        } else
+        {
+            Debug.Log("Failed to set a new path.");
+            
+            if(agent.pathPending)
+            {
+                Debug.Log("The path is pending but hanged");
+            }
+            return false;
+        }
+    }
     public void Flee(Vector3 location)
     {
+        if (!agent.isOnNavMesh)
+        {
+            return;
+        }
         Vector3 fleeVector = location - this.transform.position;
         agent.SetDestination(this.transform.position - fleeVector);
     }
@@ -47,7 +92,7 @@ public class Bot : MonoBehaviour
         Seek(targetWorld);
     }
 
-    protected bool coolDown = false;
+    protected bool coolDown = true;
     public void BehaviourCoolDown(bool state)
     {
         coolDown = state;
@@ -74,11 +119,60 @@ public class Bot : MonoBehaviour
         GetComponent<NavMeshAgent>().isStopped = true;
     }
 
+    public bool MoveToQuadrant(GameWaypoint v)
+    {
+        if(v != null)
+        {
+            quadrantTarget = v;
+            Debug.Log("Moving to quadrant waypoint at: " + quadrantTarget.transform.position);
+            if(Seek(quadrantTarget.transform.position))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public void SeekWithinQuadrant()
+    {
+        if(quadrantTarget == null || coolDown == false)
+        {
+            return;
+        }
+        BehaviourCoolDown(false);
+        // Clamp wander radius from the quadrantTarget position
+        // wanderDistance = quadrantSize.z;
+    }
+
+    public void WrapQuadrant()
+    {
+        if(quadrantTarget == null)
+        {
+            return;
+        }
+        if (Vector3.Distance(quadrantTarget.transform.position, transform.position) >= Vector3.Distance(quadrantTarget.transform.position, quadrantSize))
+        {
+            MoveToQuadrant(quadrantTarget);
+            // Another way
+            // could be to add an actual box collider around each quadrant that is enabled once the characters
+            // are set in place. Or that collider is used to check the distance at that moment.
+        }
+    }
+
     public void Update()
     {
-        if(!coolDown)
+        if(seekGold)
         {
-            Wander();
+            // Circle around connected edges at waypoint and wander off the path occasionally to magnet in gold coins
+
         }
+        //if (!coolDown && quadrantTarget == null)
+        //{
+        //    Wander();
+        //}
+        //WrapQuadrant();
     }
 }

@@ -8,9 +8,7 @@ public class ObituaryGenerator
     // Generates a one liner question reflecting the character's most weighted achievements?
     private float HEALTH_EVENT_WEIGHT = 0.3f;
     private float BATTLE_EVENT_WEIGHT = 0.5f;
-    private float INJURY_EVENT_WEIGHT = 0.4f;
-    private float REPAIR_SUCCESS_WEIGHT = 0.7f;
-    private float REPAIR_FAILURE_WEIGHT = 0.7f;
+
     // The model to act upon
     private CharacterModel target = null;
 
@@ -44,6 +42,12 @@ public class ObituaryGenerator
     // Basic cut up technique
     public string GenerateMajorEventText()
     {
+        if(target.eventMarkersMap.EventMarkersFeed.Count == 0 || target.eventMarkersMap.EventMarkersFeed == null)
+        {
+            Debug.LogError("Event markers map should not be null or empty.");
+            return null;
+        }
+            
         string maxFrequency = target.eventMarkersMap.EventMarkersFeed.Aggregate((accumulator, current) => accumulator.Value > current.Value ? accumulator : current).Key;
         int highestFrequencyEvent = target.eventMarkersMap.EventMarkersFeed[maxFrequency];
 

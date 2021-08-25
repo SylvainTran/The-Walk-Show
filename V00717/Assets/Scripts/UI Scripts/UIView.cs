@@ -7,7 +7,6 @@ public class UIView : MonoBehaviour
 {
     // The dashboard OS
     public Canvas dashboardOS;
-    public Canvas bridgeCanvas;
     public GameObject creationBridge;
 
     // Attach the event listeners
@@ -56,7 +55,6 @@ public class UIView : MonoBehaviour
     {
         dashboardOS.gameObject.SetActive(true);
         dashboardOS.enabled = true;
-        bridgeCanvas.enabled = true;
         creationBridge.SetActive(true);
         Debug.Log("Showing dashboard OS canvas");
     }

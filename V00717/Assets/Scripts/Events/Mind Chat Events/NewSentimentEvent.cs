@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NewSentimentEvent : GameClockEvent
 {
@@ -29,6 +30,11 @@ public class NewSentimentEvent : GameClockEvent
     }
 
     protected override void AddToEventMarkersFeed(CharacterModel b)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override Texture2D GetEventIcon()
     {
         throw new System.NotImplementedException();
     }

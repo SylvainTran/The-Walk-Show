@@ -2,17 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class InjuryEvent : GameClockEvent
+public abstract class InjuryEvent : WaypointEvent
 {
     public float injuryDamageMin = 1.0f;
     public float injuryDamageMax = 5.0f;
 
-    public InjuryEvent() : base(0.0f)
-    {
-
-    }
-    public InjuryEvent(float triggerChance) : base(triggerChance)
+    public InjuryEvent(float triggerChance, System.Delegate[] actionMethodPointers) : base(triggerChance, actionMethodPointers)
     {
 
     }
@@ -20,8 +17,7 @@ public class InjuryEvent : GameClockEvent
     public override bool ApplyEvent(CharacterModel b)
     {
         float injuryRange = UnityEngine.Random.Range(injuryDamageMin, injuryDamageMax);
-
-        Message = $"{b.Name()} has been injured while working on ship repairs. {injuryRange} injury damage taken.\n";
+        //Message = $"{b.Name()} has been injured {injuryRange} injury damage taken.\n";
         b.Health -= injuryRange;
         AddToEventMarkersFeed(b);
         if(CheckIfDead(b))

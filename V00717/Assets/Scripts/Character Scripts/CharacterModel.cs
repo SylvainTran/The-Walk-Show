@@ -11,7 +11,6 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     public string NickName { get { return nickName; } set { nickName = value; } }
 
     // Colonist unique personnel ID
-    public static int uniqueColonistPersonnelID = 0;
     [SerializeField] private int uniqueColonistPersonnelID_ = 0;
     public int UniqueColonistPersonnelID_ { get { return uniqueColonistPersonnelID_; } set { uniqueColonistPersonnelID_ = value; } }
 
@@ -123,6 +122,13 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     private int trackLanePosition = 0;
     public int TrackLanePosition { get { return trackLanePosition; } set { trackLanePosition = value; } }
 
+    // Quadrant location -1 means not assigned yet - this is checked in Bot.cs
+    private int inQuadrant = -1;
+    public int InQuadrant { get { return inQuadrant; } set { inQuadrant = value; } }
+
+    private int goldInventory = 0;
+    public int GoldInventory { get { return goldInventory; } set { goldInventory = value; } }
+
     public void InitCharacterModel(CharacterModelObject other)
     {
         this.nickName = other.NickName;
@@ -173,7 +179,7 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
             return;
         }
 
-        int randIndex = UnityEngine.Random.Range(0, 100);
+        int randIndex = 100; // DEBUG MODE  UnityEngine.Random.Range(0, 100);
         if(randIndex > e.TriggerChance) //DEBUG MODE: Set this to > 0; randIndex > e.TriggerChance
         {
             e.ApplyEvent(this);

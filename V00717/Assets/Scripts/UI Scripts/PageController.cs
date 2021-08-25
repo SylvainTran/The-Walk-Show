@@ -15,10 +15,6 @@ public abstract class PageController : MonoBehaviour
     private GameObject activeCanvas = null;
     // The group of buttons
     public Transform NavigationButtonCanvas;
-    // The lonely confirm page button
-    public Button confirmPageButton;
-    // The finalize button which saves the edits and exits the menu
-    public Button finalizeButton;
 
     public virtual void ClosePreviousPage()
     {
@@ -43,20 +39,10 @@ public abstract class PageController : MonoBehaviour
             activeCanvas.SetActive(true);
         }
         // Disable nav buttons canvas temporarily
-        if (NavigationButtonCanvas.GetComponent<Canvas>().enabled)
-        {
-            ToggleActive(NavigationButtonCanvas, false);
-        }        
-        // Re-enable the confirm button
-        if (!confirmPageButton.gameObject.activeInHierarchy)
-        {
-            confirmPageButton.gameObject.SetActive(true);
-        }
-        // Disable the finalize button
-        if (finalizeButton.gameObject.activeInHierarchy)
-        {
-            finalizeButton.gameObject.SetActive(false);
-        }
+        //if (NavigationButtonCanvas.GetComponent<Canvas>().enabled)
+        //{
+        //    ToggleActive(NavigationButtonCanvas, false);
+        //}        
     }
 
     // Toggle canvas
@@ -74,20 +60,10 @@ public abstract class PageController : MonoBehaviour
             activeCanvas.SetActive(false);
         }
         // Re-enable nav canvas
-        if (!NavigationButtonCanvas.GetComponent<Canvas>().enabled)
-        {
-            ToggleActive(NavigationButtonCanvas, true);
-        }
-        // Hide confirm page button
-        if(confirmPageButton.gameObject.activeInHierarchy)
-        {
-            confirmPageButton.gameObject.SetActive(false);
-        }
-        // Show finalize page button
-        if (!finalizeButton.gameObject.activeInHierarchy)
-        {
-            finalizeButton.gameObject.SetActive(true);
-        }
+        //if (!NavigationButtonCanvas.GetComponent<Canvas>().enabled)
+        //{
+        //    ToggleActive(NavigationButtonCanvas, true);
+        //}
     }
 
     // Sets active menu canvas

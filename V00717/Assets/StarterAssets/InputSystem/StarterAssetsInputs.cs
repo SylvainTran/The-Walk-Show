@@ -1,6 +1,7 @@
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 #endif
 
 namespace StarterAssets
@@ -14,8 +15,8 @@ namespace StarterAssets
 		public bool sprint;
 
 		// Player interacts with something
-		public delegate void TriggerPlayerInteracted();
-		public static event TriggerPlayerInteracted _OnPlayerInteracted;
+		// public delegate void TriggerPlayerInteracted();
+		// public static event TriggerPlayerInteracted _OnPlayerInteracted;
 
 		// Player opens dashboard OS
 		public delegate void TriggerOpenDashboardOS();
@@ -30,6 +31,15 @@ namespace StarterAssets
 		// Player closes active overlay
 		public delegate void TriggerCloseActiveOverlay();
 		public static event TriggerCloseActiveOverlay _OnTriggerCloseOverlay;
+
+		// Camera views in "On Air" page in the dashboard OS
+		public GameObject lane1Subquadrants;
+		public GameObject lane2Subquadrants;
+		public GameObject lane3Subquadrants;
+		public GameObject lane4Subquadrants;
+		public Image blackMask;
+
+		public GameObject specialEventsWindow;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -66,7 +76,7 @@ namespace StarterAssets
 
 		public void OnInteract()
         {
-			_OnPlayerInteracted();
+			//_OnPlayerInteracted();
 		}
 
 		public void OnOpenDashboardOS(InputValue value)
@@ -86,11 +96,40 @@ namespace StarterAssets
 				_OnTriggerCloseOverlay();
 				return;
 			}
+			if (specialEventsWindow.gameObject.activeInHierarchy)
+            {
+				specialEventsWindow.gameObject.SetActive(false);
+				return;
+			}
 			//if (activeMenuCanvas != null)
             //{
-				_OnTriggerCloseActiveMenu();				
+			//_OnTriggerCloseActiveMenu();				
             //}
 			Cursor.visible = false;
+		}
+
+		public void OnLane1QuadrantToggle(InputValue value)
+        {
+			bool active = lane1Subquadrants.gameObject.activeInHierarchy;
+			lane1Subquadrants.gameObject.SetActive(!active);
+		}
+
+		public void OnLane2QuadrantToggle(InputValue value)
+		{
+			bool active = lane2Subquadrants.gameObject.activeInHierarchy;
+			lane2Subquadrants.gameObject.SetActive(!active);
+		}
+
+		public void OnLane3QuadrantToggle(InputValue value)
+		{
+			bool active = lane3Subquadrants.gameObject.activeInHierarchy;
+			lane3Subquadrants.gameObject.SetActive(!active);
+		}
+
+		public void OnLane4QuadrantToggle(InputValue value)
+		{
+			bool active = lane4Subquadrants.gameObject.activeInHierarchy;
+			lane4Subquadrants.gameObject.SetActive(!active);
 		}
 
 		public static void ClearActiveMenu()

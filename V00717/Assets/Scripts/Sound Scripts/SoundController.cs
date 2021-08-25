@@ -60,6 +60,8 @@ public class SoundController : MonoBehaviour
                                     ericd_death_or_glory,
                                     waterStream
                                   };
+        PlayJukeboxSong(2);
+        AudioSource.loop = true;
     }
 
     public void PlayJukeboxSong(int songIndex)
@@ -68,6 +70,7 @@ public class SoundController : MonoBehaviour
         {
             AudioSource.Stop();
         }
+        AudioSource.loop = false;
         AudioSource.PlayOneShot(jukebox[songIndex], volume);
     }
 

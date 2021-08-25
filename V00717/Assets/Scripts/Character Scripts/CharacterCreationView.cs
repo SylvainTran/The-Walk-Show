@@ -6,14 +6,17 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 // Deals with view render changes
-public class CharacterCreationView : UIView
-{
+public class CharacterCreationView : MonoBehaviour
+{   
+    public CreationController CreationController;
+    public GameObject characterModelPrefab;
+    public GameObject newCharacterModelInstance;
+
     // The Baby Model GOs to render/change mesh, and the scriptable object to pull data from
-    public Renderer BabyModelHeadRenderer;
-    public Renderer BabyModelTorsoRenderer;
+    private Renderer BabyModelHeadRenderer;
+    private Renderer BabyModelTorsoRenderer;
     public MeshFilter BabyModelHeadMeshFilter;
-    public MeshFilter BabyModelTorsoMeshFilter;
-    
+    public MeshFilter BabyModelTorsoMeshFilter;    
     public GameController GameController;
     // Scriptable object with assets
     public ModelAssets ModelAssets;
@@ -25,14 +28,20 @@ public class CharacterCreationView : UIView
     public delegate void SexChangeAction(string sex);
     public static event SexChangeAction _OnSexChanged; // listened to by SoundController.cs
 
+    public static Vector3 characterModelPrefabCoords = Vector3.zero;
+    public static Vector3 characterModelPrefabInstanceCoords = Vector3.zero;
+
+    // Queue of editors to spawn (and destroy later if unrequired)
+    public Queue<GameObject> auditionEditorToSpawn;
+
     // Attach the event listeners
-    public new void OnEnable()
+    public void OnEnable()
     {
         SaveSystem._SuccessfulSaveAction += UpdateColonistUUIDText;
     }
 
     // Detach the event listeners
-    public new void OnDisable()
+    public void OnDisable()
     {
         SaveSystem._SuccessfulSaveAction -= UpdateColonistUUIDText;
     }
@@ -40,54 +49,93 @@ public class CharacterCreationView : UIView
     // Updates the colonist uuid text on start
     private void Start()
     {
+        // Create a new character template mesh
+        GameController = GameObject.FindObjectOfType<GameController>();
+        CreationController = GameController.CreationController;
+        characterModelPrefabCoords = new Vector3(-2.14f, 0.75f, 2.9f);
+        characterModelPrefabInstanceCoords = new Vector3(2.14f, 0.75f, characterModelPrefabCoords.z += 50.0f);
+
+        BabyModelHeadRenderer = newCharacterModelInstance.GetComponent<Renderer>();
+        BabyModelTorsoRenderer = newCharacterModelInstance.GetComponent<Renderer>();
+
+        BabyModelHeadMeshFilter = newCharacterModelInstance.GetComponent<MeshFilter>();
+        BabyModelTorsoMeshFilter = newCharacterModelInstance.GetComponent<MeshFilter>();
+        // Setup its camera and render texture
         UpdateColonistUUIDText();
-    }
+        auditionEditorToSpawn = new Queue<GameObject>();
+}
 
     // Setter for new colonist nickname
     public void OnNickNameChanged(string nickName)
     {
-        GameController.CreationController.OnNickNameChanged(nickName);
+        newCharacterModelInstance.GetComponent<CharacterModel>().NickName = nickName;
+        GetComponent<AuditionEditor>().SetNameChoice(nickName);
         Debug.Log($"And so {nickName} was given his nickname.");
     }
 
     //Setter for baby's sex via Unity's built-in event system.
     public void OnSexChanged(string sex)
     {
+        if(newCharacterModelInstance == null)
+        {
+            return;            
+        }
+
         // Call listeners - Sound
         _OnSexChanged(sex);
-        Debug.Log($"Baby's sex was changed to: {sex}");
+        newCharacterModelInstance.GetComponent<CharacterModel>().Sex = sex;
+        Debug.Log($"Character's sex was changed to: {sex}");
     }
 
     public void OnSkinColorChangedR(float value)
     {
-        GameController.CreationController.OnSkinColorChanged_R(value);
+        if(newCharacterModelInstance == null)
+        {
+            return;            
+        }
+
+        newCharacterModelInstance.GetComponent<CharacterModel>().SkinColorR = value;
         UpdateSkinColor();
     }
 
     public void OnSkinColorChangedG(float value)
     {
-        GameController.CreationController.OnSkinColorChanged_G(value);
+        if(newCharacterModelInstance == null)
+        {
+            return;            
+        }
+
+        newCharacterModelInstance.GetComponent<CharacterModel>().SkinColorG = value;
         UpdateSkinColor();
     }
 
     public void OnSkinColorChangedB(float value)
     {
-        GameController.CreationController.OnSkinColorChanged_B(value);
+        if(newCharacterModelInstance == null)
+        {
+            return;            
+        }
+
+        newCharacterModelInstance.GetComponent<CharacterModel>().SkinColorB = value;
         UpdateSkinColor();
     }
 
     // Updates the colonist uuid text in identification tab
     public void UpdateColonistUUIDText()
     {
-        uniqueColonistPersonnelID_CC.SetText($"Unique Colonist Personnel ID: {CharacterModelObject.uniqueColonistPersonnelID}");
+        if(uniqueColonistPersonnelID_CC)
+        {
+            uniqueColonistPersonnelID_CC.SetText($"Unique Actor Union ID: {CharacterModelObject.uniqueColonistPersonnelID}");
+        }
     }
 
     // Procedure to update the skin color of BabyModelGO's game object's children
     // Gets the renderer of the go's children and updates its materials with the new rgb values
     public void UpdateSkinColor()
     {
+        CharacterModel character = newCharacterModelInstance.GetComponent<CharacterModel>();
         Material newMat = new Material(Shader.Find("Standard"));
-        newMat.SetColor("_Color", new Color(GameController.CharacterModel.SkinColorR, GameController.CharacterModel.SkinColorG, GameController.CharacterModel.SkinColorB));
+        newMat.SetColor("_Color", new Color(character.SkinColorR, character.SkinColorG, character.SkinColorB));
         BabyModelHeadRenderer.material = newMat;
         BabyModelTorsoRenderer.material = newMat;
     }
@@ -130,5 +178,86 @@ public class CharacterCreationView : UIView
         {
             BabyModelTorsoMeshFilter.mesh = newMesh;
         }
+    }
+
+    // Called from creation menu (cast button)
+    public void AddNewColonistToRegistry()
+    {
+        if (!GameController.NumberOfCharactersBelowMax())
+        {
+            Debug.Log("max characters already");
+            return;
+        }
+        CharacterModelObject.uniqueColonistPersonnelID++;
+        CreateNewColonist();
+        GameController.Save();
+        GetComponent<CreationMenuController>().DestroyEditor();
+
+        if(GameController.NumberOfCharactersBelowMax())
+        {
+            GameController.StartAuditionsAfterDelay(1);
+        } else
+        {
+            GameController.SetupQuadrantSelectionPhase();
+            GameController.seasonController.EndAuditions();
+            GameController.auditionStatus.enabled = true;
+            StartCoroutine(GameController.CloseAfterDelay(GameController.CloseSpecialEventsWindow, 5.0f));
+            // Clear any pending audition window to spawn
+            foreach(GameObject g in GameController.auditionEditorsInGame)
+            {
+                Destroy(g.gameObject);
+            }
+        }
+    }
+
+    public void CreateNewColonist()
+    {
+        SetupNewCharacter();
+    }
+
+    public void SetupNewCharacter()
+    {
+        CreationController creationController = GameController.CreationController;
+
+        // Set the new Material runner games character to the last track position (set from live game character count)
+        int trackLanePosition = creationController.FindAvailableCameraLane();
+
+        GameObject newCharacterMesh = newCharacterModelInstance;
+        try
+        {
+            newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
+            RenameGameObject(newCharacterMesh, newCharacterMesh.GetComponent<CharacterModel>().NickName);
+            AddGameObjectToList(newCharacterMesh);
+            SetupTransformPosition(newCharacterMesh.transform, creationController.TrackLanePositions[trackLanePosition].transform.position);
+            newCharacterMesh.transform.SetParent(creationController.TrackLanePositions[trackLanePosition].transform);
+            SetCameraTarget(creationController, newCharacterMesh.transform, trackLanePosition);
+        }
+        catch (ArgumentNullException ane)
+        {
+            Debug.Log(ane.Message);
+            Debug.LogError("Error: No prefab model for characters loaded.");
+        }
+        catch (ArgumentException ae)
+        {
+            Debug.LogError(ae.Message);
+        }
+    }
+
+    public void RenameGameObject(GameObject renamed, string newName)
+    {
+        renamed.gameObject.name = newName;
+    }
+    public void AddGameObjectToList(GameObject gameObject)
+    {
+       GameController.Colonists.Add(gameObject);
+    }
+    public void SetCameraTarget(CreationController cameraController, Transform target, int trackLanePosition)
+    {
+        // TODO Set its mesh to the players' choices using the character model component        
+        cameraController.SetTrackLanePosition(trackLanePosition, target);
+    }
+    public void SetupTransformPosition(Transform moved, Vector3 position)
+    {
+        moved.position = position;
     }
 }
