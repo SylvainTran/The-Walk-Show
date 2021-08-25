@@ -15,7 +15,6 @@ public class DashboardOSController : PageController
 {
     // For characters
     public GameController GameController;
-    public ChatDatabase chatDatabaseSO;
     protected int activePageIndex;
     // Dashboard OS canvas
     public Canvas dashboardOS;
@@ -617,7 +616,7 @@ public class DashboardOSController : PageController
         CharacterModel targetComponent = target.GetComponent<CharacterModel>();
 
         // Generate a dialogue thread
-        ChatGenerator cg = new ChatGenerator(targetComponent, chatDatabaseSO);
+        ChatGenerator cg = new ChatGenerator(targetComponent, GameController.chatDatabaseSO);
         chatDialogue.SetText("Caller: " + targetComponent.Name() + "\n" + "Call Log:\n" + cg.GetDialogueTextByTheme());
         StartCoroutine(ClearChat(characterModel, generatedChatterIcon, generatedChatterName, 5.0f));
     }

@@ -1082,7 +1082,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: asdasdasdasd
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
   m_sharedMaterial: {fileID: 5226485715806369113, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
@@ -2058,7 +2058,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   evaNews1Video: {fileID: 1588832853}
   tokkingHeadVideo: {fileID: 566622521}
-  currentVideoPlaying: {fileID: 0}
+  currentVideoPlaying: {fileID: 1588832853}
 --- !u!1001 &89115989
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5903,7 +5903,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -194.09999, y: -86}
+  m_AnchoredPosition: {x: -194.09999, y: -83.79996}
   m_SizeDelta: {x: 319.15, y: 150}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &211876437
@@ -6157,8 +6157,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -368.15, y: -184.846}
-  m_SizeDelta: {x: 543.14, y: 203.787}
+  m_AnchoredPosition: {x: -368.15002, y: -187.46185}
+  m_SizeDelta: {x: 543.14, y: 209.0186}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &217170915
 MonoBehaviour:
@@ -7440,7 +7440,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -542.2, y: -228.56}
+  m_AnchoredPosition: {x: -542.2, y: -233.2}
   m_SizeDelta: {x: 319.15, y: 150}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &268976410
@@ -15615,7 +15615,7 @@ VideoPlayer:
   m_TargetMaterialProperty: _MainTex
   m_RenderMode: 2
   m_AspectRatio: 2
-  m_DataSource: 0
+  m_DataSource: 1
   m_PlaybackSpeed: 1
   m_AudioOutputMode: 2
   m_TargetAudioSources:
@@ -15632,6 +15632,19 @@ VideoPlayer:
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
+--- !u!114 &566622524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 566622521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59b76aa81477c86459e95b5324f926ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoUrl: tokkinghead.mp4
 --- !u!1001 &569554416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23970,8 +23983,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 531.97, y: -229.30002}
-  m_SizeDelta: {x: 319.15, y: 150}
+  m_AnchoredPosition: {x: 531.97, y: -234.3}
+  m_SizeDelta: {x: 319.15, y: 150.0176}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &963159536
 MonoBehaviour:
@@ -28483,8 +28496,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 357.30475, y: -185.994}
-  m_SizeDelta: {x: 544.243, y: 203.942}
+  m_AnchoredPosition: {x: 357.30475, y: -188.54413}
+  m_SizeDelta: {x: 544.243, y: 209.0481}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1144226019
 MonoBehaviour:
@@ -41500,6 +41513,19 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6938124248376802764, guid: 52013d85e1f6f7c418b7c8b2f935e64f, type: 3}
   m_PrefabInstance: {fileID: 6938124250294899750}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1588832854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1588832853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59b76aa81477c86459e95b5324f926ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoUrl: EVA-D News 1.mp4
 --- !u!328 &1588832856
 VideoPlayer:
   m_ObjectHideFlags: 0
@@ -41518,7 +41544,7 @@ VideoPlayer:
   m_TargetMaterialProperty: _MainTex
   m_RenderMode: 2
   m_AspectRatio: 2
-  m_DataSource: 0
+  m_DataSource: 1
   m_PlaybackSpeed: 1
   m_AudioOutputMode: 2
   m_TargetAudioSources:
@@ -46652,8 +46678,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 182.40001, y: -230.7}
-  m_SizeDelta: {x: 319.15, y: 148.6}
+  m_AnchoredPosition: {x: 182.7, y: -234.2}
+  m_SizeDelta: {x: 319.15, y: 150.12}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1766370507
 MonoBehaviour:
@@ -56355,7 +56381,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -194.02, y: -228.56}
+  m_AnchoredPosition: {x: -194.02, y: -233.2}
   m_SizeDelta: {x: 319.11, y: 150}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1980558592

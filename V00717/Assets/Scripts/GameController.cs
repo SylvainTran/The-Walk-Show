@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using TMPro;
 using static SeasonController;
 using UnityEngine.AI;
+using UnityEngine.Networking;
 
 public class GameController : MonoBehaviour
 {
@@ -134,30 +135,30 @@ public class GameController : MonoBehaviour
         donationMoney += donationAmount;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         // Create a game character database if it doesn't exist (failsafe)
         // ScriptableObject gcd = (ScriptableObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/GameCharacterDatabase.asset", typeof(ScriptableObject));
         // Load chat database SO and initialize main controllers
-#if UNITY_EDITOR
-        chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath("Assets/MyResources/ChatDatabase.asset", typeof(ChatDatabase));
+#if UNITY_EDITOR        
+        //chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath(Path.Combine(Application.dataPath + "/MyResources/ChatDatabase"), typeof(ChatDatabase));
         if (chatDatabaseSO == null)
         {
             chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
-            AssetDatabase.CreateAsset(chatDatabaseSO, $"Assets/MyResources/{chatDatabaseSO.name}.asset");
+            //AssetDatabase.CreateAsset(chatDatabaseSO, Path.Combine(Application.dataPath + "/MyResources/ChatDatabase"));
         }
 #endif
-#if DEVELOPMENT_BUILD
+#if UNITY_STANDALONE || UNITY_WEBGL
         if (chatDatabaseSO == null)
         {
            chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
         }
 #endif
-
+        string path = null;
         // Load from saved file if needed
         if (chatDatabaseSO.REGRET_THEME.Length == 0)
         {
-            LoadChatDatabaseJSON($"Assets/chatDatabase.json");
+            yield return StartCoroutine(LoadChatDatabaseJSON("chatDatabase.json"));
         }
 
         colonists = new List<GameObject>();
@@ -166,28 +167,19 @@ public class GameController : MonoBehaviour
 
         creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
         gameClockEventController = new GameClockEventController(this, triggerChance);
-        string randomizedAudition, cuteKaomojiSource, expletivesSource, encouragementsSource, adverbsSource, interjectionsSource;
-
-        try
-        {
-            // Load JSON corpus databases - TODO put in a function
-            randomizedAudition = System.IO.File.ReadAllText("Assets/Art/Texts/randomizedAudition.json");
-            randomizedAuditionDatabase = JsonUtility.FromJson<RandomizedAudition>(randomizedAudition);
-            cuteKaomojiSource = System.IO.File.ReadAllText("Assets/Art/Texts/emoji/cute_kaomoji.json");
-            cuteKaomojiDatabase = JsonUtility.FromJson<CuteKaomojiDatabase>(cuteKaomojiSource);
-            expletivesSource = System.IO.File.ReadAllText("Assets/Art/Texts/expletives.json");
-            expletivesDatabase = JsonUtility.FromJson<ExpletivesDatabase>(expletivesSource);
-            encouragementsSource = System.IO.File.ReadAllText("Assets/Art/Texts/encouragements.json");
-            encouragementDatabase = JsonUtility.FromJson<EncouragementDatabase>(encouragementsSource);
-            adverbsSource = System.IO.File.ReadAllText("Assets/Art/Texts/adverbs.json");
-            adverbsDatabase = JsonUtility.FromJson<AdverbsDatabase>(adverbsSource);
-            interjectionsSource = System.IO.File.ReadAllText("Assets/Art/Texts/interjections.json");
-            interjectionDatabase = JsonUtility.FromJson<InterjectionDatabase>(interjectionsSource);
-        } catch(FileNotFoundException fnfe)
-        {
-            Debug.LogError(fnfe.Message);
-            return;
-        }
+        // Load JSON corpus databases - TODO put in a function
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("randomizedAudition.json"));
+        randomizedAuditionDatabase = JsonUtility.FromJson<RandomizedAudition>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("cute_kaomoji.json"));
+        cuteKaomojiDatabase = JsonUtility.FromJson<CuteKaomojiDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("expletives.json"));
+        expletivesDatabase = JsonUtility.FromJson<ExpletivesDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("encouragements.json"));
+        encouragementDatabase = JsonUtility.FromJson<EncouragementDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("adverbs.json"));
+        adverbsDatabase = JsonUtility.FromJson<AdverbsDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("interjections.json"));
+        interjectionDatabase = JsonUtility.FromJson<InterjectionDatabase>(currentFileTextRead);
 
         LoadGameCharacters();
 
@@ -211,6 +203,68 @@ public class GameController : MonoBehaviour
         channelController.GameController = this;
         channelController.GenerateRandomViewersCoroutine = StartCoroutine(channelController.GenerateRandomViewers(UnityEngine.Random.Range(0, 5)));
     }
+    public string currentFileTextRead;    
+    public IEnumerator ReadAssetFromPlatformDependentPath(string relativePath)
+    {
+        yield return null;
+        // Reset handler
+        currentFileTextRead = null;
+        //#if UNITY_EDITOR 
+        //        resultPath = ReadFromApplicationPath(relativePath);
+        //#endif
+#if UNITY_EDITOR || UNITY_STANDALONE
+        currentFileTextRead = ReadFromStreamingAssetsPath(relativePath);
+#endif
+#if UNITY_WEBGL// && !UNITY_EDITOR
+        // Need Unity Web Request
+        yield return StartCoroutine(GetRequest(Path.Combine(Application.streamingAssetsPath, relativePath)));
+        currentFileTextRead = jsonTextFromWebRequestDownloadHandler;
+#endif
+    }
+
+    string jsonTextFromWebRequestDownloadHandler = null;
+    private IEnumerator GetRequest(string uri)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    jsonTextFromWebRequestDownloadHandler = webRequest.downloadHandler.text;
+                    break;
+            }
+        }
+    }
+
+    public string ReadFromApplicationPath(string relativePath)
+    {
+        return System.IO.File.ReadAllText(Path.Combine(Application.dataPath, relativePath));
+    }
+
+    public string ReadFromPersistentPath(string relativePath)
+    {
+        return System.IO.File.ReadAllText(Path.Combine(Application.persistentDataPath, relativePath));
+    }
+
+    public string ReadFromStreamingAssetsPath(string relativePath)
+    {
+        return System.IO.File.ReadAllText(Path.Combine(Application.streamingAssetsPath, relativePath));
+    }
+
     [Serializable]
     public struct RandomizedAudition
     {
@@ -328,7 +382,7 @@ public class GameController : MonoBehaviour
 
     public PlayerStatistics LoadPlayerStatistics(string path)
     {
-        string text = System.IO.File.ReadAllText(path);
+        string text = ReadFromPersistentPath(path);
         PlayerStatistics deserializedObject = JsonUtility.FromJson<PlayerStatistics>(text);
 
         return deserializedObject;
@@ -347,7 +401,7 @@ public class GameController : MonoBehaviour
         List<CharacterModelObject> deserializedObjectList = null;
         try
         {
-            text = System.IO.File.ReadAllText(path);
+            text = ReadFromPersistentPath(path); // PERSISTENT PATH
             deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
             deserializedObjectList = new List<CharacterModelObject>(deserializedObject.colonists);
         } catch(Exception e)
@@ -361,7 +415,7 @@ public class GameController : MonoBehaviour
             // Delete file if specified
             if (deleteIfEmpty)
             {
-                File.Delete(path);
+                File.Delete(Application.dataPath + "/" + path);
             }
             return;
         }
@@ -393,7 +447,7 @@ public class GameController : MonoBehaviour
     {
         if (colonists.Count == 0)
         {
-            File.Delete("colonists.json");
+            File.Delete(Application.dataPath + "/" + "colonists.json");
         }
     }
 
@@ -555,10 +609,10 @@ public class GameController : MonoBehaviour
     }
 
     // JSON VERSION
-    public void LoadChatDatabaseJSON(string path)
+    private IEnumerator LoadChatDatabaseJSON(string path)
     {
-        string text = System.IO.File.ReadAllText(path);
-        JSONDatabase deserializedObject = JsonUtility.FromJson<JSONDatabase>(text);
+        yield return ReadAssetFromPlatformDependentPath(path);
+        JSONDatabase deserializedObject = JsonUtility.FromJson<JSONDatabase>(currentFileTextRead);
         chatDatabaseSO.STRESS_THEME = deserializedObject.STRESS_THEME;
         chatDatabaseSO.REGRET_THEME = deserializedObject.REGRET_THEME;
         chatDatabaseSO.REALIZATION_THEME = deserializedObject.REALIZATION_THEME;
