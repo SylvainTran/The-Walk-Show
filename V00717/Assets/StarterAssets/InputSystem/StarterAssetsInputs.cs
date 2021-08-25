@@ -1,8 +1,6 @@
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-#endif
+using UnityEngine.InputSystem;
 
 namespace StarterAssets
 {
@@ -49,8 +47,6 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 #endif
-
-#if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 		public void OnMove(InputValue value)
 		{
 			MoveInput(value.Get<Vector2>());
@@ -160,9 +156,7 @@ namespace StarterAssets
 				Cursor.visible = true;
             }
         }
-#else
 	// old input sys if we do decide to have it (most likely wont)...
-#endif
 
 		public void MoveInput(Vector2 newMoveDirection)
 		{

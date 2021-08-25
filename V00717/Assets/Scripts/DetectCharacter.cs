@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DetectCharacter : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class DetectCharacter : MonoBehaviour
             if(other.gameObject.GetComponent<Bot>().quadrantTarget.intKey == GetComponent<GameWaypoint>().intKey)
             {
                 other.gameObject.GetComponent<Animator>().SetBool("isWalking", false);
+                other.gameObject.GetComponent<NavMeshAgent>().isStopped = true;
+
                 // Start seeking gold until a higher priority action occurs
                 other.gameObject.GetComponent<Bot>().seekGold = true;
             }

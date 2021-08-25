@@ -531,36 +531,27 @@ public class DashboardOSController : PageController
     /// </summary>
     /// <param name="c"></param>
     /// <param name="parentLayout"></param>
-    public void AddCameraFeedActionUI(CharacterModel c, Transform parentTransform, bool takeParentPosition, Action<CharacterModel, Image, TMP_Text, int> chatCallback = null, Action<CharacterModel, Image[], int> quadrantSelectionCallback = null)
+    public void AddCameraFeedActionUI(CharacterModel c, Transform parentTransform, _AddChatCallOnClick chatCallback = null, Action<CharacterModel, Image[], int> quadrantSelectionCallback = null)
     {
         if (c != null)
         {
             // Icons with click events
-            Image colonistIcon = Instantiate(UIAssets.colonistIcon.GetComponent<Image>());
-            colonistIcon.rectTransform.SetParent(parentTransform);
-            if(takeParentPosition)
-            {
-                colonistIcon.rectTransform.position = parentTransform.position;
-            }
-            colonistIcon.gameObject.name = c.Name();
-            TMP_Text colonistName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>());
+            Image generatedChatterIcon = Instantiate(UIAssets.colonistIcon, parentTransform, true).GetComponent<Image>();
+            generatedChatterIcon.gameObject.name = c.Name();
+            TMP_Text generatedChatterName = Instantiate(UIAssets.colonistName.GetComponent<TextMeshProUGUI>(), parentTransform, true);
 
-            if (takeParentPosition)
-            {
-                colonistName.rectTransform.position = parentTransform.position;
-            }
             if(chatCallback != null)
             {
                 // Add the handle mouse event trigger
-                EventTrigger evt = colonistIcon.gameObject.AddComponent<EventTrigger>();
+                EventTrigger evt = generatedChatterIcon.gameObject.AddComponent<EventTrigger>();
                 EventTrigger.Entry entry = new EventTrigger.Entry();
                 entry.eventID = EventTriggerType.PointerClick;
                 evt.triggers.Add(entry);
                 // Names
-                colonistName.SetText(c.Name());
-                colonistName.gameObject.name = c.Name();
-                colonistName.rectTransform.SetParent(parentTransform);
-                entry.callback.AddListener((eventData) => { chatCallback(c, colonistIcon, colonistName, c.UniqueColonistPersonnelID_); });
+                generatedChatterName.SetText(c.Name());
+                generatedChatterName.gameObject.name = c.Name();
+                generatedChatterName.rectTransform.SetParent(parentTransform);
+                entry.callback.AddListener((eventData) => { chatCallback(c, generatedChatterIcon, generatedChatterName); });
             }
         }
     }
@@ -604,17 +595,20 @@ public class DashboardOSController : PageController
     }
 
     // Colonist icons (dead/alive) click handler
-    public void AddChatCallOnClick(CharacterModel caller, Image callerIcon, TMP_Text callerName, int UUID)
+    public delegate void _AddChatCallOnClick(CharacterModel characterModel, Image generatedChatterIcon, TMP_Text generatedChatterName);
+
+    public void AddChatCallOnClick(CharacterModel characterModel, Image generatedChatterIcon, TMP_Text generatedChatterName)
     {
         if (GameController == null || GameController.Colonists == null)
         {
             return;
         }
+        
         // Look up the UUID in the gameCharacterDatabase
-        GameObject target = GameController.Colonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == UUID);
+        GameObject target = GameController.Colonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == characterModel.UniqueColonistPersonnelID_);
         if (target == null)
         {
-            Debug.Log($"Target UUID {UUID} not found. Check UUID again.");
+            Debug.Log($"Target UUID not found. Check UUID again.");
             return;
         }
         StarterAssetsInputs.activeOverlayScreen = chatCallOverlayCanvas;
@@ -625,7 +619,7 @@ public class DashboardOSController : PageController
         // Generate a dialogue thread
         ChatGenerator cg = new ChatGenerator(targetComponent, chatDatabaseSO);
         chatDialogue.SetText("Caller: " + targetComponent.Name() + "\n" + "Call Log:\n" + cg.GetDialogueTextByTheme());
-        StartCoroutine(ClearChat(caller, callerIcon, callerName, 5.0f));
+        StartCoroutine(ClearChat(characterModel, generatedChatterIcon, generatedChatterName, 5.0f));
     }
 
     /// <summary>
@@ -853,24 +847,9 @@ public class DashboardOSController : PageController
         StopCoroutine("ClearChat");
     }
 
+    public GameObject pendingCallsParentTransform;
     private void UpdatePendingCallsLog(GameClockEvent e, CharacterModel c)
     {
-        // Check which camera lane transform to parent the new icon
-        Transform targetParent = null;
-
-        if(c.TrackLanePosition == 0)
-        {
-            targetParent = cameraLane1TargetCallTransform;
-        } else if(c.TrackLanePosition == 1)
-        {
-            targetParent = cameraLane2TargetCallTransform;
-        } else if(c.TrackLanePosition == 2)
-        {
-            targetParent = cameraLane3TargetCallTransform;
-        } else if(c.TrackLanePosition == 3)
-        {
-            targetParent = cameraLane4TargetCallTransform;
-        }
-        AddCameraFeedActionUI(c, targetParent, true);
+        AddCameraFeedActionUI(c, pendingCallsParentTransform.transform, AddChatCallOnClick);
     }
 }
