@@ -215,7 +215,7 @@ public class GameController : MonoBehaviour
 #if UNITY_EDITOR || UNITY_STANDALONE
         currentFileTextRead = ReadFromStreamingAssetsPath(relativePath);
 #endif
-#if UNITY_WEBGL// && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
         // Need Unity Web Request
         yield return StartCoroutine(GetRequest(Path.Combine(Application.streamingAssetsPath, relativePath)));
         currentFileTextRead = jsonTextFromWebRequestDownloadHandler;
