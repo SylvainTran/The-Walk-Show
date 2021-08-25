@@ -96,6 +96,6 @@ public class SaveSystem : MonoBehaviour
     // Checks if save file exists: FROM PERSISTENT DATABASE WHICH IS PLATFORM DEPENDENT (SEE https://docs.unity3d.com/Manual/PlatformDependentCompilation.html)
     public static bool SaveFileExists(string path)
     {
-        return System.IO.File.Exists(Application.persistentDataPath + "/" + path);
+        return File.Exists(Path.Combine(Application.persistentDataPath, path));
     }
 }
