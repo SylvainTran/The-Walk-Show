@@ -39,7 +39,16 @@ public class GameClockEventController
             GameController.dashboardOSController.AssignNewUIActionEvent();
             GenerateNewWaypointItem();
         }
-        // TODO iterate a new event for each dead colonist too? 
+        GenerateNewChatEvent();
+    }
+
+    private void GenerateNewChatEvent()
+    {
+        List<GameObject> characters = GameController.Colonists;
+
+        CharacterModel randCharacter = characters[UnityEngine.Random.Range(0, characters.Count)].GetComponent<CharacterModel>();
+        PendingCallEvent pendingCallEvent = new PendingCallEvent(triggerChance);
+        randCharacter.OnGameClockEventGenerated(pendingCallEvent);
     }
 
     public void GenerateNewWaypointItem()

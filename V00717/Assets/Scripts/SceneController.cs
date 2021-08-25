@@ -6,24 +6,23 @@ using UnityEngine.UI;
 
 public class SceneController : MonoBehaviour
 {
-    public Button loadGameButton;
+    int currentScene;
+    int max;
 
-    private void Start()
+    public void Start()
     {
-        if (SaveSystem.SaveFileExists("PlayerStatistics.json") || SaveSystem.SaveFileExists("colonists.json") || SaveSystem.SaveFileExists("deadColonists.json"))
-        {
-            loadGameButton.GetComponent<Button>().interactable = true;
-        } else
-        {
-            loadGameButton.GetComponent<Button>().interactable = false;
-        }
+        currentScene = SceneManager.GetActiveScene().buildIndex;
+        max = SceneManager.sceneCountInBuildSettings;
     }
+
     public void NewGame()
     {
-        // Todo create new save slot
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        LoadNextScene(currentScene + 1);
     }
 
+    /// <summary>
+    /// The start of game is at buildIndex 3
+    /// </summary>
     public void LoadGame()
     {
         SceneManager.LoadScene(3);
@@ -32,5 +31,37 @@ public class SceneController : MonoBehaviour
     public void PatronsGallery()
     {
 
+    }
+    /// <summary>
+    /// Overload with buildIndex
+    /// </summary>
+    /// <param name="buildIndex"></param>
+    public void LoadNextScene(int buildIndex)
+    {
+        SceneManager.LoadScene(buildIndex);
+    }
+    /// <summary>
+    /// Default method that checks for 
+    /// the count of scenes.
+    /// </summary>
+    public void LoadNextScene()
+    {
+        if(currentScene < max)
+        {
+            LoadNextScene(currentScene + 1);
+        }
+    }
+
+    public void Update()
+    {
+        if(currentScene > 0 && Input.GetKeyDown(KeyCode.Return))
+        {
+            LoadNextScene();
+        }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 }

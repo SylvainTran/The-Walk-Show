@@ -19,10 +19,16 @@ public class PendingCallEvent : GameClockEvent
     {
         if (!b.IsInPendingCall)
         {
-            Message = $"{b.Name()} wants to talk with you.\n";
-            AddToEventMarkersFeed(b);
-            SendNotification(b);
-            return true;
+            // Roll for social awkwardness
+            int roll = UnityEngine.Random.Range(0, 100);
+            if(roll > triggerChance)
+            {
+                Message = $"{b.Name()} wants to talk with you.\n";
+                AddToEventMarkersFeed(b);
+                SendNotification(b);
+                return true;
+            }
+            return false;
         } else
         {
             return false;
