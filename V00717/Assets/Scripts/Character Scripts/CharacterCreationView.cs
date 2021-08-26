@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 // Deals with view render changes
 public class CharacterCreationView : MonoBehaviour
@@ -189,7 +190,7 @@ public class CharacterCreationView : MonoBehaviour
             return;
         }
         CharacterModelObject.uniqueColonistPersonnelID++;
-        CreateNewColonist();
+        SetupNewCharacter();
         GameController.Save();
         GetComponent<CreationMenuController>().DestroyEditor();
 
@@ -210,11 +211,6 @@ public class CharacterCreationView : MonoBehaviour
         }
     }
 
-    public void CreateNewColonist()
-    {
-        SetupNewCharacter();
-    }
-
     public void SetupNewCharacter()
     {
         CreationController creationController = GameController.CreationController;
@@ -228,9 +224,10 @@ public class CharacterCreationView : MonoBehaviour
             newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
             RenameGameObject(newCharacterMesh, newCharacterMesh.GetComponent<CharacterModel>().NickName);
             AddGameObjectToList(newCharacterMesh);
-            SetupTransformPosition(newCharacterMesh.transform, creationController.TrackLanePositions[trackLanePosition].transform.position);
-            newCharacterMesh.transform.SetParent(creationController.TrackLanePositions[trackLanePosition].transform);
+            SetupTransformPosition(newCharacterMesh.transform, GameController.landingPositions[trackLanePosition].transform.position);
+            newCharacterMesh.transform.SetParent(GameController.landingPositions[trackLanePosition].transform);
             SetCameraTarget(creationController, newCharacterMesh.transform, trackLanePosition);
+            GameController.SetupStartingQuadrant(newCharacterMesh);
         }
         catch (ArgumentNullException ane)
         {

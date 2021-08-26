@@ -23,7 +23,7 @@ TagManager:
   - CanvasFX Layer
   - Bar
   - MenuFX
-  - 
+  - UI Icons
   - 
   - 
   - 
@@ -43,4 +43,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Icons
+    uniqueID: 4192984973
     locked: 0

@@ -26,7 +26,6 @@ public class NotificationController : MonoBehaviour
         Viewer._OnNewDonationAction += TriggerDonationNotification;
         ChannelController._OnSubscriberRequestAction += TriggerSubscriberRequest;
         Subscriber._OnNewSubscriberRequestAction += TriggerSubscriberRequest;
-
     }
 
     private void OnDisable()

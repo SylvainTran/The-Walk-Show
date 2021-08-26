@@ -16,6 +16,12 @@ public class CameraController : MonoBehaviour
     // The shake camera parameters
     //public ShakePreset shakepreset;
 
+    // Transforms for parenting pending calls
+    public Transform cameraLane1TargetCallTransform;
+    public Transform cameraLane2TargetCallTransform;
+    public Transform cameraLane3TargetCallTransform;
+    public Transform cameraLane4TargetCallTransform;
+
     // Enable listeners
     private void OnEnable()
     {

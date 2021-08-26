@@ -128,6 +128,11 @@ namespace StarterAssets
 			lane4Subquadrants.gameObject.SetActive(!active);
 		}
 
+		public void OnSpecialCameraToggle(InputValue value)
+        {
+			specialEventsWindow.SetActive(!specialEventsWindow.activeInHierarchy);
+		}
+
 		public static void ClearActiveMenu()
         {
 			activeMenuCanvas = null;

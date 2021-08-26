@@ -28,15 +28,15 @@ public class GameClockEventController
     public void OnEventClockUpdate()
     {
         // Don't update events if no colonists or controller or not right stage of game
-        if (SeasonController.currentGameState == SeasonController.GAME_STATE.QUADRANT_SELECTION || GameController.Colonists == null || GameController.Colonists.Count == 0)
+        if (SeasonController.currentGameState == SeasonController.GAME_STATE.SEASON_INTRO || GameController.Colonists == null || GameController.Colonists.Count == 0)
         {
             return;
         }
-        int randInt = UnityEngine.Random.Range(1, GameController.Colonists.Count);
+        //int randInt = UnityEngine.Random.Range(0, GameController.Colonists.Count + 1);
 
-        for(int i = 0; i < randInt; i++)
+        for(int i = 0; i < GameController.Colonists.Count; i++)
         {
-            GameController.dashboardOSController.AssignNewUIActionEvent();
+            GameController.dashboardOSController.AssignNewUIActionEvent(i);
             GenerateNewWaypointItem();
         }
         GenerateNewChatEvent();

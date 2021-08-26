@@ -15,11 +15,6 @@ public class CreationController
     // The max n of colonists (temporary n)
     public static int MAX_COLONISTS = 4;
     /// <summary>
-    /// The possible tracklane positions to start each new character
-    /// </summary>
-    private GameObject[] trackLanePositions;
-    public GameObject[] TrackLanePositions { get { return trackLanePositions; } set { trackLanePositions = value; }}
-    /// <summary>
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
     private Camera[] laneFeedCams;
@@ -29,7 +24,7 @@ public class CreationController
     public delegate void RequestColonistDataResponse(List<GameObject> colonists, Enums.DataRequests request);
     public static event RequestColonistDataResponse _OnRequestColonistDataResponse;
 
-    public CreationController(GameObject characterModelPrefab, GameObject[] trackLanePositions, Camera[] laneFeedCams)
+    public CreationController(GameObject characterModelPrefab, Camera[] laneFeedCams)
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
         DashboardOSController._OnRequestColonistData += OnServerReply;
@@ -37,7 +32,6 @@ public class CreationController
         SaveSystem._SuccessfulSaveAction += ResetCharacterCache;
         GameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>(); // TODO temporary, will be passed by GameController itself
         this.characterModelPrefab = characterModelPrefab;
-        this.trackLanePositions = trackLanePositions;
         this.laneFeedCams = laneFeedCams;
     }
 

@@ -42,6 +42,10 @@ public class Bot : MonoBehaviour
 
     public bool Seek(Vector3 location)
     {
+        if(!agent)
+        {
+            agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        }
         if (!agent.isOnNavMesh)
         {
             Debug.Log("Agent not set on navmesh correctly.");
