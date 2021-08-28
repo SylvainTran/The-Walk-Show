@@ -27,16 +27,21 @@ public class Viewer
         this.donationChance = UnityEngine.Random.Range(0, 100); // TODO decide if scale with actual game design parameters
 
         int roll = UnityEngine.Random.Range(0, 100);
-        int donationAmount = UnityEngine.Random.Range(1, 100); // TODO scale with actual game design parameters
+        int donationAmount = UnityEngine.Random.Range(1, 65); // TODO scale with actual game design parameters
 
-        if(roll >= subscribeChance)
+        if(SeasonController.currentGameState == SeasonController.GAME_STATE.SEASON_INTRO)
+        {
+            roll += 25; // adjusting the chance if you're only in the intro
+        }
+
+        if(roll < subscribeChance)
         {
             ChannelController.subscribers.Add(new Subscriber(name));
             // Notification pops up
             _OnNewSubscriberAction(name);
         }
 
-        if(roll >= donationChance)
+        if(roll < donationChance)
         {
             _OnNewDonationAction(name, donationAmount);
         }

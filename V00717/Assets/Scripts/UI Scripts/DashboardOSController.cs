@@ -15,7 +15,6 @@ public class DashboardOSController : PageController
 {
     // For characters
     public GameController GameController;
-    public ChatDatabase chatDatabaseSO;
     protected int activePageIndex;
     // Dashboard OS canvas
     public Canvas dashboardOS;
@@ -29,12 +28,6 @@ public class DashboardOSController : PageController
     public GameObject jukeboxPage;
     // EVA-NEWS page
     public GameObject evaNewsPage;
-
-    // Transforms for parenting pending calls
-    public Transform cameraLane1TargetCallTransform;
-    public Transform cameraLane2TargetCallTransform;
-    public Transform cameraLane3TargetCallTransform;
-    public Transform cameraLane4TargetCallTransform;
 
     // Dashboard nav
     public Canvas dashboardNav;
@@ -110,7 +103,7 @@ public class DashboardOSController : PageController
         PendingCallEvent._OnPendingCallEvent += UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         BattleEvent._OnBattleEnded += ProcessEventFromCharacter;
-        SeasonController._OnQuadrantSelectionAction += UpdateQuadrantSelectionUI;
+        //SeasonController._OnQuadrantSelectionAction += UpdateQuadrantSelectionUI;
         Viewer._OnNewDonationAction += SetDonationMoneyView;
     }
 
@@ -124,7 +117,7 @@ public class DashboardOSController : PageController
         PendingCallEvent._OnPendingCallEvent -= UpdatePendingCallsLog;
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         BattleEvent._OnBattleEnded -= ProcessEventFromCharacter;
-        SeasonController._OnQuadrantSelectionAction -= UpdateQuadrantSelectionUI;
+        //SeasonController._OnQuadrantSelectionAction -= UpdateQuadrantSelectionUI;
         Viewer._OnNewDonationAction -= SetDonationMoneyView;
     }
 
@@ -203,43 +196,27 @@ public class DashboardOSController : PageController
     }
 
     /// <summary>
-    /// Updates the quadrants with selection UI.
-    /// </summary>
-    public void UpdateQuadrantSelectionUI()
-    {
-        Transform[] cameraLanes = { cameraLane1TargetCallTransform, cameraLane2TargetCallTransform, cameraLane3TargetCallTransform, cameraLane4TargetCallTransform };
-        GameObject[] quadrantIcons = UIAssets.UIQuadrantIconsGO;
-        for(int i = 0; i < cameraLanes.Length; i++)
-        {
-            SetQuadrantUIOnClick(GameController.Colonists[i].GetComponent<CharacterModel>(), quadrantIcons, cameraLanes[i]);
-        }
-    }
-
-    /// <summary>
     /// Give an event to one of the characters
     /// </summary>
-    public void AssignNewUIActionEvent()
+    public void AssignNewUIActionEvent(int repeats)
     {
         if (addedQuadrantActionUIEventList.Count < MAX_UIACTION_EVENT)
         {
-            List<GameObject> characters = GameController.Colonists;
+            Camera[] trackedCharacters = GameController.CreationController.LaneFeedCams;
+            CharacterModel randCharacter = trackedCharacters[repeats].GetComponent<CharacterTracker>().Target.GetComponent<CharacterModel>();
 
-            CharacterModel randCharacter = characters[UnityEngine.Random.Range(0, characters.Count)].GetComponent<CharacterModel>();
-            if(randCharacter.InQuadrant == -1)
+            if(randCharacter == null || randCharacter.InQuadrant == -1)
             {
                 Debug.Log("Not ready yet.");
                 return;
             }
 
             GameClockEvent wayPointEvent = GameController.gameClockEventController.GenerateRandomWaypointEvent(randCharacter);
-            // Match parent transform with UUID/randcharacter/inQuadrant - TODO Also use this to arrange the camera feeds you know why
-
             // The randSubQuadrant should be in the same quadrant than the randCharacter
             // We can use the outgoing edges of the graph for this - it will only use the edges of the current waypoint, like a path
             GameWaypoint currentWaypoint = null;
             EdgeObject[] waypoints = null;
             GameWaypoint newWaypoint = null;
-
             try
             {
                 currentWaypoint = GameController.quadrantMapper.gameWayPoints[randCharacter.InQuadrant];
@@ -290,30 +267,10 @@ public class DashboardOSController : PageController
             return;
         }
         Transform parentTransform = gameWaypointToCameraUIMap[newWaypoint.intKey].transform;
-        //Image icon = waypointEvent.GetEventIcon();
-
-        // Check what to spawn depending on the waypoint event (e.g., cue to go, cue to avoid)
-        //GameObject quadrantIcon = new GameObject();
-        //Texture2D texture = null; // waypointEvent.GetEventIcon();
-        // REPLACE WITH SIMPLY CLICKING ON THE SCREEN TO GO THERE
-        // WARNING YELLOW SIGN FADE IN AND OUT QUICKLY TO SIGNAL SOMETHING OCCURRED IN THAT LANE
-
-
-        // VERY SPECIAL ICONS FOR CRITICAL MOMENTS? LIKE DEATH-NEARING EVENTS (CALL FOR HELP, ETC.)
-        //texture = (Texture2D)Resources.Load($"Art/Icons/go");
-        //quadrantIconImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-
         foreach (System.Delegate del in waypointEvent.actionMethodPointers)
         {
-            // Create a new quadrantIcon with this action as callback for all of the actions in the waypoint event
-            // TODO put fancy icons in the events - need the same with quadrants selection
             Image quadrantIcon = Instantiate(UIAssets.UIAlertIcon.GetComponent<Image>(), parentTransform, true);
-            // Start timeout to destroy the event
             StartCoroutine(DestroyQuadrantUIEvent(newWaypoint, quadrantIcon.gameObject, 5.0f));
-            // TODO show timer
-            // TODO refactor into this method (work with method group?):
-            //AddEventListener(quadrantIcon, target.GetComponent<CharacterModel>(), GameController.quadrantMapper.gameWayPoints[randSubQuadrant], ,AssignGameWaypointData);
-            // Add the handle mouse event trigger
             EventTrigger evt = quadrantIcon.gameObject.AddComponent<EventTrigger>();
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerClick;
@@ -323,22 +280,20 @@ public class DashboardOSController : PageController
                 // Navmesh issues
                 if(!successful)
                 {
+                    // Character should try to go to a random quadrant instead ?
+                    Debug.Log("Failed to move to quadrant (NAVMESH WTF)");
                     return;
                 }
                 // Event log
                 randCharacter.OnGameClockEventGenerated(waypointEvent);
-                // Livestream chat reactions + subscribers special comment/request chance
-
-                // Remove event
                 newWaypoint.waypointEvent = null;
-                // may have been deleted from auto timer already
+ 
                 if(quadrantIcon)
                 {
                     Destroy(quadrantIcon.gameObject);
                 }
                 addedQuadrantActionUIEventList.Remove(quadrantIcon.gameObject);
             });
-
             addedQuadrantActionUIEventList.Add(quadrantIcon.gameObject);
         }
     }
@@ -591,7 +546,7 @@ public class DashboardOSController : PageController
         String eventFrequencyTest = og.GenerateEventFrequencyText();
         string majorEventText = og.GenerateMajorEventText();
 
-        obituaryDescription.SetText("Media Object: " + targetComponent.Name() + "\n" + "Live Status: " + targetComponent.LastEvent + "\n" + "\n" + majorEventText + "\n" + eventFrequencyTest);
+        obituaryDescription.SetText("Media Object: " + targetComponent.Name() + "\n" + "Live Status: " + targetComponent.LastEvent + "\n" + "\n" + majorEventText + "\n" + eventFrequencyTest + "\n\nPRESS ENTER TO EXIT");
     }
 
     // Colonist icons (dead/alive) click handler
@@ -617,8 +572,8 @@ public class DashboardOSController : PageController
         CharacterModel targetComponent = target.GetComponent<CharacterModel>();
 
         // Generate a dialogue thread
-        ChatGenerator cg = new ChatGenerator(targetComponent, chatDatabaseSO);
-        chatDialogue.SetText("Caller: " + targetComponent.Name() + "\n" + "Call Log:\n" + cg.GetDialogueTextByTheme());
+        ChatGenerator cg = new ChatGenerator(targetComponent, GameController.chatDatabaseSO);
+        chatDialogue.SetText("Caller: " + targetComponent.Name() + "\n" + "Call Log:\n" + cg.GetDialogueTextByTheme() + "\n\nPRESS ENTER TO EXIT");
         StartCoroutine(ClearChat(characterModel, generatedChatterIcon, generatedChatterName, 5.0f));
     }
 
@@ -646,86 +601,6 @@ public class DashboardOSController : PageController
         if(callbackB != null)
         {
             entry.callback.AddListener((eventData) => { callbackB(characterModel, image, waypoint.waypointEvent); });
-        }
-    }
-
-    /// <summary>
-    /// Assigns a quadrant to its character.
-    /// </summary>
-    /// <param name="c"></param>
-    /// <param name="quadrantWaypoint"></param>
-    /// <returns></returns>
-    public void AssignQuadrantData(CharacterModel c, GameWaypoint quadrantWaypoint)
-    {
-        Debug.Log("Assigning quadrant data onclick!");
-        if(c.InQuadrant > -1 || SeasonController.currentGameState != SeasonController.GAME_STATE.QUADRANT_SELECTION)
-        {
-            return;
-        }
-        // Make the character go to quadrantWaypoint
-        // Assign new owner for that waypoint in SeasonController using the intKey property
-        switch (quadrantWaypoint.intKey)
-        {
-            case 0: case 1: case 2:
-            case 3:
-                {
-                    if (SeasonController.quadrantNEOwner == null)
-                    {
-                        SeasonController.quadrantNEOwner = c;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                    break;
-                }
-            case 4: case 5: case 6: case 7:
-                {
-                    if (SeasonController.quadrantNWOwner == null)
-                    {
-                        SeasonController.quadrantNWOwner = c;
-                    } else
-                    {
-                        return;
-                    }
-                    break;
-                }
-            case 8: case 9: case 10:
-            case 11:
-                {
-                    if (SeasonController.quadrantSWOwner == null)
-                    {
-                        SeasonController.quadrantSWOwner = c;
-                    } else
-                    {
-                        return;
-                    }
-                    break;
-                }
-            case 12: case 13: case 14:
-            case 15:
-                {
-                    if (SeasonController.quadrantSEOwner == null)
-                    {
-                        SeasonController.quadrantSEOwner = c;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                    break;
-                }
-            default:
-                break;
-        }
-        c.InQuadrant = quadrantWaypoint.intKey;
-        bool successfulNavigation = c.GetComponent<Bot>().MoveToQuadrant(GameController.quadrantMapper.gameWayPoints[quadrantWaypoint.intKey]);
-        if(successfulNavigation)
-        {
-            SeasonController.ScavengingPhaseFlag(addedQuadrantIconsList);
-        } else
-        {
-            Debug.Log("A character failed to navigate successfully; not doing anything");
         }
     }
 
@@ -787,51 +662,6 @@ public class DashboardOSController : PageController
         }
         donatorRankingList.text = donatorList;
         donationTotalText.text = $"Total donation money received: ${GameController.DonationMoney}";
-    }
-
-    /// <summary>
-    /// Remap the values of quadrants 1-4 to the range of waypoints in all quadrants
-    /// which is 16, or 0-15 in zero based-indexing.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <param name="from1"></param>
-    /// <param name="to1"></param>
-    /// <param name="from2"></param>
-    /// <param name="to2"></param>
-    /// <returns></returns>
-    public int remap(int value, int from1, int to1, int from2, int to2)
-    {
-        // Map waypoints: 0 -> 0-3, 1 -> 4-7, 2 -> 8-11, 3 -> 12-15
-        int randOffset = UnityEngine.Random.Range(0, 3);
-        // Transform the range and clamp to be sure
-        int origin = value - from1;
-        int bias = origin / to1;
-        int scale = bias * to2;
-        int offset = scale + from2;
-        int result = offset += randOffset;
-
-        result = Mathf.Clamp(result, 0, 15);
-        return result;
-    }
-
-    // We're getting indexes from 0-3 and we want them remapped from 0-3,4-7,8-11,12,15
-    // The awkward index i is used to adjust the new from2 parameter (for translating the desired base or origin translation).
-    public void SetQuadrantUIOnClick(CharacterModel character, GameObject[] quadrantIcons, Transform parent)
-    {
-        if (GameController == null || GameController.Colonists == null)
-        {
-            return;
-        }
-        GameWaypoint[] waypoints = GameController.quadrantMapper.gameWayPoints;
-        int mappedWaypointIndex = 0;
-
-        for (int i = 0; i < quadrantIcons.Length; i++)
-        {
-            Image quadrantIcon = Instantiate(quadrantIcons[i].GetComponent<Image>(), parent, true);
-            addedQuadrantIconsList.Add(quadrantIcon.gameObject);
-            mappedWaypointIndex = remap(i, 0, quadrantIcons.Length, i + (3 * i) + 1, i * 4 + 4);
-            AddEventListener(quadrantIcon, character, waypoints[mappedWaypointIndex], AssignQuadrantData);
-        }
     }
 
     private IEnumerator ClearChat(CharacterModel caller, Image callerIcon, TMP_Text callerName, float delay)

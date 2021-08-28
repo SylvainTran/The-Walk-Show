@@ -106,6 +106,10 @@ public class QuadrantMapper : MonoBehaviour
         // Update the current quadrant location for the calculation of the next paths
         character.InQuadrant = newWaypoint.intKey;
         bool successful = character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+        if(successful)
+        {
+            character.GetComponent<Animator>().SetBool("isWalking", true);
+        }
 
         // Do something if unsuccessful
         int attempt = 0;

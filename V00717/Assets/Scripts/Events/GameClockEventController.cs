@@ -28,15 +28,15 @@ public class GameClockEventController
     public void OnEventClockUpdate()
     {
         // Don't update events if no colonists or controller or not right stage of game
-        if (SeasonController.currentGameState == SeasonController.GAME_STATE.QUADRANT_SELECTION || GameController.Colonists == null || GameController.Colonists.Count == 0)
+        if (SeasonController.currentGameState == SeasonController.GAME_STATE.SEASON_INTRO || GameController.Colonists == null || GameController.Colonists.Count == 0)
         {
             return;
         }
-        int randInt = UnityEngine.Random.Range(1, GameController.Colonists.Count);
+        //int randInt = UnityEngine.Random.Range(0, GameController.Colonists.Count + 1);
 
-        for(int i = 0; i < randInt; i++)
+        for(int i = 0; i < GameController.Colonists.Count; i++)
         {
-            GameController.dashboardOSController.AssignNewUIActionEvent();
+            GameController.dashboardOSController.AssignNewUIActionEvent(i);
             GenerateNewWaypointItem();
         }
         GenerateNewChatEvent();
@@ -76,15 +76,15 @@ public class GameClockEventController
         switch (randIndex)
         {
             case 0:
-                gameClockEvent = new SnakeEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent = new SnakeEvent(65.0f, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} {randomAdverb} walked into a {sizes[randSizes]}-sized {colors[randColor]} snake and they got injured.";
                 break;
             case 1:
-                gameClockEvent = new FruitWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent = new FruitWaypointEvent(45.0f, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} {randomAdverb} picked up a {sizes[randSizes]}-sized {colors[randColor]} and {adjectives[randAdjectives]} fruit.";
                 break;
             case 2:
-                gameClockEvent = new DanceWaypointEvent(triggerChance, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
+                gameClockEvent = new DanceWaypointEvent(20.0f, new QuadrantMapper.NavigationAttempt[] { GameController.quadrantMapper.GoToQuadrant });
                 gameClockEvent.Message = $"{character.NickName} couldn't shake the itch to dance away and busted some {randomAdverb} moves.";
                 break;
             default:

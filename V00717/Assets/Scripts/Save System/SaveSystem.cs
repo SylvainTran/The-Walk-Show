@@ -57,7 +57,7 @@ public class SaveSystem : MonoBehaviour
     public void SavePlayerStatisticsFile(PlayerStatistics config, string path, string successMessage)
     {
         string output = JsonUtility.ToJson(config);
-        using (StreamWriter outputFile = new StreamWriter(path))
+        using (StreamWriter outputFile = new StreamWriter(Application.persistentDataPath + "/" + path))
         {
             outputFile.WriteLine(output);
             Debug.Log(successMessage);
@@ -85,7 +85,7 @@ public class SaveSystem : MonoBehaviour
 
         output += "]\n\t}";
         // Write to text file (synchronously)
-        using (StreamWriter outputFile = new StreamWriter(path))
+        using (StreamWriter outputFile = new StreamWriter(Application.persistentDataPath + "/" + path))
         {
             outputFile.WriteLine(output);
             Debug.Log(successMessage);
@@ -93,9 +93,9 @@ public class SaveSystem : MonoBehaviour
             _SuccessfulSaveAction();
         }
     }
-    // Checks if save file exists
+    // Checks if save file exists: FROM PERSISTENT DATABASE WHICH IS PLATFORM DEPENDENT (SEE https://docs.unity3d.com/Manual/PlatformDependentCompilation.html)
     public static bool SaveFileExists(string path)
     {
-        return System.IO.File.Exists(path);
+        return File.Exists(Path.Combine(Application.persistentDataPath, path));
     }
 }

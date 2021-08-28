@@ -16,6 +16,12 @@ public class CameraController : MonoBehaviour
     // The shake camera parameters
     //public ShakePreset shakepreset;
 
+    // Transforms for parenting pending calls
+    public Transform cameraLane1TargetCallTransform;
+    public Transform cameraLane2TargetCallTransform;
+    public Transform cameraLane3TargetCallTransform;
+    public Transform cameraLane4TargetCallTransform;
+
     // Enable listeners
     private void OnEnable()
     {
@@ -59,7 +65,7 @@ public class CameraController : MonoBehaviour
 
     public void LateUpdate()
     {
-        if (GameController.CreationController == null || GameController.CreationController.LaneFeedCams.Length == 0)
+        if (GameController.CreationController == null || GameController.CreationController.LaneFeedCams.Length == 0 || GameController.CreationController.LaneFeedCams == null)
         {
             //Debug.LogError("You probably forgot to setup the creation controller in the inspector of this script, or there are no camera lanes serialized over there.");
             return;
@@ -71,7 +77,10 @@ public class CameraController : MonoBehaviour
         {
             // If the target is null (not occupied yet) or dead, then the new character can evict them/take their position
             CharacterTracker characterTracker = GameController.CreationController.LaneFeedCams[i].GetComponent<CharacterTracker>();
-
+            if (characterTracker.Target == null)
+            {
+                return;
+            }
             if (characterTracker.Target == null || characterTracker.Target.GetComponent<CharacterModel>().isDead())
             {
                 trackLanePositionUpdated = i;

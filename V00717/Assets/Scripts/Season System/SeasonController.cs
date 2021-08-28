@@ -68,7 +68,8 @@ public class SeasonController
     public void EndAuditions()
     {
         DestroyAuditionEditors();
-        SetQuadrantSelection();
+        //SetQuadrantSelection();
+        SetScavengingState();
         gameController.CloseSpecialEventsWindow();
     }
 
@@ -115,7 +116,7 @@ public class SeasonController
     {
         currentGameState = GAME_STATE.SCAVENGING;
         Debug.Log("Starting scavenging phase");
-        _OnScavengingStateAction();
+        //_OnScavengingStateAction();
         //TODO add notifications/sounds/etc. on state change, removed because no subscribers yet
     }
 
@@ -141,29 +142,5 @@ public class SeasonController
     {
         currentGameState = GAME_STATE.INTERMISSION;
         _OnIntermissionStateAction();
-    }
-
-    public static void CheckQuadrantsReached()
-    {
-       if(QUADRANTS_REACHED < CreationController.MAX_COLONISTS)
-        {
-            ++QUADRANTS_REACHED;
-        }
-       if(QUADRANTS_REACHED == CreationController.MAX_COLONISTS)
-        {
-            //Debug.Log("Starting scavenging phase");
-            SetScavengingState();
-        }
-    }
-
-    public static void ScavengingPhaseFlag(List<GameObject> images)
-    {
-        QUADRANTS_ASSIGNED++;
-
-        if (QUADRANTS_ASSIGNED >= CreationController.MAX_COLONISTS)
-        {
-            DashboardOSController.ClearQuadrantUIActions(images);
-            SetScavengingState();
-        }
     }
 }

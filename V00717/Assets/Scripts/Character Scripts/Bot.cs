@@ -42,6 +42,10 @@ public class Bot : MonoBehaviour
 
     public bool Seek(Vector3 location)
     {
+        if(!agent)
+        {
+            agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        }
         if (!agent.isOnNavMesh)
         {
             Debug.Log("Agent not set on navmesh correctly.");
@@ -160,6 +164,12 @@ public class Bot : MonoBehaviour
             // could be to add an actual box collider around each quadrant that is enabled once the characters
             // are set in place. Or that collider is used to check the distance at that moment.
         }
+    }
+
+    public IEnumerator ResetAgentIsStopped(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        this.agent.isStopped = false;
     }
 
     public void Update()

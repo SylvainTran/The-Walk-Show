@@ -24,7 +24,7 @@ public class ChannelController : MonoBehaviour
     public NotificationController NotificationController;
 
     // Chance that a viewer converts to a subber
-    public float subscribeChance;
+    public float subscribeChance = 25.0f;
     /// <summary>
     /// Chance that a subscriber requests something
     /// </summary>

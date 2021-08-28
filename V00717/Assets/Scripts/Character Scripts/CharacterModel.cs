@@ -123,9 +123,11 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     public int TrackLanePosition { get { return trackLanePosition; } set { trackLanePosition = value; } }
 
     // Quadrant location -1 means not assigned yet - this is checked in Bot.cs
+    [SerializeField]
     private int inQuadrant = -1;
     public int InQuadrant { get { return inQuadrant; } set { inQuadrant = value; } }
 
+    [SerializeField]
     private int goldInventory = 0;
     public int GoldInventory { get { return goldInventory; } set { goldInventory = value; } }
 
@@ -179,7 +181,7 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
             return;
         }
 
-        int randIndex = 100; // DEBUG MODE  UnityEngine.Random.Range(0, 100);
+        int randIndex = UnityEngine.Random.Range(0, 100);
         if(randIndex > e.TriggerChance) //DEBUG MODE: Set this to > 0; randIndex > e.TriggerChance
         {
             e.ApplyEvent(this);

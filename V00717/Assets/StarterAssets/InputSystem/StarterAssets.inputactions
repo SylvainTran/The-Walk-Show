@@ -325,7 +325,7 @@
                 {
                     "name": "",
                     "id": "3927f150-6056-4062-a6ae-cc9621880f84",
-                    "path": "<Keyboard>/escape",
+                    "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
@@ -435,10 +435,10 @@
                 {
                     "name": "",
                     "id": "8ee6d1b3-656d-4e55-afd8-3166cd943a01",
-                    "path": "",
+                    "path": "<Keyboard>/ctrl",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SpecialCameraToggle",
                     "isComposite": false,
                     "isPartOfComposite": false

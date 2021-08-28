@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using TMPro;
 using static SeasonController;
 using UnityEngine.AI;
+using UnityEngine.Networking;
 
 public class GameController : MonoBehaviour
 {
@@ -19,6 +20,9 @@ public class GameController : MonoBehaviour
     private CharacterCreationView characterCreationView = null;
     public CharacterCreationView CharacterCreationView { get { return characterCreationView; } set { characterCreationView = value; }}
     public GameClockEventController gameClockEventController = null;
+
+    public CameraController CameraController;
+
     private float donationMoney = 0.0f;
     public float DonationMoney { get { return donationMoney; } set { donationMoney = value; } }
 
@@ -63,10 +67,6 @@ public class GameController : MonoBehaviour
     private List<GameObject> deadColonists = null;
     public List<GameObject> DeadColonists { get { return deadColonists; } set { deadColonists = value; } }
 
-    /// <summary>
-    /// The possible tracklane positions to start each new character
-    /// </summary>
-    public GameObject[] trackLanePositions;
     /// <summary>
     /// These cameras follow/track a character in its lane (by index, going up to 3)
     /// </summary>
@@ -118,7 +118,7 @@ public class GameController : MonoBehaviour
         GameClockEvent._OnColonistIsDead += OnColonistDied;
         TimeController._OnUpdateEventClock += OnEventClockUpdate;
         Viewer._OnNewDonationAction += SetDonationMoney;
-        //SeasonController._OnSeasonIntroAction += SetupIntroPhase;
+        SeasonController._OnSeasonIntroAction += SetupIntroPhase;
     }
 
     private void OnDisable()
@@ -126,7 +126,7 @@ public class GameController : MonoBehaviour
         GameClockEvent._OnColonistIsDead -= OnColonistDied;
         TimeController._OnUpdateEventClock -= OnEventClockUpdate;
         Viewer._OnNewDonationAction -= SetDonationMoney;
-        //SeasonController._OnSeasonIntroAction -= SetupIntroPhase;        
+        SeasonController._OnSeasonIntroAction -= SetupIntroPhase;        
     }
 
     public void SetDonationMoney(string donatorName, int donationAmount)
@@ -134,60 +134,50 @@ public class GameController : MonoBehaviour
         donationMoney += donationAmount;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         // Create a game character database if it doesn't exist (failsafe)
         // ScriptableObject gcd = (ScriptableObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/GameCharacterDatabase.asset", typeof(ScriptableObject));
         // Load chat database SO and initialize main controllers
-#if UNITY_EDITOR
-        chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath("Assets/MyResources/ChatDatabase.asset", typeof(ChatDatabase));
+#if UNITY_EDITOR        
+        //chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath(Path.Combine(Application.dataPath + "/MyResources/ChatDatabase"), typeof(ChatDatabase));
         if (chatDatabaseSO == null)
         {
             chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
-            AssetDatabase.CreateAsset(chatDatabaseSO, $"Assets/MyResources/{chatDatabaseSO.name}.asset");
+            //AssetDatabase.CreateAsset(chatDatabaseSO, Path.Combine(Application.dataPath + "/MyResources/ChatDatabase"));
         }
 #endif
-#if DEVELOPMENT_BUILD
+#if UNITY_STANDALONE || UNITY_WEBGL
         if (chatDatabaseSO == null)
         {
            chatDatabaseSO = ScriptableObject.CreateInstance<ChatDatabase>();
         }
 #endif
-
         // Load from saved file if needed
         if (chatDatabaseSO.REGRET_THEME.Length == 0)
         {
-            LoadChatDatabaseJSON($"Assets/chatDatabase.json");
+            yield return StartCoroutine(LoadChatDatabaseJSON("chatDatabase.json"));
         }
 
         colonists = new List<GameObject>();
         deadColonists = new List<GameObject>();
         characterModel = new CharacterModelObject();
 
-        creationController = new CreationController(characterModelPrefab, trackLanePositions, laneFeedCams);
+        creationController = new CreationController(characterModelPrefab, laneFeedCams);
         gameClockEventController = new GameClockEventController(this, triggerChance);
-        string randomizedAudition, cuteKaomojiSource, expletivesSource, encouragementsSource, adverbsSource, interjectionsSource;
-
-        try
-        {
-            // Load JSON corpus databases - TODO put in a function
-            randomizedAudition = System.IO.File.ReadAllText("Assets/Art/Texts/randomizedAudition.json");
-            randomizedAuditionDatabase = JsonUtility.FromJson<RandomizedAudition>(randomizedAudition);
-            cuteKaomojiSource = System.IO.File.ReadAllText("Assets/Art/Texts/emoji/cute_kaomoji.json");
-            cuteKaomojiDatabase = JsonUtility.FromJson<CuteKaomojiDatabase>(cuteKaomojiSource);
-            expletivesSource = System.IO.File.ReadAllText("Assets/Art/Texts/expletives.json");
-            expletivesDatabase = JsonUtility.FromJson<ExpletivesDatabase>(expletivesSource);
-            encouragementsSource = System.IO.File.ReadAllText("Assets/Art/Texts/encouragements.json");
-            encouragementDatabase = JsonUtility.FromJson<EncouragementDatabase>(encouragementsSource);
-            adverbsSource = System.IO.File.ReadAllText("Assets/Art/Texts/adverbs.json");
-            adverbsDatabase = JsonUtility.FromJson<AdverbsDatabase>(adverbsSource);
-            interjectionsSource = System.IO.File.ReadAllText("Assets/Art/Texts/interjections.json");
-            interjectionDatabase = JsonUtility.FromJson<InterjectionDatabase>(interjectionsSource);
-        } catch(FileNotFoundException fnfe)
-        {
-            Debug.LogError(fnfe.Message);
-            return;
-        }
+        // Load JSON corpus databases - TODO put in a function
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("randomizedAudition.json"));
+        randomizedAuditionDatabase = JsonUtility.FromJson<RandomizedAudition>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("cute_kaomoji.json"));
+        cuteKaomojiDatabase = JsonUtility.FromJson<CuteKaomojiDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("expletives.json"));
+        expletivesDatabase = JsonUtility.FromJson<ExpletivesDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("encouragements.json"));
+        encouragementDatabase = JsonUtility.FromJson<EncouragementDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("adverbs.json"));
+        adverbsDatabase = JsonUtility.FromJson<AdverbsDatabase>(currentFileTextRead);
+        yield return StartCoroutine(ReadAssetFromPlatformDependentPath("interjections.json"));
+        interjectionDatabase = JsonUtility.FromJson<InterjectionDatabase>(currentFileTextRead);
 
         LoadGameCharacters();
 
@@ -202,15 +192,75 @@ public class GameController : MonoBehaviour
         else
         {
             seasonController.EndAuditions();
-            SetupQuadrantSelectionPhase();
             StartCoroutine(CloseAfterDelay(CloseSpecialEventsWindow, 5.0f));
             auditionStatus.enabled = true;
         }
 
         // Start specific coroutines
         channelController.GameController = this;
-        channelController.GenerateRandomViewersCoroutine = StartCoroutine(channelController.GenerateRandomViewers(UnityEngine.Random.Range(0, 5)));
+        channelController.GenerateRandomViewersCoroutine = StartCoroutine(channelController.GenerateRandomViewers(UnityEngine.Random.Range(0, 5)));        
     }
+    public string currentFileTextRead;    
+    public IEnumerator ReadAssetFromPlatformDependentPath(string relativePath)
+    {
+        yield return null;
+        // Reset handler
+        currentFileTextRead = null;
+        //#if UNITY_EDITOR 
+        //        resultPath = ReadFromApplicationPath(relativePath);
+        //#endif
+#if UNITY_EDITOR || UNITY_STANDALONE
+        currentFileTextRead = ReadFromStreamingAssetsPath(relativePath);
+#endif
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Need Unity Web Request
+        yield return StartCoroutine(GetRequest(Path.Combine(Application.streamingAssetsPath, relativePath)));
+        currentFileTextRead = jsonTextFromWebRequestDownloadHandler;
+#endif
+    }
+
+    string jsonTextFromWebRequestDownloadHandler = null;
+    private IEnumerator GetRequest(string uri)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                    break;
+                case UnityWebRequest.Result.DataProcessingError:
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    break;
+                case UnityWebRequest.Result.Success:
+                    string sliced = System.Text.Encoding.UTF8.GetString(webRequest.downloadHandler.data, 3, webRequest.downloadHandler.data.Length - 3);
+                    jsonTextFromWebRequestDownloadHandler = sliced;
+                    break;
+            }
+        }
+    }
+
+    public string ReadFromApplicationPath(string relativePath)
+    {
+        return System.IO.File.ReadAllText(Path.Combine(Application.dataPath, relativePath));
+    }
+
+    public string ReadFromPersistentPath(string relativePath)
+    {
+        return System.IO.File.ReadAllText(Path.Combine(Application.persistentDataPath, relativePath));
+    }
+
+    public string ReadFromStreamingAssetsPath(string relativePath)
+    {
+        return System.IO.File.ReadAllText(Path.Combine(Application.streamingAssetsPath, relativePath));
+    }
+
     [Serializable]
     public struct RandomizedAudition
     {
@@ -293,6 +343,131 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Assigns a quadrant to its character.
+    /// </summary>
+    /// <param name="c"></param>
+    /// <param name="quadrantWaypoint"></param>
+    /// <returns></returns>
+    public void AssignQuadrantData(CharacterModel c, GameWaypoint quadrantWaypoint)
+    {
+        // Assign new owner for that waypoint in SeasonController using the intKey property
+        switch (quadrantWaypoint.intKey)
+        {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                {
+                    if (SeasonController.quadrantNEOwner == null)
+                    {
+                        SeasonController.quadrantNEOwner = c;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                {
+                    if (SeasonController.quadrantNWOwner == null)
+                    {
+                        SeasonController.quadrantNWOwner = c;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                {
+                    if (SeasonController.quadrantSWOwner == null)
+                    {
+                        SeasonController.quadrantSWOwner = c;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                {
+                    if (SeasonController.quadrantSEOwner == null)
+                    {
+                        SeasonController.quadrantSEOwner = c;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                }
+            default:
+                break;
+        }
+        ScavengingPhaseFlag();
+    }
+
+    public void ScavengingPhaseFlag()
+    {
+        QUADRANTS_ASSIGNED++;
+        if (QUADRANTS_ASSIGNED == CreationController.MAX_COLONISTS)
+        {
+            Debug.Log(colonists);
+            foreach (GameObject g in colonists)
+            {
+                quadrantMapper.GoToQuadrant(g.GetComponent<CharacterModel>(), quadrantMapper.gameWayPoints[g.GetComponent<CharacterModel>().InQuadrant]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Remap the values of quadrants 1-4 to the range of waypoints in all quadrants
+    /// which is 16, or 0-15 in zero based-indexing.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="from1"></param>
+    /// <param name="to1"></param>
+    /// <param name="from2"></param>
+    /// <param name="to2"></param>
+    /// <returns></returns>
+    public int remap(int value, int from1, int to1, int from2, int to2)
+    {
+        // Map waypoints: 0 -> 0-3, 1 -> 4-7, 2 -> 8-11, 3 -> 12-15
+        int randOffset = UnityEngine.Random.Range(0, 3);
+        // Transform the range and clamp to be sure
+        int origin = value - from1;
+        int bias = origin / to1;
+        int scale = bias * to2;
+        int offset = scale + from2;
+        int result = offset += randOffset;
+
+        result = Mathf.Clamp(result, 0, 15);
+        return result;
+    }
+
+    public void SetupStartingQuadrant(GameObject newCharacterMesh)
+    {
+        Transform[] cameraLanes = { CameraController.cameraLane1TargetCallTransform, CameraController.cameraLane2TargetCallTransform, CameraController.cameraLane3TargetCallTransform, CameraController.cameraLane4TargetCallTransform };
+        // AUTO ASSIGNATION: cameras 1-4
+        GameWaypoint[] waypoints = quadrantMapper.gameWayPoints;
+        int mappedWaypointIndex = remap(SeasonController.QUADRANTS_ASSIGNED, 0, cameraLanes.Length, SeasonController.QUADRANTS_ASSIGNED + (3 * SeasonController.QUADRANTS_ASSIGNED) + 1, SeasonController.QUADRANTS_ASSIGNED * 4 + 4);
+        newCharacterMesh.GetComponent<CharacterModel>().InQuadrant = mappedWaypointIndex;
+        AssignQuadrantData(newCharacterMesh.GetComponent<CharacterModel>(), waypoints[mappedWaypointIndex]);
+    }
+
     public void LoadGameCharacters()
     {
         // First load game if needed (TODO validate contents too, can have bad format and exist)
@@ -318,6 +493,7 @@ public class GameController : MonoBehaviour
             foreach(GameObject character in colonists)
             {
                 creationController.SetTrackLanePosition(creationController.FindAvailableCameraLane(), character.transform);
+                SetupStartingQuadrant(character);
             }
         }
         if (SaveSystem.SaveFileExists("deadColonists.json"))
@@ -328,7 +504,7 @@ public class GameController : MonoBehaviour
 
     public PlayerStatistics LoadPlayerStatistics(string path)
     {
-        string text = System.IO.File.ReadAllText(path);
+        string text = ReadFromPersistentPath(path);
         PlayerStatistics deserializedObject = JsonUtility.FromJson<PlayerStatistics>(text);
 
         return deserializedObject;
@@ -347,7 +523,7 @@ public class GameController : MonoBehaviour
         List<CharacterModelObject> deserializedObjectList = null;
         try
         {
-            text = System.IO.File.ReadAllText(path);
+            text = ReadFromPersistentPath(path); // PERSISTENT PATH
             deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
             deserializedObjectList = new List<CharacterModelObject>(deserializedObject.colonists);
         } catch(Exception e)
@@ -361,7 +537,7 @@ public class GameController : MonoBehaviour
             // Delete file if specified
             if (deleteIfEmpty)
             {
-                File.Delete(path);
+                File.Delete(Application.dataPath + "/" + path);
             }
             return;
         }
@@ -369,8 +545,8 @@ public class GameController : MonoBehaviour
         {
             if (instantiateGO)
             {
-                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, creationController.TrackLanePositions[i].transform.position, Quaternion.identity);
-                newCharacter.transform.SetParent(creationController.TrackLanePositions[i].transform);
+                GameObject newCharacter = GameObject.Instantiate(characterModelPrefab, landingPositions[i].transform.position, Quaternion.identity);
+                newCharacter.transform.SetParent(landingPositions[i].transform);
                 newCharacter.GetComponent<CharacterModel>().InitEventsMarkersFeed();
                 newCharacter.GetComponent<CharacterModel>().InitCharacterModel(deserializedObjectList[i]); // Should get its uuid from the field, which got its value from previous static uuid, which was updated - we should expect anyways
                 newCharacter.GetComponent<CharacterModel>().InitEventsMarkersFeed(deserializedObjectList[i]);
@@ -393,7 +569,7 @@ public class GameController : MonoBehaviour
     {
         if (colonists.Count == 0)
         {
-            File.Delete("colonists.json");
+            File.Delete(Application.dataPath + "/" + "colonists.json");
         }
     }
 
@@ -555,10 +731,10 @@ public class GameController : MonoBehaviour
     }
 
     // JSON VERSION
-    public void LoadChatDatabaseJSON(string path)
+    private IEnumerator LoadChatDatabaseJSON(string path)
     {
-        string text = System.IO.File.ReadAllText(path);
-        JSONDatabase deserializedObject = JsonUtility.FromJson<JSONDatabase>(text);
+        yield return ReadAssetFromPlatformDependentPath(path);
+        JSONDatabase deserializedObject = JsonUtility.FromJson<JSONDatabase>(currentFileTextRead);
         chatDatabaseSO.STRESS_THEME = deserializedObject.STRESS_THEME;
         chatDatabaseSO.REGRET_THEME = deserializedObject.REGRET_THEME;
         chatDatabaseSO.REALIZATION_THEME = deserializedObject.REALIZATION_THEME;
