@@ -46,6 +46,26 @@ public class SeasonController
 
     public static GameController gameController;
 
+    /// <summary>
+    /// The AI behaviours that each actor will loop. These are game design functions.
+    /// </summary>
+    public enum ACTOR_ROLES
+    {
+        VAMPIRE, GRAVEDIGGER, SLAYER, FARMER, ZOMBIE, HUMAN, PREDATOR
+    }
+    public Vampire vampire;
+    public GraveDigger graveDigger;
+    public Slayer slayer;
+    public Farmer farmer;
+
+    /// <summary>
+    /// The "personality" forms for the game design functions.
+    /// </summary>
+    public enum  ACTOR_SKINS
+    {
+        SINGER, WRITER, PRODUCER, CLOWN
+    }
+
     public SeasonController(GameController gameController)
     {
         SeasonController.gameController = gameController;

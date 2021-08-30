@@ -113,6 +113,8 @@ public class GameController : MonoBehaviour
     public GameObject coinPrefab;
     public GameObject snakePrefab;
 
+    // Auditioning role text
+    public TMP_Text auditionRole;
     private void OnEnable()
     {
         GameClockEvent._OnColonistIsDead += OnColonistDied;

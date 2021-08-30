@@ -1,0 +1,20 @@
+---
+Roles
+---
+### What are roles?
+
+Each actor has a role. The roles are determined by the selected theme. For now, the product only has 'Zombie Survival' as a theme, which according to our data was one of the most popular human-generated theme around life and death in the 21st century.
+
+How are roles activated during the stream? As machines, a role's subroutines are automatically programmed by the software, so you do not have to do anything other than communicating further instructions to them via the User Iterface (UI). 
+
+### The Vampire
+
+1. Setup
+
+- Vampires are only active at night (in-game stream time).
+
+2. Job
+
+- A vampire's role (job) is to prey on other actors in your stream and also to cull the artificially generated humans in-game.
+	- A) They will only prey other actors if you, the Host, decided on a target, or
+	- B) An actor's health is sufficiently low (the scent of blood activates this subroutine). 
