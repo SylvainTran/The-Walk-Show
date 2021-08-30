@@ -1,0 +1,10 @@
+---
+Auditions
+---
+### Getting Started
+
+In the Creator's Bridge, observe a queue of actors that will become part of your life stream show.
+
+- Click on 'Cast' to hire an actor.
+- Click on 'Reject' to reject an actor.
+

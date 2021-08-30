@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameClockEventController
 {
     private GameController GameController;
+    private AIEntityController AIEntityController;
 
     // The chance that a game clock event triggers
     public float triggerChance = 50.0f;
@@ -33,7 +34,6 @@ public class GameClockEventController
             return;
         }
         //int randInt = UnityEngine.Random.Range(0, GameController.Colonists.Count + 1);
-
         for(int i = 0; i < GameController.Colonists.Count; i++)
         {
             GameController.dashboardOSController.AssignNewUIActionEvent(i);
@@ -45,7 +45,6 @@ public class GameClockEventController
     private void GenerateNewChatEvent()
     {
         List<GameObject> characters = GameController.Colonists;
-
         CharacterModel randCharacter = characters[UnityEngine.Random.Range(0, characters.Count)].GetComponent<CharacterModel>();
         PendingCallEvent pendingCallEvent = new PendingCallEvent(triggerChance);
         randCharacter.OnGameClockEventGenerated(pendingCallEvent);

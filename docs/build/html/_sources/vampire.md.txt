@@ -1,0 +1,14 @@
+---
+The Vampire
+---
+
+### The Vampire
+
+1. setup
+    1. Vampires are only active at night (in-game stream time).
+
+2. Job
+
+    1. A vampire's role (job) is to prey on other actors in your stream and also to cull the artificially generated humans in-game.
+	    1. They will only prey other actors if you, the Host, decided on a target, or
+	    2. An actor's health is sufficiently low (the scent of blood activates this subroutine). 
