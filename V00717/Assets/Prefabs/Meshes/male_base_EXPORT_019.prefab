@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1356912518925678114}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-shin.L.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4048027593085147385}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8707690422608005351}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-shoulder.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2891540617455232794}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: MCH-spine.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 269870341507285359}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-forearm.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,7 +163,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6127507923442886878}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-pelvis.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,7 +194,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5072211766131205285}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: tweak_spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -225,7 +225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2889570375597480187}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: torso
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -257,7 +257,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8023026498913713733}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-breast.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -287,7 +287,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5718796423153326919}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: spine_fk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -318,7 +318,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5205434542707649967}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-toe.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -348,7 +348,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5118705164965992889}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-thigh.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -379,7 +379,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7839675493641708278}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,7 +410,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7200942622977635022}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: MCH-spine.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,7 +441,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3309257799704359600}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-toe.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -471,7 +471,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1325966940223346609}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-upper_arm.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -502,7 +502,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8596060761976667102}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-thigh.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -533,7 +533,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3526080759415618142}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-pelvis.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -563,7 +563,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4267593674500002613}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-thigh.R.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -594,7 +594,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2557199676625845073}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-foot.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -625,7 +625,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1042854466782070541}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-breast.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -656,7 +656,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5604437398133822204}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-pelvis.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -686,7 +686,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1831328990345586772}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: MCH-spine.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -717,7 +717,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9106734957239720836}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-spine.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -751,7 +751,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 24127019853363282}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-forearm.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -782,7 +782,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5524233672824880939}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: tweak_spine.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -813,7 +813,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7091298804833241729}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: MCH-torso.parent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -844,7 +844,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7852918564059981329}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -874,7 +874,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6027410852154348173}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: MCH-spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -905,7 +905,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8813043127293488479}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-shoulder.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -938,7 +938,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6392119755856104422}
   - component: {fileID: 1827646159444604320}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1077,7 +1077,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6370120155726196098}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-forearm.R.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1108,7 +1108,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4476322668583162560}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1139,7 +1139,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5788345355176331303}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-breast.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1170,7 +1170,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 894298270002097788}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: spine_fk.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1201,7 +1201,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 719997653462489219}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-upper_arm.L.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1232,7 +1232,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3339846154466826653}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-shin.R.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1263,7 +1263,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8365535664029246187}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1294,7 +1294,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6117060033864445577}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: spine_fk.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1325,7 +1325,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1968305860989458026}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-shin.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1356,7 +1356,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1477669924827529724}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-forearm.L.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1387,7 +1387,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2320495740369899414}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-shoulder.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1417,7 +1417,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6968742298754764270}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1448,7 +1448,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 102588846944354274}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-upper_arm.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1479,7 +1479,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 467453701585588535}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-shoulder.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1511,7 +1511,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2108672658762743632}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-hand.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1541,7 +1541,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 766287327208016691}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1575,7 +1575,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1844747735761590635}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-breast.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1605,7 +1605,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7333476560646892632}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-thigh.L.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1636,7 +1636,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6870135115837516771}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: rig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1668,7 +1668,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8094548118529317944}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-hand.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1698,7 +1698,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 838201193230484203}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1729,7 +1729,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8420795744777651273}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-spine.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1760,7 +1760,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5974340931188385358}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-upper_arm.R.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1791,7 +1791,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1951222003525604838}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: spine_fk.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1822,7 +1822,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 973590230905442897}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-foot.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1853,7 +1853,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4216695287100725430}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: DEF-shin.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1884,7 +1884,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 906994933472060989}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: ORG-pelvis.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1918,11 +1918,11 @@ GameObject:
   - component: {fileID: 2843985561554867016}
   - component: {fileID: -2006630942143948583}
   - component: {fileID: -3256552877177030909}
-  - component: {fileID: -2841388496669435544}
   - component: {fileID: 8750066241082684196}
   - component: {fileID: 4063323311629640375}
   - component: {fileID: 4080592548619120063}
-  m_Layer: 0
+  - component: {fileID: 6965245880752529614}
+  m_Layer: 16
   m_Name: male_base_EXPORT_019
   m_TagString: CharacterBot
   m_Icon: {fileID: 0}
@@ -2004,6 +2004,8 @@ MonoBehaviour:
       keys: []
       values: 
   lastEvent: 
+  inQuadrant: -1
+  goldInventory: 0
 --- !u!195 &-3256552877177030909
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2014,7 +2016,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 10
+  m_Speed: 8
   m_Acceleration: 6
   avoidancePriority: 50
   m_AngularSpeed: 121.92
@@ -2026,26 +2028,6 @@ NavMeshAgent:
   m_BaseOffset: 4
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-2841388496669435544
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8852988027855491976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e785d2321b044ed5b1ec06fd4e9faaf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  wanderRadius: 100
-  wanderDistance: 25
-  wanderJitter: 3
-  characterModel: {fileID: 0}
-  quadrantTarget: {fileID: 0}
-  stoppingRange: 1
-  quadrantSize: {x: 0, y: 0, z: 0}
 --- !u!114 &8750066241082684196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2088,5 +2070,34 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 36
   m_CollisionDetection: 0
+--- !u!114 &6965245880752529614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8852988027855491976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c6faf1e083ef40a49af4d1529a34085, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  wanderRadius: 15
+  wanderDistance: 35
+  wanderJitter: 1
+  characterModel: {fileID: 0}
+  quadrantTarget: {fileID: 0}
+  stoppingRange: 0.01
+  quadrantSize: {x: 0, y: 0, z: 0}
+  chasedTarget: {fileID: 0}
+  attackRange: 3
+  animator: {fileID: 0}
+  health: 100
+  damage: 1
+  attackSpeed: 1
+  fleeingState: 0
+  seekGold: 0
+  safeDistance: 35

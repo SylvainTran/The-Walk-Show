@@ -3,24 +3,15 @@ using UnityEngine;
 
 public class Zombie : Bot, ICombatant
 {
-    /// <summary>
-    /// The chased actor or npc by this zombie.
-    /// </summary>
-    public GameObject chasedTarget;
-    public float attackRange = 3.0f;
-    public Animator animator;
-
-    public float health = 100.0f;
-    public float damage = 1.0f;
-    public float attackSpeed = 1.0f; // Delay in s before next attack
+    [SerializeField]
+    private float chaseRange = 20.0f;
+    [SerializeField]
+    private float sight = 15.0f;
 
     // Start is called before the first frame update
     private void Start()
     {
-        agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        characterModel = GetComponent<CharacterModel>();
-        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f);
-        animator = GetComponent<Animator>();
+        base.Start();
     }
 
     public void BehaviourSetup(GameWaypoint quadrantTarget)
@@ -28,9 +19,9 @@ public class Zombie : Bot, ICombatant
         this.quadrantTarget = quadrantTarget;
     }
 
-    public override void Wander()
+    public override IEnumerator Wander()
     {
-        base.Wander();
+        yield return StartCoroutine(base.Wander());
     }
 
     /// <summary>
@@ -40,13 +31,13 @@ public class Zombie : Bot, ICombatant
     /// <returns></returns>
     public override bool Seek(Vector3 target)
     {
-        if(chasedTarget == null)
+        base.Seek(target);
+
+        if (chasedTarget == null)
         {
             return false;
         }
-        base.Seek(target);
-
-        if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(transform.position, target) <= attackRange)
+        if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(target, transform.position) <= attackRange)
         {
             // Play animation and attack
             animator.SetBool("isAttacking", true);
@@ -71,22 +62,50 @@ public class Zombie : Bot, ICombatant
         }
     }
 
+    public GameObject priorityCollider = null;
     public void HandleCollisions()
     {
-        //Use the OverlapBox to detect if there are any other colliders within this box area.
-        //Use the GameObject's centre, half the size (as a radius) and rotation. This creates an invisible box around your GameObject.
         Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2, Quaternion.identity);
         int i = 0;
         //Check when there is a new collider coming into contact with the box
         while (i < hitColliders.Length)
         {
-            //Output all of the collider names
-            if(hitColliders[i].CompareTag("CharacterBot"))
+            Collider collided = hitColliders[i];
+            if (collided.gameObject.GetComponent<MainActor>())
             {
-                Debug.Log("Hit : " + hitColliders[i].name + i);
-                chasedTarget = hitColliders[i].gameObject;
+                if(collided.gameObject.GetComponent<MainActor>().ActorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
+                {
+                    chasedTarget = hitColliders[i].gameObject;
+                    priorityCollider = chasedTarget; // TODO reset to null if dead or out of range
+                    break;
+                }
             }
-            //Increase the number of Colliders in the array
+            i++;
+        }
+    }
+
+    public void DetectMainActors()
+    {
+        // Prioritize the in-range ones
+        if(priorityCollider)
+        {
+            return;
+        }
+        // TODO should we use a line of sight or collider? But the game primarily uses waypoints...
+        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale * sight, Quaternion.identity);
+        int i = 0;
+        //Check when there is a new collider coming into contact with the box
+        while (i < hitColliders.Length)
+        {
+            Collider collided = hitColliders[i];
+            if (collided.gameObject.GetComponent<MainActor>())
+            {
+                if (collided.gameObject.GetComponent<MainActor>().ActorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
+                {
+                    chasedTarget = hitColliders[i].gameObject;
+                    break;
+                }
+            }
             i++;
         }
     }
@@ -96,16 +115,29 @@ public class Zombie : Bot, ICombatant
     {
         if(chasedTarget == null)
         {
-            Wander();
+            StartCoroutine(base.Wander());
         } else
         {
-            Seek(chasedTarget.gameObject.transform.position);
+            if(priorityCollider)
+            {
+                Seek(priorityCollider.transform.position);
+            } else
+            {
+                Seek(chasedTarget.gameObject.transform.position);
+            }
+            if (Vector3.Distance(chasedTarget.transform.position, transform.position) >= chaseRange)
+            {
+                chasedTarget = null;
+                priorityCollider = null;
+                StopAllCoroutines();
+            }
         }
     }
 
     void FixedUpdate()
     {
-        // HandleCollisions();
+        HandleCollisions();
+        DetectMainActors();
     }
 
     public string Name()

@@ -427,7 +427,6 @@ public class GameController : MonoBehaviour
         QUADRANTS_ASSIGNED++;
         if (QUADRANTS_ASSIGNED == CreationController.MAX_COLONISTS)
         {
-            Debug.Log(colonists);
             foreach (GameObject g in colonists)
             {
                 quadrantMapper.GoToQuadrant(g.GetComponent<CharacterModel>(), quadrantMapper.gameWayPoints[g.GetComponent<CharacterModel>().InQuadrant]);

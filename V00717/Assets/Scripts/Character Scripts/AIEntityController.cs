@@ -129,7 +129,7 @@ public class AIEntityController : MonoBehaviour
             case ACTOR_ROLES.PREDATOR:
                 GameObject predator = Instantiate(predatorPrefabs[UnityEngine.Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[UnityEngine.Random.Range(0, predatorWaypoints.Length)].transform);
                 predator.gameObject.name = "Predator";
-                predator.gameObject.name = "Predator";
+                predator.gameObject.tag = "Predator";
                 return predator;
             default:
                 break;

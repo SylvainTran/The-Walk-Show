@@ -1921,7 +1921,6 @@ GameObject:
   - component: {fileID: 8750066241082684196}
   - component: {fileID: 4063323311629640375}
   - component: {fileID: 4080592548619120063}
-  - component: {fileID: 7424898085622609361}
   - component: {fileID: -4281263354533353522}
   m_Layer: 0
   m_Name: Zombie
@@ -1939,7 +1938,7 @@ Transform:
   m_GameObject: {fileID: 8852988027855491976}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.15285, y: 0.15285, z: 0.15285}
+  m_LocalScale: {x: 0.09, y: 0.09, z: 0.09}
   m_Children:
   - {fileID: 6392119755856104422}
   - {fileID: 6870135115837516771}
@@ -2017,7 +2016,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 10
+  m_Speed: 5
   m_Acceleration: 6
   avoidancePriority: 50
   m_AngularSpeed: 121.92
@@ -2051,7 +2050,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8852988027855491976}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 1.9294796
   m_Height: 5.68
@@ -2073,19 +2072,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &7424898085622609361
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8852988027855491976}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-4281263354533353522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2106,10 +2092,10 @@ MonoBehaviour:
   quadrantTarget: {fileID: 0}
   stoppingRange: 1
   quadrantSize: {x: 0, y: 0, z: 0}
-  seekGold: 0
   chasedTarget: {fileID: 0}
   attackRange: 3
   animator: {fileID: 0}
   health: 100
   damage: 25
   attackSpeed: 1
+  seekGold: 0

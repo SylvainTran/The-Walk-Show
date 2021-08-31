@@ -17,27 +17,45 @@ public class Bot : MonoBehaviour
     public float stoppingRange = 0.01f;
     public Vector3 quadrantSize = Vector3.zero;
 
+    // Combat specific
+    [SerializeField]
+    protected GameObject chasedTarget;
+    [SerializeField]
+    protected float attackRange = 3.0f;
+    [SerializeField]
+    protected Animator animator;
+    [SerializeField]
+    protected float health = 100.0f;
+    [SerializeField]
+    protected float damage = 1.0f;
+    [SerializeField]
+    protected float attackSpeed = 1.0f; // Delay in s before next attack
+    [SerializeField]
+    protected bool fleeingState = false;
+
     /// <summary>
     /// If this is set to true, then the character will focus on finding gold in its quadrant
     /// unless the player assigns a direct task to them.
     /// </summary>
     public bool seekGold = false;
 
-    private void OnEnable()
-    {
-        SeasonController._OnScavengingStateAction += SeekWithinQuadrant;
-    }
+    GameController gameController;
+    int quadrantIndex = -1;
 
-    private void OnDisable()
-    {
-        SeasonController._OnScavengingStateAction -= SeekWithinQuadrant;
-    }
     // Start is called before the first frame update
     public virtual void Start()
     {
         agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
         characterModel = GetComponent<CharacterModel>();
         quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
+        animator = GetComponent<Animator>();
+        gameController = FindObjectOfType<GameController>();
+        quadrantIndex = GetComponent<CharacterModel>().InQuadrant;
+        if (quadrantIndex > -1)
+        {
+            quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
+            gameController.quadrantMapper.GoToQuadrant(GetComponent<CharacterModel>(), quadrantTarget);
+        }
     }
 
     public virtual bool Seek(Vector3 location)
@@ -56,6 +74,7 @@ public class Bot : MonoBehaviour
         if (successful)
         {
             GetComponent<Animator>().SetBool("isWalking", true);
+            coolDown = true;
             return true;
         } else
         {
@@ -68,35 +87,69 @@ public class Bot : MonoBehaviour
             return false;
         }
     }
-    public void Flee(Vector3 location)
+    public bool Flee(Vector3 location)
     {
         if (!agent.isOnNavMesh)
         {
-            return;
+            return false;
         }
         Vector3 fleeVector = location - this.transform.position;
         agent.SetDestination(this.transform.position - fleeVector);
+        return true;
     }
 
-    Vector3 wanderTarget = Vector3.zero;
-    public virtual void Wander()
+    protected Vector3 wanderTarget;
+    /// <summary>
+    /// Wander until arrived at destination.
+    /// </summary>
+    /// <returns></returns>
+    public virtual IEnumerator Wander()
     {
-        if (!agent.isOnNavMesh)
+        if (!agent.isOnNavMesh || coolDown)
+        {
+            yield return null;
+        }
+        RandomizeWanderParameters();
+        BehaviourCoolDown(true);
+        Seek(wanderTarget);
+        yield return new WaitUntil(ArrivedAtDestination);
+        // Reset behaviour and pick a new wander target
+        BehaviourCoolDown(false);
+
+        // Repeat if no chasing target
+        if (chasedTarget == null)
+        {
+            StartCoroutine(Wander());
+        }
+    }
+
+    public bool ArrivedAtDestination()
+    {
+        return agent.remainingDistance <= stoppingRange;
+    }
+
+    private float maxRadius = 50.0f;
+    public void RandomizeWanderParameters()
+    {
+        if(quadrantTarget == null)
         {
             return;
         }
-        wanderTarget += new Vector3(Random.Range(-1.0f, 1.0f) * wanderJitter,
-                                        0,
-                                        Random.Range(-1.0f, 1.0f) * wanderJitter);
-        wanderTarget.Normalize();
-        wanderTarget *= wanderRadius;
+        // The wandering is done using a max radius range around the quadrant Target
+        // if past it, reset and pick a new wandering target inside the range of the quadrant target radius
+        quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
+        wanderTarget = quadrantTarget.transform.position;
 
-        Vector3 targetLocal = wanderTarget + new Vector3(0, 0, wanderDistance);
-        Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
-        Seek(targetWorld);
+        float wanderX = (quadrantTarget.transform.position - new Vector3(Random.Range(-maxRadius, maxRadius), 0.0f, 0.0f)).x;
+        float wanderZ = (quadrantTarget.transform.position - new Vector3(0.0f, 0.0f, Random.Range(-maxRadius, maxRadius))).z;
+        wanderTarget = new Vector3(wanderX, 0.0f, wanderZ);        
+        wanderDistance = Random.Range(0, 25);
+        // TODO decide if want to add jitter and factor in wanderRadius too
+
+        Debug.Log($"The quadrant Index: {quadrantIndex} for {GetComponent<CharacterModel>().NickName}, Wandering routine-going to: {wanderTarget} in world position, from quadrantTarget {quadrantTarget.transform.position}");
     }
 
-    protected bool coolDown = true;
+    protected bool coolDown = false;
     public void BehaviourCoolDown(bool state)
     {
         coolDown = state;
@@ -108,7 +161,6 @@ public class Bot : MonoBehaviour
         Seek(go.transform.position);
         StartCoroutine(ResetBehaviourCooldown(UnityEngine.Random.Range(5.0f, 30.0f)));
         // Trigger 'paying hommage' event to event log and broadcast viewers chat for reactions. The key word is REACTION.
-
     }
 
     private IEnumerator ResetBehaviourCooldown(float delay)
@@ -123,66 +175,9 @@ public class Bot : MonoBehaviour
         GetComponent<NavMeshAgent>().isStopped = true;
     }
 
-    public bool MoveToQuadrant(GameWaypoint v)
-    {
-        if(v != null)
-        {
-            quadrantTarget = v;
-            Debug.Log("Moving to quadrant waypoint at: " + quadrantTarget.transform.position);
-            if(Seek(quadrantTarget.transform.position))
-            {
-                return true;
-            } else
-            {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public void SeekWithinQuadrant()
-    {
-        if(quadrantTarget == null || coolDown == false)
-        {
-            return;
-        }
-        BehaviourCoolDown(false);
-        // Clamp wander radius from the quadrantTarget position
-        // wanderDistance = quadrantSize.z;
-    }
-
-    public void WrapQuadrant()
-    {
-        if(quadrantTarget == null)
-        {
-            return;
-        }
-        if (Vector3.Distance(quadrantTarget.transform.position, transform.position) >= Vector3.Distance(quadrantTarget.transform.position, quadrantSize))
-        {
-            MoveToQuadrant(quadrantTarget);
-            // Another way
-            // could be to add an actual box collider around each quadrant that is enabled once the characters
-            // are set in place. Or that collider is used to check the distance at that moment.
-        }
-    }
-
     public IEnumerator ResetAgentIsStopped(float delay)
     {
         yield return new WaitForSeconds(delay);
         this.agent.isStopped = false;
-    }
-
-    public void Update()
-    {
-        if(seekGold)
-        {
-            // Circle around connected edges at waypoint and wander off the path occasionally to magnet in gold coins
-
-        }
-        //if (!coolDown && quadrantTarget == null)
-        //{
-        //    Wander();
-        //}
-        //WrapQuadrant();
     }
 }
