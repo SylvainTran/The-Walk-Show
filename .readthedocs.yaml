@@ -17,8 +17,4 @@ formats:
 python:
    version: "3.7"
    install:
-<<<<<<< Updated upstream
-   - requirements: myst_parser
-=======
-   - requirements: docs/requirements.txt
->>>>>>> Stashed changes
+      - requirements: docs/requirements.txt
