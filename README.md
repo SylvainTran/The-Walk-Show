@@ -1,3 +1,13 @@
+### A message from EVA
+
+Congratulations on your purchase of Lifestream Studio 2521: Professional Edition.
+
+Please start by getting acquainted by the docs: [Lifestream studio 2521: The Official Manual](https://lifestream-studio-2521.readthedocs.io/en/latest/)
+
+Until we meet again.
+
+- EVA
+
 ### V00717
 This repository contains the following design process documentation:
 
