@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static SeasonController;
 public class AIEntityController : MonoBehaviour
 {
@@ -25,30 +26,43 @@ public class AIEntityController : MonoBehaviour
     public float humanRoll = 65;
     public float predatorRoll = 35;
 
+    /// <summary>
+    /// Toolbelt buttons (generic / all uses)
+    /// </summary>
+
+    public GameObject toolBeltButton1;
+    public GameObject toolBeltButton2;
+    public GameObject toolBeltButton3;
+    public GameObject toolBeltButton4;
+
     private void OnEnable()
     {
-        TimeController._OnUpdateEventClock += GenerateAIEntityContent;
+        //TimeController._OnUpdateEventClock += GenerateAIEntityContent;
     }
 
     private void OnDisable()
     {
-        TimeController._OnUpdateEventClock -= GenerateAIEntityContent;
+        //TimeController._OnUpdateEventClock -= GenerateAIEntityContent;
     }
 
     public void Start()
     {
         predatorPrefabs.Add(snakePrefab);
+        // DEBUG
+        toolBeltButton3.GetComponent<Button>().onClick.AddListener(delegate { EntityFactory(ACTOR_ROLES.ZOMBIE); });
     }
 
     /// <summary>
     /// Fill world Content Tools (the generic random tool)
+    /// Called from a button in the Content Creator Toolbelt.
+    /// 
     /// </summary>
     public void GenerateAIEntityContent()
     {
         int roll = UnityEngine.Random.Range(0, 100);
         int count = UnityEngine.Random.Range(0, 10);
 
-        if (zombiePopulation.Count < MAX_ZOMBIE_POPULATION &&  roll <= zombieRoll)
+        if (zombiePopulation.Count < MAX_ZOMBIE_POPULATION && roll <= zombieRoll)
         {
             for(int i = 0; i < count; i++)
             {
@@ -76,6 +90,16 @@ public class AIEntityController : MonoBehaviour
     }
 
     /// <summary>
+    /// Also called from a button in the Content Creator Toolbelt.
+    /// </summary>
+    public void DestroyAll()
+    {
+        humanPopulation.ForEach(h => Destroy(h.gameObject));
+        zombiePopulation.ForEach(z => Destroy(z.gameObject));
+        predatorPopulation.ForEach(p => Destroy(p.gameObject));
+    }
+
+    /// <summary>
     /// This is called via the Content Creator Tool menu... have to add event listeners to buttons with the specific role.
     /// Done from quadrant mode itself or drag and drop from "content belt"?
     /// </summary>
@@ -83,14 +107,30 @@ public class AIEntityController : MonoBehaviour
     /// <returns></returns>
     public GameObject EntityFactory(ACTOR_ROLES role)
     {
+        GameWaypoint spawnWaypoint;
         switch (role)
         {
             case ACTOR_ROLES.ZOMBIE:
-                    return Instantiate(zombiePrefab, zombieWaypoints[UnityEngine.Random.Range(0, zombieWaypoints.Length)].transform);
+                spawnWaypoint = zombieWaypoints[UnityEngine.Random.Range(0, zombieWaypoints.Length)];
+                GameObject zombie = Instantiate(zombiePrefab, spawnWaypoint.transform);
+                zombie.gameObject.name = "Zombie"; // Temp, the prefab will have name and tag setup already
+                zombie.gameObject.tag = "Zombie";
+                if(zombie.GetComponent<Zombie>() == null)
+                {
+                    zombie.AddComponent<Zombie>();
+                }
+                zombie.GetComponent<Zombie>().BehaviourSetup(spawnWaypoint);
+                return zombie;
             case ACTOR_ROLES.HUMAN:
-                   return  Instantiate(humanPrefab, humanCityWaypoints[UnityEngine.Random.Range(0, humanCityWaypoints.Length)].transform);
+                GameObject human = Instantiate(humanPrefab, humanCityWaypoints[UnityEngine.Random.Range(0, humanCityWaypoints.Length)].transform);
+                human.gameObject.name = "Human";
+                human.gameObject.tag = "Human";
+                return human;
             case ACTOR_ROLES.PREDATOR:
-                return Instantiate(predatorPrefabs[UnityEngine.Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[UnityEngine.Random.Range(0, predatorWaypoints.Length)].transform);
+                GameObject predator = Instantiate(predatorPrefabs[UnityEngine.Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[UnityEngine.Random.Range(0, predatorWaypoints.Length)].transform);
+                predator.gameObject.name = "Predator";
+                predator.gameObject.name = "Predator";
+                return predator;
             default:
                 break;
         }

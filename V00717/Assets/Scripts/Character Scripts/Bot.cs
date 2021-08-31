@@ -33,14 +33,14 @@ public class Bot : MonoBehaviour
         SeasonController._OnScavengingStateAction -= SeekWithinQuadrant;
     }
     // Start is called before the first frame update
-    public void Start()
+    public virtual void Start()
     {
         agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
         characterModel = GetComponent<CharacterModel>();
         quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
     }
 
-    public bool Seek(Vector3 location)
+    public virtual bool Seek(Vector3 location)
     {
         if(!agent)
         {
@@ -79,7 +79,7 @@ public class Bot : MonoBehaviour
     }
 
     Vector3 wanderTarget = Vector3.zero;
-    public void Wander()
+    public virtual void Wander()
     {
         if (!agent.isOnNavMesh)
         {
