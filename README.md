@@ -1,3 +1,5 @@
+Lifestream studio 2521: The Official Manual: [![Documentation Status](https://readthedocs.org/projects/lifestream-studio-2521/badge/?version=latest)](https://lifestream-studio-2521.readthedocs.io/en/latest/?badge=latest)
+
 ### A message from EVA
 
 Congratulations on your purchase of Lifestream Studio 2521: Professional Edition.
