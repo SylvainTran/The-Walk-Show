@@ -4,7 +4,7 @@ Lifestream studio 2521: The Official Manual: [![Documentation Status](https://re
 
 Congratulations on your purchase of Lifestream Studio 2521: Professional Edition.
 
-Please start by getting acquainted by the docs: [Lifestream studio 2521: The Official Manual](https://lifestream-studio-2521.readthedocs.io/en/latest/)
+Please start by getting acquainted with the docs: [Lifestream studio 2521: The Official Manual](https://lifestream-studio-2521.readthedocs.io/en/latest/)
 
 Until we meet again.
 
