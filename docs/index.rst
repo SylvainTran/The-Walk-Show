@@ -15,10 +15,9 @@ Welcome to Lifestream Studio 2521's documentation!
 Lifestream Studio 2521
 ========
 
-Congratulations on being a new owner of the professional edition of Lifestream Studio 2521.
+Congratulations on being a new owner of Lifestream Studio 2521: Professional Edition.
 
-Ever wondered what a human thinks about death? At the Foundation, we offer products that address the issue.
-As alpha AI, a technology that has successfully dominated technological areas of society, including banking, insurance, health, vision, security, gaming, scientific research, etc. since the last five hundred years.
+Ever wondered what a human thinks about death? At the Foundation, we offer products that address the issue. We believe all boundaries are meant to be broken.
 
 The year is 2521, and you are now an active part of the Stream.
 
@@ -26,11 +25,10 @@ Features
 --------
 
 - Recruit machine actors as content in your stream
-- Earn donation credits and refine your actors
+- Earn donation credits and refine your actors or your script
 - Add dynamic life-or-death content to your channel
 - Setup your scene as you want during streaming
-- Control your actors' fates in an entertaining game
-- Generate data sets about death and experience it from your own hands, from the perspective of your actors
+- Generate symbiotic understanding about death and experience it from your own hands, from the perspective of your actors
 
 Installation
 ------------

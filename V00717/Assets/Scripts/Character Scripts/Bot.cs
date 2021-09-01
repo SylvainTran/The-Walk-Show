@@ -125,13 +125,14 @@ public class Bot : MonoBehaviour
 
     public bool ArrivedAtDestination()
     {
+        if (agent == null) return false;
         return agent.remainingDistance <= stoppingRange;
     }
 
     private float maxRadius = 50.0f;
     public void RandomizeWanderParameters()
     {
-        if(quadrantTarget == null)
+        if(quadrantTarget == null || quadrantIndex == -1)
         {
             return;
         }
