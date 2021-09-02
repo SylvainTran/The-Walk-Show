@@ -228,6 +228,16 @@ public class CharacterCreationView : MonoBehaviour
             newCharacterMesh.transform.SetParent(GameController.landingPositions[trackLanePosition].transform);
             SetCameraTarget(creationController, newCharacterMesh.transform, trackLanePosition);
             GameController.SetupStartingQuadrant(newCharacterMesh);
+            // Setup dragged action handler with this actor's UUID
+            for (int i = 0; i < GameController.draggedActionHandlers.Length; i++)
+            {
+                int actionActorTargetUUID = GameController.draggedActionHandlers[i].ActionActorTargetUUID;
+                if (actionActorTargetUUID != -1)
+                {
+                    continue;
+                }
+                GameController.draggedActionHandlers[i].ActionActorTargetUUID = newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_;
+            }
         }
         catch (ArgumentNullException ane)
         {

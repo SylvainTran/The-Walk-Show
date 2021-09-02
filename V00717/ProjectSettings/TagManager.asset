@@ -10,6 +10,7 @@ TagManager:
   - Zombie
   - Human
   - Predator
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -28,7 +29,7 @@ TagManager:
   - MenuFX
   - UI Icons
   - MainActor
-  - 
+  - Terrain
   - 
   - 
   - 

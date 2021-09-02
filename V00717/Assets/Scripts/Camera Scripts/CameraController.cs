@@ -94,4 +94,34 @@ public class CameraController : MonoBehaviour
     {
         // Apply a noise effect on the render texture or some other meaningful image, or at least cut the live feed temporarily
     }
+
+    /// <summary>
+    /// if there is such a moment as "high priority" like a zombie chase, or anything that involves more than
+    /// one actor and colliders, activate a special camera mode to follow it
+    /// WIP
+    /// </summary>
+    public void TrackActionHighlights(int trackLane)
+    {
+        // The camera mode should clearly display the moment and prioritize main actors
+        // Get the front vector of the main actor in the highlight
+        Camera camera = GameController.laneFeedCams[trackLane];
+        Transform mainActor = camera.GetComponent<CharacterTracker>().Target;
+        float desiredYaw = mainActor.rotation.eulerAngles.y;
+        Vector3 perp = Vector3.Cross(mainActor.rotation.eulerAngles, camera.transform.rotation.eulerAngles);
+
+        // Lerp to the new position over a few frames
+        float n = 0;
+
+        while(n < desiredYaw)
+        {
+            n += Time.deltaTime;
+            //camera.transform.rotation;
+        }
+        // Close-up SIDE
+        // Close-up ORBIT 45
+        // Close-up BACK/FRONT
+        // Get the camera at trackLane
+        // Determine what kind of highlight it is
+        // Move the camera to display judicious angles
+    }
 }

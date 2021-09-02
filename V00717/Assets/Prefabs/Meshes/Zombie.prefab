@@ -1958,7 +1958,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: fc33089452ea34c4eb9c18dd4c02752a, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -2098,4 +2098,8 @@ MonoBehaviour:
   health: 100
   damage: 25
   attackSpeed: 1
+  fleeingState: 0
   seekGold: 0
+  chaseRange: 20
+  sight: 15
+  priorityCollider: {fileID: 0}

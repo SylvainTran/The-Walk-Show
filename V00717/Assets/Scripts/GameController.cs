@@ -469,6 +469,8 @@ public class GameController : MonoBehaviour
         AssignQuadrantData(newCharacterMesh.GetComponent<CharacterModel>(), waypoints[mappedWaypointIndex]);
     }
 
+    public DraggedActionHandler[] draggedActionHandlers;
+
     public void LoadGameCharacters()
     {
         // First load game if needed (TODO validate contents too, can have bad format and exist)
@@ -490,11 +492,18 @@ public class GameController : MonoBehaviour
         if (SaveSystem.SaveFileExists("colonists.json"))
         {
             LoadCharactersFromJSONFile(colonists, "colonists.json", true, true);
-            // Update camera lanes
-            foreach(GameObject character in colonists)
+            // Update camera lanes and draggedActionHandlers (Toolbelt)
+            // Setup dragged action handler with this actor's UUID
+            for(int i = 0; i < colonists.Count; i++)
             {
-                creationController.SetTrackLanePosition(creationController.FindAvailableCameraLane(), character.transform);
-                SetupStartingQuadrant(character);
+                creationController.SetTrackLanePosition(creationController.FindAvailableCameraLane(), colonists[i].transform);
+                SetupStartingQuadrant(colonists[i]);
+
+                if(draggedActionHandlers[i].ActionActorTargetUUID != -1)
+                {
+                    continue;
+                }
+                draggedActionHandlers[i].ActionActorTargetUUID = colonists[i].GetComponent<CharacterModel>().UniqueColonistPersonnelID_;
             }
         }
         if (SaveSystem.SaveFileExists("deadColonists.json"))

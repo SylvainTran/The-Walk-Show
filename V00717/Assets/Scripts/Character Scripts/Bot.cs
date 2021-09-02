@@ -77,9 +77,7 @@ public class Bot : MonoBehaviour
             coolDown = true;
             return true;
         } else
-        {
-            Debug.Log("Failed to set a new path.");
-            
+        {            
             if(agent.pathPending)
             {
                 Debug.Log("The path is pending but hanged");
@@ -117,10 +115,19 @@ public class Bot : MonoBehaviour
         BehaviourCoolDown(false);
 
         // Repeat if no chasing target
-        if (chasedTarget == null)
+        if (chasedTarget == null && !coolDown)
         {
             StartCoroutine(Wander());
         }
+    }
+
+    public void FreezeAgent()
+    {
+        StopAllCoroutines();
+        agent.isStopped = true;
+        agent.ResetPath();
+        BehaviourCoolDown(true);
+        GetComponent<Animator>().SetBool("isWalking", false);
     }
 
     public bool ArrivedAtDestination()
@@ -179,6 +186,8 @@ public class Bot : MonoBehaviour
     public IEnumerator ResetAgentIsStopped(float delay)
     {
         yield return new WaitForSeconds(delay);
+        agent.ResetPath();
         this.agent.isStopped = false;
+        BehaviourCoolDown(false);
     }
 }
