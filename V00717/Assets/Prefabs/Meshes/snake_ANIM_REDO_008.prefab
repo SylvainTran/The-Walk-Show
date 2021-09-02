@@ -143,6 +143,7 @@ GameObject:
   - component: {fileID: 4929316629368577775}
   - component: {fileID: 3734300211242323455}
   - component: {fileID: 473802083660840641}
+  - component: {fileID: 8902428095814405962}
   m_Layer: 0
   m_Name: snake_ANIM_REDO_008
   m_TagString: Untagged
@@ -250,6 +251,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0.69, y: 0.38, z: 0.26}
+--- !u!114 &8902428095814405962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790195882757563557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec00a4830f50c443fbfdde1f197b4bdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &940252540596696532
 GameObject:
   m_ObjectHideFlags: 0

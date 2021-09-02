@@ -1,90 +1,15 @@
 using System.Collections;
 using UnityEngine;
 
-public class Zombie : Bot, ICombatant
+public class Zombie : Combatant
 {
-    [SerializeField]
-    private float chaseRange = 20.0f;
-    [SerializeField]
-    private float sight = 15.0f;
-
     // Start is called before the first frame update
     private void Start()
     {
         base.Start();
     }
 
-    public void BehaviourSetup(GameWaypoint quadrantTarget)
-    {
-        this.quadrantTarget = quadrantTarget;
-    }
-
-    public override IEnumerator Wander()
-    {
-        yield return StartCoroutine(base.Wander());
-    }
-
-    /// <summary>
-    /// Seek and destroy
-    /// </summary>
-    /// <param name="target"></param>
-    /// <returns></returns>
-    public override bool Seek(Vector3 target)
-    {
-        base.Seek(target);
-
-        if (chasedTarget == null)
-        {
-            return false;
-        }
-        if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(target, transform.position) <= attackRange)
-        {
-            // Play animation and attack
-            animator.SetBool("isAttacking", true);
-            CharacterModel opponent = chasedTarget.GetComponent<CharacterModel>();
-            StartCoroutine(LockCombatState(attackSpeed, opponent));
-        }
-        
-        return true;
-    }
-
-    public IEnumerator LockCombatState(float attackSpeed, CharacterModel opponent)
-    {
-        yield return new WaitForSeconds(attackSpeed);
-        if (opponent.Health > 0.0f)
-        {
-            DealDamage(opponent);
-            StartCoroutine(LockCombatState(attackSpeed, opponent));
-        } else
-        {
-            StopAllCoroutines();
-            animator.SetBool("isAttacking", false);
-        }
-    }
-
-    public GameObject priorityCollider = null;
-    public void HandleCollisions()
-    {
-        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2, Quaternion.identity);
-        int i = 0;
-        //Check when there is a new collider coming into contact with the box
-        while (i < hitColliders.Length)
-        {
-            Collider collided = hitColliders[i];
-            if (collided.gameObject.GetComponent<MainActor>())
-            {
-                if(collided.gameObject.GetComponent<MainActor>().ActorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
-                {
-                    chasedTarget = hitColliders[i].gameObject;
-                    priorityCollider = chasedTarget; // TODO reset to null if dead or out of range
-                    break;
-                }
-            }
-            i++;
-        }
-    }
-
-    public void DetectMainActors()
+    public override void DetectMainActors()
     {
         // Prioritize the in-range ones
         if(priorityCollider)
@@ -108,6 +33,43 @@ public class Zombie : Bot, ICombatant
             }
             i++;
         }
+    }
+
+    public override void HandleCollisions()
+    {
+        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2, Quaternion.identity);
+        int i = 0;
+        //Check when there is a new collider coming into contact with the box
+        while (i < hitColliders.Length)
+        {
+            Collider collided = hitColliders[i];
+            if (collided.gameObject.GetComponent<MainActor>())
+            {
+                if (collided.gameObject.GetComponent<MainActor>().ActorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
+                {
+                    chasedTarget = hitColliders[i].gameObject;
+                    priorityCollider = chasedTarget; // TODO reset to null if dead or out of range
+                    break;
+                }
+            }
+            i++;
+        }
+    }
+
+    public override bool Seek(Vector3 target)
+    {
+        base.Seek(target);
+
+        if (!chasedTarget) return false;
+        if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(target, transform.position) <= attackRange)
+        {
+            // Play animation and attack
+            animator.SetBool("isAttacking", true);
+            Combatant opponent = chasedTarget.GetComponent<Combatant>();
+            StartCoroutine(LockCombatState(attackSpeed, opponent));
+            return true;
+        }
+        return false;
     }
 
     // Update is called once per frame

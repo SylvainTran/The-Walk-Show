@@ -1,3 +1,5 @@
+using System.Collections;
+
 public interface ICombatant
 {
     public string Name();

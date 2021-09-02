@@ -15,6 +15,14 @@ public class MainActor : Bot
     {
         base.Start();
         base.RandomizeWanderParameters();
+
+        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
+        quadrantIndex = GetComponent<CharacterModel>().InQuadrant;
+        if (quadrantIndex > -1)
+        {
+            quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
+            gameController.quadrantMapper.GoToQuadrant(GetComponent<CharacterModel>(), quadrantTarget);
+        }
     }
 
     public void Update()
@@ -39,10 +47,6 @@ public class MainActor : Bot
             }
             else if(actorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
             {
-                //if(fleeingState)
-                //{
-                //    return;
-                //}
                 // Everybody else just runs away
                 if(base.Flee(chasedTarget.transform.position))
                 {

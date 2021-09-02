@@ -25,7 +25,7 @@ public class Bot : MonoBehaviour
     [SerializeField]
     protected Animator animator;
     [SerializeField]
-    protected float health = 100.0f;
+    public float health = 100.0f;
     [SerializeField]
     protected float damage = 1.0f;
     [SerializeField]
@@ -33,29 +33,16 @@ public class Bot : MonoBehaviour
     [SerializeField]
     protected bool fleeingState = false;
 
-    /// <summary>
-    /// If this is set to true, then the character will focus on finding gold in its quadrant
-    /// unless the player assigns a direct task to them.
-    /// </summary>
-    public bool seekGold = false;
-
-    GameController gameController;
-    int quadrantIndex = -1;
+    public GameController gameController;
+    public int quadrantIndex = -1;
 
     // Start is called before the first frame update
     public virtual void Start()
     {
         agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
         characterModel = GetComponent<CharacterModel>();
-        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
         animator = GetComponent<Animator>();
         gameController = FindObjectOfType<GameController>();
-        quadrantIndex = GetComponent<CharacterModel>().InQuadrant;
-        if (quadrantIndex > -1)
-        {
-            quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
-            gameController.quadrantMapper.GoToQuadrant(GetComponent<CharacterModel>(), quadrantTarget);
-        }
     }
 
     public virtual bool Seek(Vector3 location)
@@ -132,7 +119,7 @@ public class Bot : MonoBehaviour
 
     public bool ArrivedAtDestination()
     {
-        if (agent == null) return false;
+        if (agent == null || !agent.isOnNavMesh) return false;
         return agent.remainingDistance <= stoppingRange;
     }
 
