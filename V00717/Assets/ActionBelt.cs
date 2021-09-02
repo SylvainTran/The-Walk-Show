@@ -48,7 +48,23 @@ public class ActionBelt : MonoBehaviour
             actionActorTarget.GetComponent<Bot>().FreezeAgent();
             StartCoroutine(actionActorTarget.GetComponent<Bot>().ResetAgentIsStopped(10.0f));
             // Camera shot on the item falling from the sky?
-            // Get the stuff required for it
+
+            // Get the type required for it
+
+            Slayer hat;
+            actionGameObject.TryGetComponent<Slayer>(out hat);
+            if(hat != null)
+            {
+                if(actionActorTarget.GetComponent<Slayer>() == null)
+                {
+                    actionActorTarget.AddComponent(hat.GetType());
+                    Debug.Log($"{actionActorTarget.GetComponent<CharacterModel>().NickName} wears the hat of a slayer");
+                }
+            }
+
+            // Parent the hat to the actor (TODO create a hat transofmr)
+            actionGameObject.transform.position = actionActorTarget.transform.GetChild(0).transform.position;
+            actionGameObject.transform.SetParent(actionActorTarget.transform.GetChild(0));
         }
 
     }

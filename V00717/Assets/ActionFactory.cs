@@ -45,15 +45,34 @@ public class ActionFactory
         }
     }
 
+    class Role : IToolbeltAction
+    {
+        RoleController RoleController;
+        private int roleIndex;
+        public Role(int roleIndex)
+        {
+            this.roleIndex = roleIndex;
+            RoleController = GameObject.FindObjectOfType<RoleController>();
+        }
+        public GameObject GetAction()
+        {
+            Debug.Log("Assigning a role through the toolbelt!");
+            return RoleController.RoleFactory((SeasonController.ACTOR_ROLES)roleIndex);
+        }
+    }
+
     public Func<GameObject> GetActionByIndex(int index, Vector3 areaOfAction = default)
     {
         switch (index)
         {
-            case 0:
+            case 6:
                 return new SpawnPredator(areaOfAction).GetAction;
                 break;
             case 1:
                 return new SpawnGift(areaOfAction).GetAction;
+                break;
+            case (int)SeasonController.ACTOR_ROLES.SLAYER: // 2
+                return new Role(index).GetAction;
                 break;
             default:
                 return new SpawnGift(areaOfAction).GetAction;

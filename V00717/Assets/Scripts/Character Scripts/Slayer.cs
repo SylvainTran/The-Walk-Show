@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Slayer : Bot
+public class Slayer : MonoBehaviour
 {
     public int ACTOR_SKIN;
 
