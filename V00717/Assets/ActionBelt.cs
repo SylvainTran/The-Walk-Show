@@ -66,5 +66,8 @@ public class ActionBelt : MonoBehaviour
             }
             actionGameObject.transform.position = actionActorTarget.transform.GetChild(0).transform.position;
         }
+        // Reset
+        actionActorTargetUUID = -1;
+        actionIndex = -1;
     }
 }

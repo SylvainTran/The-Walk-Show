@@ -88,7 +88,6 @@ public class SeasonController
     public void EndAuditions()
     {
         DestroyAuditionEditors();
-        //SetQuadrantSelection();
         SetScavengingState();
         gameController.CloseSpecialEventsWindow();
     }

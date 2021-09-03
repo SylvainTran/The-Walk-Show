@@ -67,16 +67,12 @@ public class ActionFactory
         {
             case 6:
                 return new SpawnPredator(areaOfAction).GetAction;
-                break;
             case 1:
                 return new SpawnGift(areaOfAction).GetAction;
-                break;
             case (int)SeasonController.ACTOR_ROLES.SLAYER: // 2
                 return new Role(index).GetAction;
-                break;
             default:
                 return new SpawnGift(areaOfAction).GetAction;
-                break;
         }
     }
 }

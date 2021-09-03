@@ -9,9 +9,9 @@ public class Combatant : Bot
     protected float chaseRange = 20.0f;
     [SerializeField]
     protected float sight = 15.0f;
-    public Renderer renderer; // for the bounds
+    public new Renderer renderer; // for the bounds
     // Start is called before the first frame update
-    private void Start()
+    private new void Start()
     {
         base.Start();
     }

@@ -237,6 +237,7 @@ public class CharacterCreationView : MonoBehaviour
                     continue;
                 }
                 GameController.draggedActionHandlers[i].ActionActorTargetUUID = newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_;
+                break;
             }
         }
         catch (ArgumentNullException ane)

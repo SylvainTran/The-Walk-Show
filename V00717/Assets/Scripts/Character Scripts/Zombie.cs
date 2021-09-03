@@ -3,11 +3,6 @@ using UnityEngine;
 
 public class Zombie : Combatant
 {
-    // Start is called before the first frame update
-    private void Start()
-    {
-        base.Start();
-    }
 
     public override void DetectMainActors()
     {
@@ -98,35 +93,5 @@ public class Zombie : Combatant
     {
         HandleCollisions();
         DetectMainActors();
-    }
-
-    public string Name()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public bool IsEnemyAI()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public float GetHealth()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void DealDamage(ICombatant opponent)
-    {
-        opponent.TakeDamage(damage);
-    }
-
-    public void TakeDamage(float damage)
-    {
-        health -= damage;
-    }
-
-    public void SetLastEvent(string lastEvent)
-    {
-        throw new System.NotImplementedException();
     }
 }

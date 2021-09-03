@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class QuadrantMapper : MonoBehaviour
 {
@@ -94,7 +95,6 @@ public class QuadrantMapper : MonoBehaviour
         }
     }
 
-
     public delegate bool NavigationAttempt(CharacterModel characterModel, GameWaypoint newWaypoint);
     /// <summary>
     /// Seek the quadrant at the int key.
@@ -103,9 +103,18 @@ public class QuadrantMapper : MonoBehaviour
     /// <param name="quadrantIntKey"></param>
     public bool GoToQuadrant(CharacterModel character, GameWaypoint newWaypoint)
     {
+        NavMeshAgent nav = character.gameObject.GetComponent<NavMeshAgent>();
         // Update the current quadrant location for the calculation of the next paths
-        character.InQuadrant = newWaypoint.intKey;
-        character.GetComponent<Bot>().quadrantTarget = newWaypoint;
+        character.gameObject.GetComponent<Rigidbody>().useGravity = false;
+        character.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+
+        if (nav == null)
+        {
+            nav = character.gameObject.AddComponent<NavMeshAgent>();
+        }
+        nav.agentTypeID = 0;
+        nav.radius = 0.3f;
+        nav.baseOffset = 2.1f;
 
         bool successful = character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
         if(successful)
@@ -115,7 +124,7 @@ public class QuadrantMapper : MonoBehaviour
 
         // Do something if unsuccessful
         int attempt = 0;
-        int MAX_ATTEMPTS = 50;
+        int MAX_ATTEMPTS = 5;
 
         if(!successful)
         {

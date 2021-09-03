@@ -11,7 +11,7 @@ public class MainActor : Bot
     public int ActorRole { get { return actorRole; } set { actorRole = value; } }
     public float safeDistance = 35.0f;
 
-    public void Start()
+    public new void Start()
     {
         base.Start();
         base.RandomizeWanderParameters();

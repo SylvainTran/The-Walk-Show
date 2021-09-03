@@ -47,7 +47,7 @@ public class Bot : MonoBehaviour
 
     public virtual bool Seek(Vector3 location)
     {
-        if(!agent)
+        if(!agent && this.GetComponent<UnityEngine.AI.NavMeshAgent>())
         {
             agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
         }
@@ -60,7 +60,6 @@ public class Bot : MonoBehaviour
 
         if (successful)
         {
-            GetComponent<Animator>().SetBool("isWalking", true);
             coolDown = true;
             return true;
         } else
@@ -116,7 +115,7 @@ public class Bot : MonoBehaviour
     {
         StopAllCoroutines();
         NavMeshAgent agent = GetComponent<NavMeshAgent>();
-        if (agent == null)
+        if (agent == null || !agent.isOnNavMesh)
         {
             return;
         }

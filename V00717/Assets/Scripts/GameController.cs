@@ -138,9 +138,6 @@ public class GameController : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // Create a game character database if it doesn't exist (failsafe)
-        // ScriptableObject gcd = (ScriptableObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/GameCharacterDatabase.asset", typeof(ScriptableObject));
-        // Load chat database SO and initialize main controllers
 #if UNITY_EDITOR        
         //chatDatabaseSO = (ChatDatabase)AssetDatabase.LoadAssetAtPath(Path.Combine(Application.dataPath + "/MyResources/ChatDatabase"), typeof(ChatDatabase));
         if (chatDatabaseSO == null)
@@ -340,8 +337,10 @@ public class GameController : MonoBehaviour
     {
         for(int i = 0; i < colonists.Count; i++)
         {
-            colonists[i].GetComponent<NavMeshAgent>().Warp(landingPositions[i].transform.position);
-            colonists[i].GetComponent<Rigidbody>().useGravity = true;
+            if(!colonists[i].GetComponent<NavMeshAgent>().isOnNavMesh)
+            {
+                colonists[i].GetComponent<NavMeshAgent>().Warp(landingPositions[i].transform.position);
+            }
         }
     }
 
@@ -521,11 +520,11 @@ public class GameController : MonoBehaviour
     }
 
     // Creates an array of baby models from the json text read and deserialized from path
-    public void LoadCharactersFromJSONFile(List<GameObject> characters, string path, bool deleteIfEmpty, bool instantiateGO)
+    public bool LoadCharactersFromJSONFile(List<GameObject> characters, string path, bool deleteIfEmpty, bool instantiateGO)
     {
         if(path == null || !SaveSystem.SaveFileExists(path))
         {
-            return;
+            return false;
         }
         // Generate new characters based on JSON file
         string text = null;
@@ -534,6 +533,11 @@ public class GameController : MonoBehaviour
         try
         {
             text = ReadFromPersistentPath(path); // PERSISTENT PATH
+            // TODO exception special case for empty file / corrupt
+            if(text.Length == 0 || text == null)
+            {
+                return false; 
+            }
             deserializedObject = JsonUtility.FromJson<SaveSystem.SavedArrayObject>(text);
             deserializedObjectList = new List<CharacterModelObject>(deserializedObject.colonists);
         } catch(Exception e)
@@ -549,7 +553,7 @@ public class GameController : MonoBehaviour
             {
                 File.Delete(Application.dataPath + "/" + path);
             }
-            return;
+            return false;
         }
         for (int i = 0; i < deserializedObjectList.Count; i++)
         {
@@ -564,6 +568,7 @@ public class GameController : MonoBehaviour
                 characters.Add(newCharacter);
             }            
         }
+        return true;
     }
 
     public void OnEventClockUpdate()

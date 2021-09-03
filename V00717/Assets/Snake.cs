@@ -5,7 +5,7 @@ public class Snake : Combatant
 {
     Coroutine wanderRoutine = null;
 
-    public void Start()
+    public  new void Start()
     {
         characterModel = GetComponent<CharacterModel>();
         animator = GetComponent<Animator>();

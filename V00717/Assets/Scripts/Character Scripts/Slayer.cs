@@ -26,10 +26,6 @@ public class Slayer : Combatant
         }
     }
 
-    public void SetLastEvent(string lastEvent)
-    {
-        throw new System.NotImplementedException();
-    }
     public override void Start()
     {
         base.Start();
@@ -84,30 +80,11 @@ public class Slayer : Combatant
         }
     }
 
-    public void TakeDamage(float damage)
-    {
-        base.TakeDamage(damage);
-    }
-
-    public void DealDamage(Combatant opponent)
-    {
-        base.DealDamage(opponent);
-    }
-
-    public float GetHealth()
-    {
-        return health;
-    }
-
-    public bool IsEnemyAI()
-    {
-        return false;
-    }
-
     public bool AnimationCompleted()
     {
         return animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.9;
     }
+
     public bool isAttacking = false;
     public override IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
     {
@@ -129,10 +106,5 @@ public class Slayer : Combatant
             StartCoroutine(ResetAgentIsStopped(1.0f));
             animator.SetBool("isAttacking", false);
         }
-    }
-
-    public string Name()
-    {
-        throw new System.NotImplementedException();
     }
 }
