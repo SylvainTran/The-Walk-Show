@@ -35,6 +35,7 @@ public class Slayer : Combatant
         base.Start();
         StartCoroutine(base.Wander());
         stoppingRange = 6.10f;
+        attackRange = 6.10f;
     }
 
     public void LateUpdate()
@@ -61,10 +62,10 @@ public class Slayer : Combatant
                 priorityCollider = null;
                 StopAllCoroutines();
                 StartCoroutine(base.Wander());
-            } else if(dist <= stoppingRange)
+            } else if(dist <= stoppingRange + 1.0f) //  TODO + renderer.bounds.extents.z
             {
                 FreezeAgent();
-                if (chasedTarget.GetComponent<Snake>() && dist <= attackRange)
+                if (chasedTarget.GetComponent<Snake>() && dist <= attackRange + 1.0f)
                 {
                     // Play animation and attack
                     if (!isAttacking)
@@ -103,21 +104,30 @@ public class Slayer : Combatant
         return false;
     }
 
-    public bool isAttacking = false;
-    public new IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
+    public bool AnimationCompleted()
     {
-        yield return new WaitForSeconds(attackSpeed);
+        return animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.9;
+    }
+    public bool isAttacking = false;
+    public override IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
+    {
+        yield return new WaitForEndOfFrame();
         if (opponent.health > 0.0f)
         {
             base.DealDamage(opponent);
             Debug.Log($"{GetComponent<CharacterModel>().NickName} wacked at a snake!");
-            //animator.SetBool("isAttacking", true);
+            FreezeAgent();
+            opponent.GetComponent<Snake>().FreezeAgent();
+            opponent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+            animator.SetBool("isAttacking", true);
+            yield return new WaitUntil(AnimationCompleted);
             StartCoroutine(LockCombatState(attackSpeed, opponent));
         }
         else
         {
             StopAllCoroutines();
-            //animator.SetBool("isAttacking", false);
+            StartCoroutine(ResetAgentIsStopped(1.0f));
+            animator.SetBool("isAttacking", false);
         }
     }
 

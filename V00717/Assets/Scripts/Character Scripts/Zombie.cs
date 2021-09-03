@@ -63,8 +63,6 @@ public class Zombie : Combatant
         if (!chasedTarget) return false;
         if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(target, transform.position) <= attackRange)
         {
-            // Play animation and attack
-            animator.SetBool("isAttacking", true);
             Combatant opponent = chasedTarget.GetComponent<Combatant>();
             StartCoroutine(LockCombatState(attackSpeed, opponent));
             return true;

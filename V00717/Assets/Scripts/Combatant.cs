@@ -35,10 +35,6 @@ public class Combatant : Bot
         {
             wanderTarget = RandomizeWanderParameters();
             NavMesh.CalculatePath(transform.position, wanderTarget, NavMesh.AllAreas, plannedPath);
-            for (int i = 0; i < plannedPath.corners.Length - 1; i++)
-            {
-                Debug.DrawLine(plannedPath.corners[i], plannedPath.corners[i + 1], Color.red);
-            }
             success = plannedPath.status != NavMeshPathStatus.PathInvalid;
         }
         if(success)
@@ -46,7 +42,7 @@ public class Combatant : Bot
             agent.SetPath(plannedPath);
         } else
         {
-            // fall back => 
+            // fall back => TODO also add return to nearest game way point if this also fails, but should not. At any rate, we should clamp the max wander zone to the original instantiation vector
             Vector3 randomPoint = transform.position + Random.insideUnitSphere * wanderRadius;
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
@@ -85,7 +81,7 @@ public class Combatant : Bot
             {
                 radius = renderer.bounds.extents.magnitude;
             }
-            wanderTarget += new Vector3(0.0f, t_height + 0.5f, 0.0f); // y => y + t_height + radius
+            wanderTarget += new Vector3(0.0f, t_height + 0.5f, 0.0f); // TODO check if this is correct: y => y + t_height + radius
             NavMeshHit hit;
             if (NavMesh.SamplePosition(wanderTarget, out hit, 25.0f, NavMesh.AllAreas))
             {
@@ -115,6 +111,7 @@ public class Combatant : Bot
         if (opponent.health > 0.0f)
         {
             DealDamage(opponent);
+            animator.SetBool("isAttacking", true);
             StartCoroutine(LockCombatState(attackSpeed, opponent));
         }
         else
@@ -166,12 +163,6 @@ public class Combatant : Bot
                 StopAllCoroutines();
             }
         }
-    }
-
-    void FixedUpdate()
-    {
-        HandleCollisions();
-        DetectMainActors();
     }
 
     public string Name()

@@ -21,7 +21,7 @@ public class Bot : MonoBehaviour
     [SerializeField]
     protected GameObject chasedTarget;
     [SerializeField]
-    protected float attackRange = 6.5f;
+    protected float attackRange = 6.10f;
     [SerializeField]
     protected Animator animator;
     [SerializeField]
@@ -115,6 +115,11 @@ public class Bot : MonoBehaviour
     public void FreezeAgent()
     {
         StopAllCoroutines();
+        NavMeshAgent agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
+        {
+            return;
+        }
         agent.isStopped = true;
         agent.ResetPath();
         BehaviourCoolDown(true);

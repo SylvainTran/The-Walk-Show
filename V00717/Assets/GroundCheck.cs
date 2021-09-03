@@ -16,6 +16,7 @@ public class GroundCheck : MonoBehaviour
             GetComponent<Rigidbody>().isKinematic = true;
             NavMeshAgent nav = this.gameObject.AddComponent<NavMeshAgent>();
             nav.agentTypeID = 0;
+            nav.radius = 0.3f;
         }
     }
 }

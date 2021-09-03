@@ -4388,7 +4388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a52aa96c6ae4e22939b906c2f1b2e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterModelPrefab: {fileID: 8852988027855491976, guid: 5a6f5af31c5409849b890d0cbcb102dd, type: 3}
+  characterModelPrefab: {fileID: 8436086421275342091, guid: 6ea9cf84e904c4f49bfdc574e4e88657, type: 3}
   newCharacterModelInstance: {fileID: 0}
   BabyModelHeadMeshFilter: {fileID: 0}
   BabyModelTorsoMeshFilter: {fileID: 0}
