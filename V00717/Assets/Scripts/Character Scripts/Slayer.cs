@@ -10,7 +10,7 @@ public class Slayer : Combatant
     {
         if (chasedTarget || priorityCollider) return;
 
-        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2, Quaternion.identity);
+        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2 * 32, Quaternion.identity);
         int i = 0;
         
         while (i < hitColliders.Length)
@@ -34,6 +34,7 @@ public class Slayer : Combatant
     public override void Start()
     {
         base.Start();
+        StartCoroutine(base.Wander());
     }
 
     public void LateUpdate()
@@ -43,48 +44,43 @@ public class Slayer : Combatant
 
     public void Update()
     {
-        if (chasedTarget == null)
-        {
-            StartCoroutine(base.Wander());
-        }
-        else
+        if(chasedTarget != null)
         {
             if (priorityCollider)
             {
-                Seek(priorityCollider.transform.position);
+                base.Seek(priorityCollider.transform.position);
             }
             else
             {
-                Seek(chasedTarget.gameObject.transform.position);
+                base.Seek(chasedTarget.gameObject.transform.position);
             }
-            if (Vector3.Distance(chasedTarget.transform.position, transform.position) >= chaseRange)
+            float dist = Vector3.Distance(chasedTarget.transform.position, transform.position);
+            if (dist >= chaseRange)
             {
                 chasedTarget = null;
                 priorityCollider = null;
                 StopAllCoroutines();
-            }
-        }
-    }
-
-    public override bool Seek(Vector3 target)
-    {
-        base.Seek(target);
-
-        if (!chasedTarget) return false;
-
-        if (chasedTarget.GetComponent<Snake>() && Vector3.Distance(target, transform.position) <= attackRange)
-        {
-            // Play animation and attack
-            if(!isAttacking)
+                StartCoroutine(base.Wander());
+            } else if(dist <= stoppingRange)
             {
-                isAttacking = true;
-                //animator.SetBool("isAttacking", true);
-                Snake opponent = chasedTarget.GetComponent<Snake>();
-                StartCoroutine(LockCombatState(attackSpeed, opponent));
+                FreezeAgent();
+                if (chasedTarget.GetComponent<Snake>() && dist <= attackRange)
+                {
+                    // Play animation and attack
+                    if (!isAttacking)
+                    {
+                        isAttacking = true;
+                        //animator.SetBool("isAttacking", true);
+                        transform.LookAt(chasedTarget.transform);
+                        Snake opponent = chasedTarget.GetComponent<Snake>();
+                        StartCoroutine(LockCombatState(attackSpeed, opponent));
+                    }
+                }
             }
-            return true;
+        } else
+        {
+            StartCoroutine(base.Wander());
         }
-        return false;
     }
 
     public void TakeDamage(float damage)

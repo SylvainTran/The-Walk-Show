@@ -198,7 +198,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.5, y: 0.5, z: 0.5}
   m_Center: {x: 0.69, y: 0.44, z: 0.26}
 --- !u!195 &4929316629368577775
 NavMeshAgent:
@@ -263,6 +263,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec00a4830f50c443fbfdde1f197b4bdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  wanderRadius: 0
+  wanderDistance: 0
+  wanderJitter: 0
+  characterModel: {fileID: 0}
+  quadrantTarget: {fileID: 0}
+  stoppingRange: 0.01
+  quadrantSize: {x: 0, y: 0, z: 0}
+  chasedTarget: {fileID: 0}
+  attackRange: 3
+  animator: {fileID: 0}
+  health: 100
+  damage: 1
+  attackSpeed: 1
+  fleeingState: 0
+  gameController: {fileID: 0}
+  quadrantIndex: -1
+  chaseRange: 20
+  sight: 15
+  priorityCollider: {fileID: 0}
+  isAttacking: 0
 --- !u!1 &940252540596696532
 GameObject:
   m_ObjectHideFlags: 0

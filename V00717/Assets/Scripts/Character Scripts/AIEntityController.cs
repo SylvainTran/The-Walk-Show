@@ -143,51 +143,46 @@ public class AIEntityController : MonoBehaviour
         {
             //StartCoroutine(ResetAgent(spawn, spawnLocation));
             // Find closest point to spawnLocation actor
+            if(spawn.GetComponent<NavMeshAgent>())
+            {
+                spawn.GetComponent<NavMeshAgent>().enabled = false;
+            }
             spawn.transform.position = spawnLocation;
-            spawn.GetComponent<NavMeshAgent>().Warp(spawnLocation);
+            GroundAgent(spawn);
+            //spawn.GetComponent<NavMeshAgent>().Warp(spawnLocation + new Vector3(0.0f, 0.0f, 5.0f));
         }
         return spawn;
     }
     public GameObject spawn = null;
-    public IEnumerator ResetAgent(GameObject _spawn, Vector3 spawnLocation)
+    public void GroundAgent(GameObject spawn)
     {
-        spawn = _spawn;
-        // parachute effect
-        // spawn.transform.position = spawnLocation + new Vector3(0.0f, 20.0f, 0.0f);
-        // Physics version
-        //spawn.GetComponent<Rigidbody>().AddRelativeForce(new Vector3(0.0f, 40.0f, 0.0f));
-
+        this.spawn = spawn;
         // Kinematic version
-        //Vector3 closestGroundPoint = Vector3.zero;
-        //if (closestGroundPoint.magnitude <= 0.0f)
-        //{
-        //    RaycastHit? ground = FindClosestGround();
-        //    // It can be null so we assign a dump in case and check its collider
-        //    RaycastHit _ground = ground ?? new RaycastHit();
-        //    closestGroundPoint = _ground.point;
+        Vector3 closestGroundPoint = Vector3.zero;
+        if (closestGroundPoint.magnitude <= 0.0f)
+        {
+            RaycastHit? ground = FindClosestGround();
+            // It can be null so we assign a dump in case and check its collider
+            RaycastHit _ground = ground ?? new RaycastHit();
 
-        //    if (_ground.collider != null)
-        //    {
-        //        // closestGroundPoint = _ground.collider.ClosestPoint(spawn.transform.position);
-        //        //spawn.transform.position = closestGroundPoint;
-        //    }
-        //}
+           if (_ground.collider != null)
+           {
+               spawn.transform.position =  _ground.point;
+           }
+           spawn.GetComponent<NavMeshAgent>().enabled = true;
+        }
 
         //while (spawn.transform.position.y >= closestGroundPoint.y - spawn.transform.localScale.y * 1.25f)
         //{
         //    spawn.transform.Translate(Vector3.down * 1.2f * Time.deltaTime, Space.World);
         //    spawn.transform.Rotate(Vector3.forward, 1.5f * Time.deltaTime);
         //}
-
-        yield return new WaitUntil(IsGrounded);
         //StopAllCoroutines();
         //if (!IsGroundedOnNavmesh())
         //{
         //    closestGroundPoint = FindNearestEdgeNavmesh();
         //}
         //spawn.transform.position = closestGroundPoint;
-        //spawn.gameObject.GetComponent<NavMeshAgent>().enabled = true;
-        // spawn.GetComponent<NavMeshAgent>().Warp(spawnLocation);
     }
 
     /// <summary>

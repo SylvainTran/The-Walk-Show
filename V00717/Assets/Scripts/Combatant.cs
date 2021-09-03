@@ -128,6 +128,7 @@ public class Combatant : Bot
 
     public void DealDamage(Combatant opponent)
     {
+        Debug.Log($"{this.gameObject.name}  dealt {damage} damage to {opponent.gameObject.name}");
         opponent.TakeDamage(damage);
     }
 

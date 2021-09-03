@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class ActionBelt : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class ActionBelt : MonoBehaviour
     private int actionIndex = -1;
     public int ActionIndex { get { return actionIndex; }  set { actionIndex = value; } }
 
-    private ActionFactory actionFactory; 
+    private ActionFactory actionFactory;
 
     private void Awake()
     {
@@ -46,7 +47,7 @@ public class ActionBelt : MonoBehaviour
             GameObject actionGameObject = actionMethod();
             // Setup - like freezing the actor temporarily
             actionActorTarget.GetComponent<Bot>().FreezeAgent();
-            StartCoroutine(actionActorTarget.GetComponent<Bot>().ResetAgentIsStopped(10.0f));
+            StartCoroutine(actionActorTarget.GetComponent<Bot>().ResetAgentIsStopped(5.0f));
 
             SlayerHat hat;
             actionGameObject.TryGetComponent<SlayerHat>(out hat);
@@ -65,7 +66,5 @@ public class ActionBelt : MonoBehaviour
             }
             actionGameObject.transform.position = actionActorTarget.transform.GetChild(0).transform.position;
         }
-
     }
-
 }

@@ -14,14 +14,14 @@ public class Bot : MonoBehaviour
 
     public CharacterModel characterModel;
     public GameWaypoint quadrantTarget = null; // Set when the character is assigned one
-    public float stoppingRange = 0.01f;
+    public float stoppingRange = 5.0f;
     public Vector3 quadrantSize = Vector3.zero;
 
     // Combat specific
     [SerializeField]
     protected GameObject chasedTarget;
     [SerializeField]
-    protected float attackRange = 3.0f;
+    protected float attackRange = 5.0f;
     [SerializeField]
     protected Animator animator;
     [SerializeField]
@@ -137,7 +137,7 @@ public class Bot : MonoBehaviour
 
         float wanderX = (quadrantTarget.transform.position - new Vector3(Random.Range(-maxRadius, maxRadius), 0.0f, 0.0f)).x;
         float wanderZ = (quadrantTarget.transform.position - new Vector3(0.0f, 0.0f, Random.Range(-maxRadius, maxRadius))).z;
-        wanderTarget = new Vector3(wanderX, 0.0f, wanderZ);        
+        wanderTarget = new Vector3(wanderX, transform.position.y, wanderZ);        
         wanderDistance = Random.Range(0, 25);
         // TODO decide if want to add jitter and factor in wanderRadius too
 

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine;
 
 [RequireComponent(typeof(Image))]
-public class DragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class DragAndDrop : MonoBehaviour,  IPointerEnterHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public bool dragOnSurfaces = true;
 
@@ -17,7 +17,7 @@ public class DragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     ActionBelt actionBelt;
 
     public CanvasGroup canvasGroup;
-
+    public AudioSource uiChimeSound;
     public delegate void OnDragActionBelt();
 
     private void Awake()
@@ -31,6 +31,7 @@ public class DragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private void Start()
     {
         canvasGroup = GetComponent<CanvasGroup>();
+        uiChimeSound = GetComponent<AudioSource>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -84,6 +85,22 @@ public class DragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             canvasGroup.alpha = 1.0f;
             canvasGroup.blocksRaycasts = true;
             Destroy(m_DraggingIcon);
+        }
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        canvasGroup.alpha = 0.7f;
+        if (!uiChimeSound.isPlaying)
+        {
+            uiChimeSound.Play();
+        }
+    }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        canvasGroup.alpha = 1.0f;
+        if (uiChimeSound.isPlaying)
+        {
+           uiChimeSound.Stop();
         }
     }
 }
