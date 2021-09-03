@@ -3,30 +3,100 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
 public class Combatant : Bot
 {
     [SerializeField]
     protected float chaseRange = 20.0f;
     [SerializeField]
     protected float sight = 15.0f;
-
+    public Renderer renderer; // for the bounds
     // Start is called before the first frame update
     private void Start()
     {
-        agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        characterModel = GetComponent<CharacterModel>();
-        animator = GetComponent<Animator>();
+        base.Start();
     }
-
     public void BehaviourSetup(GameWaypoint quadrantTarget)
     {
         this.quadrantTarget = quadrantTarget;
     }
-
     public override IEnumerator Wander()
     {
-        yield return StartCoroutine(base.Wander());
+        if (!agent)
+        {
+            agent = this.GetComponent<NavMeshAgent>();
+        }
+        if (!agent.isOnNavMesh || coolDown)
+        {
+            yield return null;
+        }
+        NavMeshPath plannedPath = new NavMeshPath();
+        bool success = false;
+        if (!success) // TODO make while condition here until success is true => I think there is an issue with the navmesh agent height?
+        {
+            wanderTarget = RandomizeWanderParameters();
+            NavMesh.CalculatePath(transform.position, wanderTarget, NavMesh.AllAreas, plannedPath);
+            for (int i = 0; i < plannedPath.corners.Length - 1; i++)
+            {
+                Debug.DrawLine(plannedPath.corners[i], plannedPath.corners[i + 1], Color.red);
+            }
+            success = plannedPath.status != NavMeshPathStatus.PathInvalid;
+        }
+        if(success)
+        {
+            agent.SetPath(plannedPath);
+        } else
+        {
+            // fall back => 
+            Vector3 randomPoint = transform.position + Random.insideUnitSphere * wanderRadius;
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
+            {
+                wanderTarget = hit.position;
+                Seek(wanderTarget);
+            }
+        }
+        BehaviourCoolDown(true);
+        yield return new WaitUntil(ArrivedAtDestination);
+        BehaviourCoolDown(false);
+        if (chasedTarget == null && !coolDown)
+        {
+            StartCoroutine(Wander());
+        }
+    }
+
+    public override Vector3 RandomizeWanderParameters()
+    {
+        Vector3 localWander;
+        // Terrain adjustment
+        float t_height = Terrain.activeTerrain.SampleHeight(wanderTarget);
+        float radius = Vector3.up.y;
+
+        Vector3 point;
+        int attempts = 0;
+        while (attempts < 5)
+        {
+            localWander= new Vector3(Random.Range(-wanderRadius, wanderRadius), 0.0f, Random.Range(-wanderRadius, wanderRadius));
+            localWander *= Random.Range(-wanderJitter, wanderJitter);
+            localWander.Normalize();
+            wanderTarget = transform.position + transform.TransformDirection(localWander);
+            wanderDistance = Random.Range(15, 45);
+            wanderTarget += new Vector3(wanderDistance, 0.0f, wanderDistance);
+            if (renderer != null)
+            {
+                radius = renderer.bounds.extents.magnitude;
+            }
+            wanderTarget += new Vector3(0.0f, t_height + 0.5f, 0.0f); // y => y + t_height + radius
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(wanderTarget, out hit, 25.0f, NavMesh.AllAreas))
+            {
+                wanderTarget = hit.position;
+                break;
+            }
+            ++attempts;
+        }
+
+        return wanderTarget;
+        //Debug.Log($"The quadrant Index: {quadrantIndex} for {GetComponent<CharacterModel>().NickName}, Wandering routine-going to: {wanderTarget} in world position, from quadrantTarget {quadrantTarget.transform.position}");
     }
 
     /// <summary>
@@ -36,14 +106,7 @@ public class Combatant : Bot
     /// <returns></returns>
     public override bool Seek(Vector3 target)
     {
-        base.Seek(target);
-
-        if (chasedTarget == null)
-        {
-            return false;
-        }
-
-        return true;
+        return base.Seek(target);
     }
 
     public virtual IEnumerator LockCombatState(float attackSpeed, Combatant opponent)

@@ -141,27 +141,17 @@ public class AIEntityController : MonoBehaviour
         // The action tool belt's factory specifies a spawnLocation
         if (spawnLocation.magnitude >= 0)
         {
-            //StartCoroutine(ResetAgent(spawn, spawnLocation));
-            // Find closest point to spawnLocation actor
-            if(spawn.GetComponent<NavMeshAgent>())
-            {
-                spawn.GetComponent<NavMeshAgent>().enabled = false;
-            }
             spawn.transform.position = spawnLocation;
-            GroundAgent(spawn);
-            //spawn.GetComponent<NavMeshAgent>().Warp(spawnLocation + new Vector3(0.0f, 0.0f, 5.0f));
         }
         return spawn;
     }
-    public GameObject spawn = null;
     public void GroundAgent(GameObject spawn)
-    {
-        this.spawn = spawn;
+    {        
         // Kinematic version
         Vector3 closestGroundPoint = Vector3.zero;
         if (closestGroundPoint.magnitude <= 0.0f)
         {
-            RaycastHit? ground = FindClosestGround();
+            RaycastHit? ground = FindClosestGround(spawn);
             // It can be null so we assign a dump in case and check its collider
             RaycastHit _ground = ground ?? new RaycastHit();
 
@@ -189,7 +179,7 @@ public class AIEntityController : MonoBehaviour
     /// Straight line down
     /// </summary>
     /// <returns></returns>
-    public RaycastHit? FindClosestGround()
+    public RaycastHit? FindClosestGround(GameObject spawn)
     {
         Debug.Log("Finding closest ground...");
         RaycastHit[] hits = Physics.RaycastAll(spawn.transform.position, transform.TransformDirection(Vector3.down), Mathf.Infinity);
@@ -204,10 +194,10 @@ public class AIEntityController : MonoBehaviour
         return null;
     }
 
-    public bool IsGrounded()
+    public bool IsGrounded(GameObject spawn)
     {
         Debug.Log("Checking if grounded...");
-        RaycastHit? ground = FindClosestGround();
+        RaycastHit? ground = FindClosestGround(spawn);
         RaycastHit _ground = ground ?? new RaycastHit();
 
         if(_ground.collider == null)
@@ -223,7 +213,7 @@ public class AIEntityController : MonoBehaviour
         return false;
     }
 
-    public bool IsGroundedOnNavmesh()
+    public bool IsGroundedOnNavmesh(GameObject spawn)
     {
         NavMeshHit navHit;
         if (NavMesh.FindClosestEdge(spawn.transform.position, out navHit, NavMesh.AllAreas))
@@ -235,7 +225,7 @@ public class AIEntityController : MonoBehaviour
         return false;
     }
 
-    public Vector3 FindNearestEdgeNavmesh()
+    public Vector3 FindNearestEdgeNavmesh(GameObject spawn)
     {
         Debug.Log("Finding nearest edge on navmesh.");
         NavMeshHit navHit;

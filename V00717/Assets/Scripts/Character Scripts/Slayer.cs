@@ -30,11 +30,11 @@ public class Slayer : Combatant
     {
         throw new System.NotImplementedException();
     }
-
     public override void Start()
     {
         base.Start();
         StartCoroutine(base.Wander());
+        stoppingRange = 6.10f;
     }
 
     public void LateUpdate()

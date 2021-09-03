@@ -140,10 +140,10 @@ GameObject:
   - component: {fileID: 125122616738315807}
   - component: {fileID: 6295093914096378981}
   - component: {fileID: 4210364392255378169}
-  - component: {fileID: 4929316629368577775}
   - component: {fileID: 3734300211242323455}
   - component: {fileID: 473802083660840641}
   - component: {fileID: 8902428095814405962}
+  - component: {fileID: 5538384567724311928}
   m_Layer: 0
   m_Name: snake_ANIM_REDO_008
   m_TagString: Untagged
@@ -200,28 +200,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5, z: 0.5}
   m_Center: {x: 0.69, y: 0.44, z: 0.26}
---- !u!195 &4929316629368577775
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 790195882757563557}
-  m_Enabled: 1
-  m_AgentTypeID: -1372625422
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0.1
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!54 &3734300211242323455
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -264,9 +242,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  wanderRadius: 0
-  wanderDistance: 0
-  wanderJitter: 0
+  wanderRadius: 10
+  wanderDistance: 15
+  wanderJitter: 2
   characterModel: {fileID: 0}
   quadrantTarget: {fileID: 0}
   stoppingRange: 0.01
@@ -282,8 +260,21 @@ MonoBehaviour:
   quadrantIndex: -1
   chaseRange: 20
   sight: 15
+  renderer: {fileID: 7599381528307303053}
   priorityCollider: {fileID: 0}
   isAttacking: 0
+--- !u!114 &5538384567724311928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790195882757563557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30ef3eb7a392715469395a3f0bd03210, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &940252540596696532
 GameObject:
   m_ObjectHideFlags: 0

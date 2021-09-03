@@ -2103,4 +2103,5 @@ MonoBehaviour:
   quadrantIndex: -1
   chaseRange: 20
   sight: 15
+  renderer: {fileID: 0}
   priorityCollider: {fileID: 0}

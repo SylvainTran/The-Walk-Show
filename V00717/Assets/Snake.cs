@@ -3,20 +3,29 @@ using UnityEngine.AI;
 
 public class Snake : Combatant
 {
+    Coroutine wanderRoutine = null;
+
     public void Start()
     {
-        base.Start();
-        StartCoroutine(base.Wander());
+        characterModel = GetComponent<CharacterModel>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     public void Update()
     {
-        if(!chasedTarget)
+        if(GetComponent<NavMeshAgent>() == null)
         {
-            StartCoroutine(base.Wander());
+            return;
         }
-        else if (chasedTarget || priorityCollider)
+        if (chasedTarget ==  null || priorityCollider == null)
+        {
+            if(wanderRoutine == null)
+            {
+                wanderRoutine = StartCoroutine(base.Wander());
+            }
+        }
+        else
         {
             StopAllCoroutines();
             if (priorityCollider)
@@ -43,6 +52,10 @@ public class Snake : Combatant
 
     public override void HandleCollisions()
     {
+        if (GetComponent<NavMeshAgent>() == null)
+        {
+            return;
+        }
         if (chasedTarget || priorityCollider) return;
 
         Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2, Quaternion.identity);
@@ -64,7 +77,6 @@ public class Snake : Combatant
     public override bool Seek(Vector3 target)
     {
         base.Seek(target);
-
         if (!chasedTarget) return false;
 
         if (chasedTarget.GetComponent<Snake>() && Vector3.Distance(target, transform.position) <= attackRange)

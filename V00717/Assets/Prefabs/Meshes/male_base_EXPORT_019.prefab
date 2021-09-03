@@ -2121,10 +2121,10 @@ MonoBehaviour:
   wanderJitter: 1
   characterModel: {fileID: 0}
   quadrantTarget: {fileID: 0}
-  stoppingRange: 0.01
+  stoppingRange: 6.1
   quadrantSize: {x: 0, y: 0, z: 0}
   chasedTarget: {fileID: 0}
-  attackRange: 3
+  attackRange: 6.5
   animator: {fileID: 0}
   health: 100
   damage: 1

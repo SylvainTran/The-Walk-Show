@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
+//[RequireComponent(typeof(NavMeshAgent))]
 public class Bot : MonoBehaviour
 {
     protected NavMeshAgent agent;
@@ -14,14 +14,14 @@ public class Bot : MonoBehaviour
 
     public CharacterModel characterModel;
     public GameWaypoint quadrantTarget = null; // Set when the character is assigned one
-    public float stoppingRange = 5.0f;
+    [SerializeField] protected float stoppingRange = 6.10f;
     public Vector3 quadrantSize = Vector3.zero;
 
     // Combat specific
     [SerializeField]
     protected GameObject chasedTarget;
     [SerializeField]
-    protected float attackRange = 5.0f;
+    protected float attackRange = 6.5f;
     [SerializeField]
     protected Animator animator;
     [SerializeField]
@@ -90,6 +90,10 @@ public class Bot : MonoBehaviour
     /// <returns></returns>
     public virtual IEnumerator Wander()
     {
+        if (!agent)
+        {
+            agent = this.GetComponent<NavMeshAgent>();
+        }
         if (!agent.isOnNavMesh || coolDown)
         {
             yield return null;
@@ -124,11 +128,11 @@ public class Bot : MonoBehaviour
     }
 
     private float maxRadius = 50.0f;
-    public void RandomizeWanderParameters()
+    public virtual Vector3 RandomizeWanderParameters()
     {
         if(quadrantTarget == null || quadrantIndex == -1)
         {
-            return;
+            return transform.position;
         }
         // The wandering is done using a max radius range around the quadrant Target
         // if past it, reset and pick a new wandering target inside the range of the quadrant target radius
@@ -138,10 +142,9 @@ public class Bot : MonoBehaviour
         float wanderX = (quadrantTarget.transform.position - new Vector3(Random.Range(-maxRadius, maxRadius), 0.0f, 0.0f)).x;
         float wanderZ = (quadrantTarget.transform.position - new Vector3(0.0f, 0.0f, Random.Range(-maxRadius, maxRadius))).z;
         wanderTarget = new Vector3(wanderX, transform.position.y, wanderZ);        
-        wanderDistance = Random.Range(0, 25);
-        // TODO decide if want to add jitter and factor in wanderRadius too
-
-        Debug.Log($"The quadrant Index: {quadrantIndex} for {GetComponent<CharacterModel>().NickName}, Wandering routine-going to: {wanderTarget} in world position, from quadrantTarget {quadrantTarget.transform.position}");
+        wanderDistance = Random.Range(0, 15);
+        wanderTarget += new Vector3(wanderDistance, 0.0f, wanderDistance);
+        return wanderTarget;
     }
 
     protected bool coolDown = false;
