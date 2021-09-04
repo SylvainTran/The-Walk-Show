@@ -46,22 +46,29 @@ public class ActionBelt : MonoBehaviour
             Func<GameObject> actionMethod = actionFactory.GetActionByIndex(actionIndex, actionActorTarget.transform.position);
             GameObject actionGameObject = actionMethod();
             // Setup - like freezing the actor temporarily
-            actionActorTarget.GetComponent<Bot>().FreezeAgent();
-            StartCoroutine(actionActorTarget.GetComponent<Bot>().ResetAgentIsStopped(5.0f));
-
-            SlayerHat hat;
-            actionGameObject.TryGetComponent<SlayerHat>(out hat);
-            if(hat != null)
+            if(actionActorTarget.GetComponent<Bot>())
             {
-                if(actionActorTarget.GetComponent<Slayer>() == null)
+                actionActorTarget.GetComponent<Bot>().FreezeAgent();
+                StartCoroutine(actionActorTarget.GetComponent<Bot>().ResetAgentIsStopped(5.0f));
+            }
+
+            Component[] components = { new SlayerHat() };// new GraveDiggerHat() };
+            // TODO We want to strip the actionGameObject without caring what component it has - we already determined it's the things we want
+            foreach(Component t in components)
+            {
+                if (actionGameObject.GetComponent(t.GetType()) != null)
                 {
-                    if(actionActorTarget.GetComponent<MainActor>())
+                    Type _t = t.GetType();
+                    if(actionActorTarget.GetComponent(_t) == null)
                     {
-                        Destroy(actionActorTarget.GetComponent<MainActor>());
+                        actionActorTarget.AddComponent(_t);
                     }
-                    actionActorTarget.AddComponent<Slayer>();
-                    Debug.Log($"{actionActorTarget.GetComponent<CharacterModel>().NickName} wears the hat of a slayer");
+                    Destroy(actionActorTarget.GetComponent<MainActor>());
+                    break;
                 }
+            }
+            if(actionGameObject.GetComponent<Snake>() == null)
+            {
                 actionGameObject.transform.SetParent(actionActorTarget.transform.GetChild(0));
             }
             actionGameObject.transform.position = actionActorTarget.transform.GetChild(0).transform.position;
@@ -69,5 +76,15 @@ public class ActionBelt : MonoBehaviour
         // Reset
         actionActorTargetUUID = -1;
         actionIndex = -1;
+    }
+
+    public void GetActorRoleHat(Component t)
+    {
+        switch (t)
+        { 
+            
+        
+        }
+
     }
 }

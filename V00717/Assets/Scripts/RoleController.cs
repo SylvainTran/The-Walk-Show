@@ -17,9 +17,10 @@ public class RoleController : MonoBehaviour
             case ACTOR_ROLES.VAMPIRE:
                 break;
             case ACTOR_ROLES.GRAVEDIGGER:
-                break;
+                Debug.Log("Assgning a grave digger role through toolbelt!");
+                return Instantiate(graveDiggerHatPrefab, t.transform, true);
             case ACTOR_ROLES.SLAYER:
-                Debug.Log("Assgning slayer role through toolbelt!");
+                Debug.Log("Assgning a slayer role through toolbelt!");
                 return Instantiate(slayerHatPrefab, t.transform, true);
                 break;
             case ACTOR_ROLES.FARMER:

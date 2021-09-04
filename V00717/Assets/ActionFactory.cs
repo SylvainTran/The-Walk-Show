@@ -63,16 +63,18 @@ public class ActionFactory
 
     public Func<GameObject> GetActionByIndex(int index, Vector3 areaOfAction = default)
     {
+        if(index >= 0 && index < 4)
+        {
+            return new Role(index).GetAction;
+        }  
         switch (index)
         {
             case 6:
                 return new SpawnPredator(areaOfAction).GetAction;
-            case 1:
+            case 7:
                 return new SpawnGift(areaOfAction).GetAction;
-            case (int)SeasonController.ACTOR_ROLES.SLAYER: // 2
-                return new Role(index).GetAction;
             default:
-                return new SpawnGift(areaOfAction).GetAction;
+                return new SpawnPredator(areaOfAction).GetAction;
         }
     }
 }

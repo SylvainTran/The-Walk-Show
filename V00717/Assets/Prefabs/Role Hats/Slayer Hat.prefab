@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 1643233120314361928}
   - component: {fileID: 463530484901367750}
   - component: {fileID: 6797796142236922073}
-  - component: {fileID: 7394918382249289891}
   - component: {fileID: 5732311579627065}
+  - component: {fileID: 7146800040578013091}
+  - component: {fileID: -2341729070029018982}
   m_Layer: 0
   m_Name: Slayer Hat
   m_TagString: Untagged
@@ -84,7 +85,54 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!195 &7394918382249289891
+--- !u!114 &5732311579627065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5110035158998783576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6097ebf5f590746bba0c9a2e5b15d74c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7146800040578013091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5110035158998783576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aee6f4f54ea7e3747a9ae222dc22a8d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  wanderRadius: 0
+  wanderDistance: 0
+  wanderJitter: 0
+  characterModel: {fileID: 0}
+  quadrantTarget: {fileID: 0}
+  stoppingRange: 6.1
+  quadrantSize: {x: 0, y: 0, z: 0}
+  chasedTarget: {fileID: 0}
+  attackRange: 6.1
+  animator: {fileID: 0}
+  health: 100
+  damage: 1
+  attackSpeed: 1
+  fleeingState: 0
+  gameController: {fileID: 0}
+  quadrantIndex: -1
+  chaseRange: 20
+  sight: 15
+  renderer: {fileID: 0}
+  priorityCollider: {fileID: 0}
+  ACTOR_SKIN: 0
+  isAttacking: 0
+--- !u!195 &-2341729070029018982
 NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,15 +154,3 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &5732311579627065
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5110035158998783576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6097ebf5f590746bba0c9a2e5b15d74c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

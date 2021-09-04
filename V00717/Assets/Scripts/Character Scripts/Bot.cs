@@ -39,9 +39,17 @@ public class Bot : MonoBehaviour
     // Start is called before the first frame update
     public virtual void Start()
     {
-        agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
+        {
+            agent = GetComponentInParent<NavMeshAgent>();
+        }
         characterModel = GetComponent<CharacterModel>();
         animator = GetComponent<Animator>();
+        if(animator == null)
+        {
+            animator = GetComponentInParent<Animator>();
+        }
         gameController = FindObjectOfType<GameController>();
     }
 
@@ -100,6 +108,7 @@ public class Bot : MonoBehaviour
         RandomizeWanderParameters();
         BehaviourCoolDown(true);
         Seek(wanderTarget);
+        GetComponent<Animator>().SetBool("isWalking", true);
         yield return new WaitUntil(ArrivedAtDestination);
         // Reset behaviour and pick a new wander target
         BehaviourCoolDown(false);
@@ -115,6 +124,10 @@ public class Bot : MonoBehaviour
     {
         StopAllCoroutines();
         NavMeshAgent agent = GetComponent<NavMeshAgent>();
+        if(agent == null)
+        {
+            agent = GetComponentInParent<NavMeshAgent>();
+        }
         if (agent == null || !agent.isOnNavMesh)
         {
             return;
