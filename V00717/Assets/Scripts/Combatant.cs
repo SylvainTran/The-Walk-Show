@@ -10,6 +10,8 @@ public class Combatant : Bot
     [SerializeField]
     protected float sight = 15.0f;
     public new Renderer renderer; // for the bounds
+    private bool isAttacked = false;
+    public bool IsAttacked { get { return isAttacked; } set { isAttacked = true; } }
     // Start is called before the first frame update
     private new void Start()
     {

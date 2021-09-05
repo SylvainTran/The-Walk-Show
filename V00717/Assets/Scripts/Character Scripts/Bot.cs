@@ -35,35 +35,21 @@ public class Bot : MonoBehaviour
 
     public GameController gameController;
     public int quadrantIndex = -1;
+    protected Transform parent;
 
     // Start is called before the first frame update
     public virtual void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        if (agent == null)
-        {
-            agent = GetComponentInParent<NavMeshAgent>();
-        }
-        characterModel = GetComponent<CharacterModel>();
-        animator = GetComponent<Animator>();
-        if(animator == null)
-        {
-            animator = GetComponentInParent<Animator>();
-        }
+        characterModel = GetComponentInParent<CharacterModel>();
+        animator = GetComponentInParent<Animator>();
         gameController = FindObjectOfType<GameController>();
+        parent = transform.parent.parent.transform;
+        agent = GetComponentInParent<NavMeshAgent>();
     }
 
     public virtual bool Seek(Vector3 location)
     {
-        if(!agent && this.GetComponent<UnityEngine.AI.NavMeshAgent>())
-        {
-            agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        }
-        if (!agent.isOnNavMesh)
-        {
-            Debug.Log("Agent not set on navmesh correctly.");
-            return false;
-        }
+        if (!agent || !agent.isOnNavMesh) return false;
         bool successful = agent.SetDestination(location);
 
         if (successful)
@@ -81,12 +67,9 @@ public class Bot : MonoBehaviour
     }
     public bool Flee(Vector3 location)
     {
-        if (!agent.isOnNavMesh)
-        {
-            return false;
-        }
-        Vector3 fleeVector = location - this.transform.position;
-        agent.SetDestination(this.transform.position - fleeVector);
+        if (!agent.isOnNavMesh) return false;
+        Vector3 fleeVector = location - parent.position;
+        agent.SetDestination(parent.position - fleeVector);
         return true;
     }
 
@@ -97,18 +80,11 @@ public class Bot : MonoBehaviour
     /// <returns></returns>
     public virtual IEnumerator Wander()
     {
-        if (!agent)
-        {
-            agent = this.GetComponent<NavMeshAgent>();
-        }
-        if (!agent.isOnNavMesh || coolDown)
-        {
-            yield return null;
-        }
+        if (!agent.isOnNavMesh || coolDown) yield return null;
         RandomizeWanderParameters();
         BehaviourCoolDown(true);
         Seek(wanderTarget);
-        GetComponent<Animator>().SetBool("isWalking", true);
+        animator.SetBool("isWalking", true);
         yield return new WaitUntil(ArrivedAtDestination);
         // Reset behaviour and pick a new wander target
         BehaviourCoolDown(false);
@@ -122,20 +98,12 @@ public class Bot : MonoBehaviour
 
     public void FreezeAgent()
     {
+        if (!agent || !agent.isOnNavMesh) return;
         StopAllCoroutines();
-        NavMeshAgent agent = GetComponent<NavMeshAgent>();
-        if(agent == null)
-        {
-            agent = GetComponentInParent<NavMeshAgent>();
-        }
-        if (agent == null || !agent.isOnNavMesh)
-        {
-            return;
-        }
         agent.isStopped = true;
         agent.ResetPath();
         BehaviourCoolDown(true);
-        GetComponent<Animator>().SetBool("isWalking", false);
+        animator.SetBool("isWalking", false);
     }
 
     public bool ArrivedAtDestination()
@@ -174,7 +142,7 @@ public class Bot : MonoBehaviour
     {
         BehaviourCoolDown(true);
         Seek(go.transform.position);
-        StartCoroutine(ResetBehaviourCooldown(UnityEngine.Random.Range(5.0f, 30.0f)));
+        StartCoroutine(ResetBehaviourCooldown(Random.Range(5.0f, 30.0f)));
         // Trigger 'paying hommage' event to event log and broadcast viewers chat for reactions. The key word is REACTION.
     }
 
@@ -187,14 +155,17 @@ public class Bot : MonoBehaviour
     public void Die()
     {
         BehaviourCoolDown(true);
-        GetComponent<NavMeshAgent>().isStopped = true;
+        agent.isStopped = true;
     }
 
     public IEnumerator ResetAgentIsStopped(float delay)
     {
         yield return new WaitForSeconds(delay);
-        agent.ResetPath();
-        this.agent.isStopped = false;
-        BehaviourCoolDown(false);
+        if(agent && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            agent.isStopped = false;
+            BehaviourCoolDown(false);
+        }
     }
 }

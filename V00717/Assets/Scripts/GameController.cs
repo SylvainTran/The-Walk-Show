@@ -183,7 +183,7 @@ public class GameController : MonoBehaviour
         // Set game state to the intro
         seasonController = new SeasonController(this);
         // Validate the stage we're in
-        if(currentGameState == GAME_STATE.SEASON_INTRO)
+        if(colonists.Count < 4) // TODO issue on my mac/mac big sur file reading? Missing playerstatistics file etc.
         {
             StartAuditions(CreationController.MAX_COLONISTS);
             SetupIntroPhase();

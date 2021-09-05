@@ -14,14 +14,18 @@ public class GroundCheck : MonoBehaviour
             Debug.Log("Touched the ground - disabling physics and re-enabling its navmesh component");
             GetComponent<Rigidbody>().useGravity = false;
             GetComponent<Rigidbody>().isKinematic = true;
-            NavMeshAgent nav = this.gameObject.AddComponent<NavMeshAgent>();
-            nav.agentTypeID = 0;
-            nav.radius = 0.3f;
-            if(GetComponent<MainActor>())
+            NavMeshAgent agent = GetComponent<NavMeshAgent>();
+            if(agent == null)
             {
-                nav.baseOffset = 2.1f;
+                agent = gameObject.AddComponent<NavMeshAgent>();
+                agent.agentTypeID = 0;
+                agent.radius = 0.3f;
+                if (GetComponentInChildren<MainActor>() || GetComponentInChildren<Zombie>())
+                {
+                    agent.baseOffset = 2.1f;
+                }
+                agent.ResetPath();
             }
-            nav.ResetPath();
         }
     }
 }

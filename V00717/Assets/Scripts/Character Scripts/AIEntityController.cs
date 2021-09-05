@@ -141,7 +141,7 @@ public class AIEntityController : MonoBehaviour
         // The action tool belt's factory specifies a spawnLocation
         if (spawnLocation.magnitude >= 0)
         {
-            spawn.transform.position = spawnLocation;
+            spawn.transform.position = spawnLocation + new Vector3(Random.Range(2f, 5f), 0.0f, Random.Range(2f, 5f));
         }
         return spawn;
     }

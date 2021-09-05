@@ -38,40 +38,41 @@ public class ActionBelt : MonoBehaviour
         }
         activeActionActorTargetUUID = actionActorTargetUUID;
         GameObject actionActorTarget = gameController.Colonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == activeActionActorTargetUUID);
+        GameObject hatTransform = actionActorTarget.transform.GetChild(0).gameObject; // hat
+
         // Invoke the action referred to by actionIndex
         if (actionActorTarget != null)
         {
-            Debug.Log($"Invoking {actionIndex} on {actionActorTarget.gameObject.GetComponent<CharacterModel>().NickName}");
+            Debug.Log($"Invoking {actionIndex} on {actionActorTarget.GetComponent<CharacterModel>().NickName}");
 
             Func<GameObject> actionMethod = actionFactory.GetActionByIndex(actionIndex, actionActorTarget.transform.position);
             GameObject actionGameObject = actionMethod();
-            // Setup - like freezing the actor temporarily
-            if(actionActorTarget.GetComponent<Bot>())
-            {
-                actionActorTarget.GetComponent<Bot>().FreezeAgent();
-                StartCoroutine(actionActorTarget.GetComponent<Bot>().ResetAgentIsStopped(5.0f));
-            }
+            // Spawn position
+            actionGameObject.transform.position = hatTransform.transform.position + new Vector3(UnityEngine.Random.Range(1.5f, 3.0f), 0.0f, UnityEngine.Random.Range(1.5f, 3.0f));
 
-            Component[] components = { new SlayerHat() };// new GraveDiggerHat() };
-            // TODO We want to strip the actionGameObject without caring what component it has - we already determined it's the things we want
+            // Setup - like freezing the actor temporarily
+            Bot botRole = hatTransform.GetComponentInChildren<Bot>();
+            if(actionGameObject.GetComponentInChildren<Snake>() || actionGameObject.GetComponentInChildren<Zombie>())
+            {
+                return;
+            }
+            if (botRole)
+            {
+                botRole.FreezeAgent();
+                StartCoroutine(botRole.ResetAgentIsStopped(5.0f));
+            }
+            Component[] components = {new MainActor(), new SlayerHat(), new GraveDiggerHat() };
+            // We want to strip the actionGameObject without caring what component it has - we already determined it's the things we want
             foreach(Component t in components)
             {
-                if (actionGameObject.GetComponent(t.GetType()) != null)
+                if (botRole.GetComponentInChildren(t.GetType()) != null)
                 {
-                    Type _t = t.GetType();
-                    if(actionActorTarget.GetComponent(_t) == null)
-                    {
-                        actionActorTarget.AddComponent(_t);
-                    }
-                    Destroy(actionActorTarget.GetComponent<MainActor>());
+                    Destroy(hatTransform.GetComponentInChildren(t.GetType()).gameObject);
                     break;
                 }
             }
-            if(actionGameObject.GetComponent<Snake>() == null)
-            {
-                actionGameObject.transform.SetParent(actionActorTarget.transform.GetChild(0));
-            }
-            actionGameObject.transform.position = actionActorTarget.transform.GetChild(0).transform.position;
+            actionGameObject.transform.SetParent(hatTransform.transform);
+            actionGameObject.transform.position = hatTransform.transform.position;
         }
         // Reset
         actionActorTargetUUID = -1;

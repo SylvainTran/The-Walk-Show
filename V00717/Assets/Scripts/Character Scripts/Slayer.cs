@@ -10,13 +10,14 @@ public class Slayer : Combatant
     {
         if (chasedTarget || priorityCollider) return;
 
-        Collider[] hitColliders = Physics.OverlapBox(transform.parent.parent.position, transform.parent.parent.transform.localScale / 2 * 32, Quaternion.identity);
+        Collider[] hitColliders = Physics.OverlapBox(parent.position, parent.transform.localScale / 2 * 32, Quaternion.identity);
         int i = 0;
         
         while (i < hitColliders.Length)
         {
             Collider collided = hitColliders[i];
-            if(collided.GetComponent<Snake>())
+            if (collided.gameObject == this.gameObject) continue;
+            if(collided.GetComponentInChildren<Snake>())
             {
                 chasedTarget = collided.gameObject;
                 priorityCollider = chasedTarget;
@@ -30,8 +31,8 @@ public class Slayer : Combatant
     {
         base.Start();
         StartCoroutine(base.Wander());
-        stoppingRange = 6.10f;
-        attackRange = 6.10f;
+        stoppingRange = 2.90f;
+        attackRange = 3.0f;
     }
 
     public void LateUpdate()
@@ -53,15 +54,16 @@ public class Slayer : Combatant
             } else if(dist <= stoppingRange + 1.0f) //  TODO + renderer.bounds.extents.z
             {
                 FreezeAgent();
-                if (chasedTarget.GetComponent<Snake>() && dist <= attackRange + 1.0f)
+                Snake opponent = chasedTarget.GetComponentInChildren<Snake>();
+                if (opponent && dist <= attackRange + 1.0f)
                 {
                     // Play animation and attack
                     if (!isAttacking)
                     {
                         isAttacking = true;
-                        //animator.SetBool("isAttacking", true);
-                        transform.parent.parent.transform.LookAt(chasedTarget.transform);
-                        Snake opponent = chasedTarget.GetComponent<Snake>();
+                        parent.LookAt(chasedTarget.transform);
+                        opponent.IsAttacked = true;
+                        animator.SetBool("isAttacking", true);
                         StartCoroutine(LockCombatState(attackSpeed, opponent));
                     }
                     return;
@@ -94,10 +96,6 @@ public class Slayer : Combatant
         {
             base.DealDamage(opponent);
             Debug.Log($"{GetComponentInParent<CharacterModel>().NickName} wacked at a snake!");
-            FreezeAgent();
-            opponent.GetComponent<Snake>().FreezeAgent();
-            opponent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-            animator.SetBool("isAttacking", true);
             yield return new WaitUntil(AnimationCompleted);
             StartCoroutine(LockCombatState(attackSpeed, opponent));
         }
