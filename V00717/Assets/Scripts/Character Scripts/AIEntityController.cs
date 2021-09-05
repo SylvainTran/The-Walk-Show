@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 using static SeasonController;
 public class AIEntityController : MonoBehaviour
@@ -105,35 +106,134 @@ public class AIEntityController : MonoBehaviour
     /// </summary>
     /// <param name="role"></param>
     /// <returns></returns>
-    public GameObject EntityFactory(ACTOR_ROLES role)
+    public GameObject EntityFactory(ACTOR_ROLES role, Vector3 spawnLocation = default)
     {
-        GameWaypoint spawnWaypoint;
+        // The default spawn location is a spawn way point, but can have one provided by the action factory.
+        GameWaypoint spawnWaypoint = null;
+        GameObject spawn = null;
         switch (role)
         {
             case ACTOR_ROLES.ZOMBIE:
-                spawnWaypoint = zombieWaypoints[UnityEngine.Random.Range(0, zombieWaypoints.Length)];
-                GameObject zombie = Instantiate(zombiePrefab, spawnWaypoint.transform);
-                zombie.gameObject.name = "Zombie"; // Temp, the prefab will have name and tag setup already
-                zombie.gameObject.tag = "Zombie";
-                if(zombie.GetComponent<Zombie>() == null)
+                spawnWaypoint = zombieWaypoints[Random.Range(0, zombieWaypoints.Length)];
+                spawn = Instantiate(zombiePrefab, spawnWaypoint.transform);
+                spawn.gameObject.name = "Zombie"; // Temp, the prefab will have name and tag setup already
+                spawn.gameObject.tag = "Zombie";
+
+                if(spawn.GetComponent<Zombie>() == null)
                 {
-                    zombie.AddComponent<Zombie>();
+                    spawn.AddComponent<Zombie>();
                 }
-                zombie.GetComponent<Zombie>().BehaviourSetup(spawnWaypoint);
-                return zombie;
+                spawn.GetComponent<Zombie>().BehaviourSetup(spawnWaypoint);
+                break;
             case ACTOR_ROLES.HUMAN:
-                GameObject human = Instantiate(humanPrefab, humanCityWaypoints[UnityEngine.Random.Range(0, humanCityWaypoints.Length)].transform);
-                human.gameObject.name = "Human";
-                human.gameObject.tag = "Human";
-                return human;
+                spawn = Instantiate(humanPrefab, humanCityWaypoints[Random.Range(0, humanCityWaypoints.Length)].transform);
+                spawn.gameObject.name = "Human";
+                spawn.gameObject.tag = "Human";
+                break;
             case ACTOR_ROLES.PREDATOR:
-                GameObject predator = Instantiate(predatorPrefabs[UnityEngine.Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[UnityEngine.Random.Range(0, predatorWaypoints.Length)].transform);
-                predator.gameObject.name = "Predator";
-                predator.gameObject.tag = "Predator";
-                return predator;
+                spawn = Instantiate(predatorPrefabs[Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[Random.Range(0, predatorWaypoints.Length)].transform);
+                spawn.gameObject.name = "Predator";
+                spawn.gameObject.tag = "Predator";
+                break;
             default:
                 break;
         }
+        // The action tool belt's factory specifies a spawnLocation
+        if (spawnLocation.magnitude >= 0)
+        {
+            spawn.transform.position = spawnLocation;
+        }
+        return spawn;
+    }
+    public void GroundAgent(GameObject spawn)
+    {        
+        // Kinematic version
+        Vector3 closestGroundPoint = Vector3.zero;
+        if (closestGroundPoint.magnitude <= 0.0f)
+        {
+            RaycastHit? ground = FindClosestGround(spawn);
+            // It can be null so we assign a dump in case and check its collider
+            RaycastHit _ground = ground ?? new RaycastHit();
+
+           if (_ground.collider != null)
+           {
+               spawn.transform.position =  _ground.point;
+           }
+           spawn.GetComponent<NavMeshAgent>().enabled = true;
+        }
+
+        //while (spawn.transform.position.y >= closestGroundPoint.y - spawn.transform.localScale.y * 1.25f)
+        //{
+        //    spawn.transform.Translate(Vector3.down * 1.2f * Time.deltaTime, Space.World);
+        //    spawn.transform.Rotate(Vector3.forward, 1.5f * Time.deltaTime);
+        //}
+        //StopAllCoroutines();
+        //if (!IsGroundedOnNavmesh())
+        //{
+        //    closestGroundPoint = FindNearestEdgeNavmesh();
+        //}
+        //spawn.transform.position = closestGroundPoint;
+    }
+
+    /// <summary>
+    /// Straight line down
+    /// </summary>
+    /// <returns></returns>
+    public RaycastHit? FindClosestGround(GameObject spawn)
+    {
+        Debug.Log("Finding closest ground...");
+        RaycastHit[] hits = Physics.RaycastAll(spawn.transform.position, transform.TransformDirection(Vector3.down), Mathf.Infinity);
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.collider.gameObject.CompareTag("Ground"))
+            {
+                Debug.Log("Found closest ground.");
+                return hit;
+            }
+        }
         return null;
+    }
+
+    public bool IsGrounded(GameObject spawn)
+    {
+        Debug.Log("Checking if grounded...");
+        RaycastHit? ground = FindClosestGround(spawn);
+        RaycastHit _ground = ground ?? new RaycastHit();
+
+        if(_ground.collider == null)
+        {
+            return false;
+        }
+        float dist = Vector3.Distance(spawn.transform.position, _ground.collider.gameObject.transform.position);
+        if (dist <= 1.0f)
+        {
+            Debug.Log("GROUNDED");
+            return true;
+        }
+        return false;
+    }
+
+    public bool IsGroundedOnNavmesh(GameObject spawn)
+    {
+        NavMeshHit navHit;
+        if (NavMesh.FindClosestEdge(spawn.transform.position, out navHit, NavMesh.AllAreas))
+        {
+            Debug.Log("Grounded on navmesh.");
+            return navHit.distance <= 1.0f;
+        }
+        Debug.Log("Not grounded on navmesh.");
+        return false;
+    }
+
+    public Vector3 FindNearestEdgeNavmesh(GameObject spawn)
+    {
+        Debug.Log("Finding nearest edge on navmesh.");
+        NavMeshHit navHit;
+        if (NavMesh.FindClosestEdge(spawn.transform.position, out navHit, NavMesh.AllAreas))
+        {
+            Debug.Log("Found closest point on navmesh.");
+            return navHit.position;
+        }
+        return navHit.position;
     }
 }

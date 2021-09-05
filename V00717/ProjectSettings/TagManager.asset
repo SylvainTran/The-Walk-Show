@@ -8,6 +8,9 @@ TagManager:
   - CharacterBot
   - SpecialEventRawImage
   - Zombie
+  - Human
+  - Predator
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -25,8 +28,8 @@ TagManager:
   - Bar
   - MenuFX
   - UI Icons
-  - 
-  - 
+  - MainActor
+  - Terrain
   - 
   - 
   - 

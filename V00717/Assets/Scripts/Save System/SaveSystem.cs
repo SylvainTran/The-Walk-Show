@@ -67,7 +67,7 @@ public class SaveSystem : MonoBehaviour
     // Save multiple objects to a text file
     public void SaveToJSONFile(string key, int nbElements, SavedArrayObject savedObject, string path, string successMessage)
     {
-        string output = "{\n\t";
+        string output = "{\n";
         //int len = nbElements + 1;
         int len = savedObject.colonists.Length;
         output += "\"" + key + "\":" + "[";

@@ -8,7 +8,7 @@ public class MainMenuController : SceneController
     public Button loadGameButton;
 
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         if (SaveSystem.SaveFileExists("PlayerStatistics.json") || SaveSystem.SaveFileExists("colonists.json") || SaveSystem.SaveFileExists("deadColonists.json"))
         {
