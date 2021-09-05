@@ -105,9 +105,31 @@ public class QuadrantMapper : MonoBehaviour
     {
         // Update the current quadrant location for the calculation of the next paths
         character.InQuadrant = newWaypoint.intKey;
-        character.GetComponent<Bot>().quadrantTarget = newWaypoint;
+        Bot brain = character.GetComponent<Bot>();
+        if (!brain)
+        {
+            brain = character.GetComponentInChildren<Bot>();
+            brain.quadrantTarget = newWaypoint;
+        }
 
+<<<<<<< Updated upstream
         bool successful = character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+=======
+        NavMeshAgent nav = character.gameObject.GetComponent<NavMeshAgent>();
+        // Update the current quadrant location for the calculation of the next paths
+        character.gameObject.GetComponent<Rigidbody>().useGravity = false;
+        character.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+
+        if (nav == null)
+        {
+            nav = character.gameObject.AddComponent<NavMeshAgent>();
+        }
+        nav.agentTypeID = 0;
+        nav.radius = 0.3f;
+        nav.baseOffset = 2.1f;
+
+        bool successful = brain.Seek(newWaypoint.transform.position);
+>>>>>>> Stashed changes
         if(successful)
         {
             character.GetComponent<Animator>().SetBool("isWalking", true);
@@ -121,7 +143,7 @@ public class QuadrantMapper : MonoBehaviour
         {
             while (attempt < MAX_ATTEMPTS)
             {
-                successful = character.GetComponent<Bot>().Seek(newWaypoint.transform.position);
+                successful = brain.Seek(newWaypoint.transform.position);
                 ++attempt;
             }
         }

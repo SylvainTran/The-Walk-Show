@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
-public class Bot : MonoBehaviour
+//[RequireComponent(typeof(NavMeshAgent))]
+public class EnemyBot
 {
     protected NavMeshAgent agent;
     public GameObject target;
@@ -14,18 +14,18 @@ public class Bot : MonoBehaviour
 
     public CharacterModel characterModel;
     public GameWaypoint quadrantTarget = null; // Set when the character is assigned one
-    public float stoppingRange = 0.01f;
+    [SerializeField] protected float stoppingRange = 6.10f;
     public Vector3 quadrantSize = Vector3.zero;
 
     // Combat specific
     [SerializeField]
     protected GameObject chasedTarget;
     [SerializeField]
-    protected float attackRange = 3.0f;
+    protected float attackRange = 6.10f;
     [SerializeField]
     protected Animator animator;
     [SerializeField]
-    protected float health = 100.0f;
+    public float health = 100.0f;
     [SerializeField]
     protected float damage = 1.0f;
     [SerializeField]
@@ -33,50 +33,23 @@ public class Bot : MonoBehaviour
     [SerializeField]
     protected bool fleeingState = false;
 
-    /// <summary>
-    /// If this is set to true, then the character will focus on finding gold in its quadrant
-    /// unless the player assigns a direct task to them.
-    /// </summary>
-    public bool seekGold = false;
+    public GameController gameController;
+    public int quadrantIndex = -1;
 
-    GameController gameController;
-    int quadrantIndex = -1;
-
-    public Transform parent;
     // Start is called before the first frame update
     public virtual void Start()
     {
-<<<<<<< Updated upstream
-        agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
         characterModel = GetComponent<CharacterModel>();
-        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
         animator = GetComponent<Animator>();
         gameController = FindObjectOfType<GameController>();
-        quadrantIndex = GetComponent<CharacterModel>().InQuadrant;
-        if (quadrantIndex > -1)
-        {
-            quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
-            gameController.quadrantMapper.GoToQuadrant(GetComponent<CharacterModel>(), quadrantTarget);
-        }
-=======
-        // TODO predator bots vs main actor bots for the location of the nav agent component (root vs hat)
-        agent = GetComponentInParent<NavMeshAgent>();
-        animator = GetComponentInParent<Animator>();
-        characterModel = GetComponentInParent<CharacterModel>();
-        gameController = FindObjectOfType<GameController>();
-        parent = transform.parent.parent;
->>>>>>> Stashed changes
     }
 
     public virtual bool Seek(Vector3 location)
     {
-<<<<<<< Updated upstream
-        if(!agent)
-=======
-        if(!agent && GetComponentInParent<NavMeshAgent>())
->>>>>>> Stashed changes
+        if (!agent && this.GetComponent<UnityEngine.AI.NavMeshAgent>())
         {
-            agent = GetComponentInParent<NavMeshAgent>();
+            agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
         }
         if (!agent.isOnNavMesh)
         {
@@ -87,14 +60,12 @@ public class Bot : MonoBehaviour
 
         if (successful)
         {
-            GetComponent<Animator>().SetBool("isWalking", true);
             coolDown = true;
             return true;
-        } else
+        }
+        else
         {
-            Debug.Log("Failed to set a new path.");
-            
-            if(agent.pathPending)
+            if (agent.pathPending)
             {
                 Debug.Log("The path is pending but hanged");
             }
@@ -107,9 +78,8 @@ public class Bot : MonoBehaviour
         {
             return false;
         }
-        Vector3 fleeVector = location - parent.position;
-        parent.LookAt(fleeVector);
-        agent.SetDestination(parent.position - fleeVector);
+        Vector3 fleeVector = location - this.transform.position;
+        agent.SetDestination(this.transform.position - fleeVector);
         return true;
     }
 
@@ -120,19 +90,20 @@ public class Bot : MonoBehaviour
     /// <returns></returns>
     public virtual IEnumerator Wander()
     {
-<<<<<<< Updated upstream
-=======
         // Trying to navigate from the hat is generally unfruitful
-        if(!agent.isOnNavMesh)
+        if (!agent)
         {
-            Vector3 randomPoint = parent.position + Random.insideUnitSphere * wanderRadius;
+            agent = this.GetComponent<NavMeshAgent>();
+        }
+        else if (!agent.isOnNavMesh)
+        {
+            Vector3 randomPoint = transform.position + Random.insideUnitSphere * wanderRadius;
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
             {
-               agent.Warp(hit.position);
+                agent.Warp(hit.position);
             }
         }
->>>>>>> Stashed changes
         if (!agent.isOnNavMesh || coolDown)
         {
             yield return null;
@@ -140,27 +111,26 @@ public class Bot : MonoBehaviour
         RandomizeWanderParameters();
         BehaviourCoolDown(true);
         Seek(wanderTarget);
-<<<<<<< Updated upstream
-=======
         animator.SetBool("isWalking", true);
->>>>>>> Stashed changes
         yield return new WaitUntil(ArrivedAtDestination);
         // Reset behaviour and pick a new wander target
         BehaviourCoolDown(false);
 
         // Repeat if no chasing target
-        if (chasedTarget == null)
+        if (chasedTarget == null && !coolDown)
         {
             StartCoroutine(Wander());
         }
     }
 
-<<<<<<< Updated upstream
-=======
     public void FreezeAgent()
     {
         StopAllCoroutines();
-        NavMeshAgent agent = GetComponentInParent<NavMeshAgent>();
+        NavMeshAgent agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
+        {
+            agent = GetComponentInParent<NavMeshAgent>();
+        }
         if (agent == null || !agent.isOnNavMesh)
         {
             return;
@@ -168,25 +138,21 @@ public class Bot : MonoBehaviour
         agent.isStopped = true;
         agent.ResetPath();
         BehaviourCoolDown(true);
-        GetComponentInParent<Animator>().SetBool("isWalking", false);
+        GetComponent<Animator>().SetBool("isWalking", false);
     }
 
->>>>>>> Stashed changes
     public bool ArrivedAtDestination()
     {
+        if (agent == null || !agent.isOnNavMesh) return false;
         return agent.remainingDistance <= stoppingRange;
     }
 
     private float maxRadius = 50.0f;
-    public void RandomizeWanderParameters()
+    public virtual Vector3 RandomizeWanderParameters()
     {
-        if(quadrantTarget == null)
+        if (quadrantTarget == null || quadrantIndex == -1)
         {
-<<<<<<< Updated upstream
-            return;
-=======
-            return parent.position;
->>>>>>> Stashed changes
+            return transform.position;
         }
         // The wandering is done using a max radius range around the quadrant Target
         // if past it, reset and pick a new wandering target inside the range of the quadrant target radius
@@ -195,11 +161,10 @@ public class Bot : MonoBehaviour
 
         float wanderX = (quadrantTarget.transform.position - new Vector3(Random.Range(-maxRadius, maxRadius), 0.0f, 0.0f)).x;
         float wanderZ = (quadrantTarget.transform.position - new Vector3(0.0f, 0.0f, Random.Range(-maxRadius, maxRadius))).z;
-        wanderTarget = new Vector3(wanderX, 0.0f, wanderZ);        
-        wanderDistance = Random.Range(0, 25);
-        // TODO decide if want to add jitter and factor in wanderRadius too
-
-        Debug.Log($"The quadrant Index: {quadrantIndex} for {GetComponent<CharacterModel>().NickName}, Wandering routine-going to: {wanderTarget} in world position, from quadrantTarget {quadrantTarget.transform.position}");
+        wanderTarget = new Vector3(wanderX, transform.position.y, wanderZ);
+        wanderDistance = Random.Range(0, 15);
+        wanderTarget += new Vector3(wanderDistance, 0.0f, wanderDistance);
+        return wanderTarget;
     }
 
     protected bool coolDown = false;
@@ -212,7 +177,7 @@ public class Bot : MonoBehaviour
     {
         BehaviourCoolDown(true);
         Seek(go.transform.position);
-        StartCoroutine(ResetBehaviourCooldown(Random.Range(5.0f, 30.0f)));
+        StartCoroutine(ResetBehaviourCooldown(UnityEngine.Random.Range(5.0f, 30.0f)));
         // Trigger 'paying hommage' event to event log and broadcast viewers chat for reactions. The key word is REACTION.
     }
 
@@ -231,6 +196,8 @@ public class Bot : MonoBehaviour
     public IEnumerator ResetAgentIsStopped(float delay)
     {
         yield return new WaitForSeconds(delay);
+        agent.ResetPath();
         this.agent.isStopped = false;
+        BehaviourCoolDown(false);
     }
 }
