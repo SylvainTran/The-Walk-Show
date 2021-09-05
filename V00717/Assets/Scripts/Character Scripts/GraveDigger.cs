@@ -3,21 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-<<<<<<< Updated upstream
-public class GraveDigger : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-=======
 /// <summary>
 /// Garbage collector actor role.
 /// Picks up dead actors (chasedTarget) and puts them in the nearest graveyard (or creates one if none).
@@ -89,7 +74,6 @@ public class GraveDigger : Bot
                     if (!isDigging)
                     {
                         isDigging = true;
-                        //animator.SetBool("isAttacking", true);
                         transform.parent.parent.transform.LookAt(chasedTarget.transform);
                         StartCoroutine(LockDigState(attackSpeed, chasedTarget));
                     }
@@ -134,5 +118,4 @@ public class GraveDigger : Bot
         Debug.Log($"{GetComponentInParent<CharacterModel>().NickName} started moving the corpse.");
     }
 
->>>>>>> Stashed changes
 }

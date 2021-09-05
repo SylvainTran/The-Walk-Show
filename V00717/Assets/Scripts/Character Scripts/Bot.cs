@@ -46,35 +46,17 @@ public class Bot : MonoBehaviour
     // Start is called before the first frame update
     public virtual void Start()
     {
-<<<<<<< Updated upstream
-        agent = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        characterModel = GetComponent<CharacterModel>();
-        quadrantSize = new Vector3(30.0f, 0.0f, 30.0f); // Get this from actual mesh/plane size
-        animator = GetComponent<Animator>();
-        gameController = FindObjectOfType<GameController>();
-        quadrantIndex = GetComponent<CharacterModel>().InQuadrant;
-        if (quadrantIndex > -1)
-        {
-            quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
-            gameController.quadrantMapper.GoToQuadrant(GetComponent<CharacterModel>(), quadrantTarget);
-        }
-=======
         // TODO predator bots vs main actor bots for the location of the nav agent component (root vs hat)
         agent = GetComponentInParent<NavMeshAgent>();
         animator = GetComponentInParent<Animator>();
         characterModel = GetComponentInParent<CharacterModel>();
         gameController = FindObjectOfType<GameController>();
         parent = transform.parent.parent;
->>>>>>> Stashed changes
     }
 
     public virtual bool Seek(Vector3 location)
     {
-<<<<<<< Updated upstream
-        if(!agent)
-=======
         if(!agent && GetComponentInParent<NavMeshAgent>())
->>>>>>> Stashed changes
         {
             agent = GetComponentInParent<NavMeshAgent>();
         }
@@ -120,8 +102,6 @@ public class Bot : MonoBehaviour
     /// <returns></returns>
     public virtual IEnumerator Wander()
     {
-<<<<<<< Updated upstream
-=======
         // Trying to navigate from the hat is generally unfruitful
         if(!agent.isOnNavMesh)
         {
@@ -132,7 +112,6 @@ public class Bot : MonoBehaviour
                agent.Warp(hit.position);
             }
         }
->>>>>>> Stashed changes
         if (!agent.isOnNavMesh || coolDown)
         {
             yield return null;
@@ -140,10 +119,7 @@ public class Bot : MonoBehaviour
         RandomizeWanderParameters();
         BehaviourCoolDown(true);
         Seek(wanderTarget);
-<<<<<<< Updated upstream
-=======
         animator.SetBool("isWalking", true);
->>>>>>> Stashed changes
         yield return new WaitUntil(ArrivedAtDestination);
         // Reset behaviour and pick a new wander target
         BehaviourCoolDown(false);
@@ -155,8 +131,6 @@ public class Bot : MonoBehaviour
         }
     }
 
-<<<<<<< Updated upstream
-=======
     public void FreezeAgent()
     {
         StopAllCoroutines();
@@ -171,7 +145,6 @@ public class Bot : MonoBehaviour
         GetComponentInParent<Animator>().SetBool("isWalking", false);
     }
 
->>>>>>> Stashed changes
     public bool ArrivedAtDestination()
     {
         return agent.remainingDistance <= stoppingRange;
@@ -182,11 +155,7 @@ public class Bot : MonoBehaviour
     {
         if(quadrantTarget == null)
         {
-<<<<<<< Updated upstream
-            return;
-=======
             return parent.position;
->>>>>>> Stashed changes
         }
         // The wandering is done using a max radius range around the quadrant Target
         // if past it, reset and pick a new wandering target inside the range of the quadrant target radius
