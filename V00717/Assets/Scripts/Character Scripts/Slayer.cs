@@ -5,12 +5,15 @@ using UnityEngine;
 public class Slayer : Combatant
 {
     public int ACTOR_SKIN;
-
+    public Vector3 sensorRange = Vector3.zero;
+    public Coroutine combatRoutine;
+    public Coroutine wanderRoutine;
+   
     public override void HandleCollisions()
     {
         if (chasedTarget || priorityCollider) return;
 
-        Collider[] hitColliders = Physics.OverlapBox(parent.position, parent.transform.localScale / 2 * 32, Quaternion.identity);
+        Collider[] hitColliders = Physics.OverlapBox(parent.position, sensorRange, Quaternion.identity);
         int i = 0;
         
         while (i < hitColliders.Length)
@@ -31,8 +34,10 @@ public class Slayer : Combatant
     {
         base.Start();
         StartCoroutine(base.Wander());
-        stoppingRange = 2.90f;
-        attackRange = 3.0f;
+        damage = 20.0f;
+        stoppingRange = 2.9f;
+        attackRange = stoppingRange + 1.0f;
+        sensorRange = new Vector3(15.0f, 1.0f, 15.0f);
     }
 
     public void LateUpdate()
@@ -44,6 +49,9 @@ public class Slayer : Combatant
     {
         if(chasedTarget != null)
         {
+            if (wanderRoutine != null)
+                StopCoroutine(wanderRoutine);
+            wanderRoutine = null;
             // TODO funny observation about the hat being the new transform reference/point of origin => What about it being displaced
             float dist = Vector3.Distance(chasedTarget.transform.position, transform.parent.parent.transform.position);
             if (dist >= chaseRange)
@@ -51,35 +59,43 @@ public class Slayer : Combatant
                 chasedTarget = null;
                 priorityCollider = null;
                 return;
-            } else if(dist <= stoppingRange + 1.0f) //  TODO + renderer.bounds.extents.z
+            } else if(dist <= sensorRange.magnitude) //  TODO + renderer.bounds.extents.z
             {
-                FreezeAgent();
                 Snake opponent = chasedTarget.GetComponentInChildren<Snake>();
-                if (opponent && dist <= attackRange + 1.0f)
+                if (opponent && dist <= attackRange)
                 {
                     // Play animation and attack
                     if (!isAttacking)
                     {
                         isAttacking = true;
+                        FreezeAgent();
                         parent.LookAt(chasedTarget.transform);
-                        opponent.IsAttacked = true;
                         animator.SetBool("isAttacking", true);
-                        StartCoroutine(LockCombatState(attackSpeed, opponent));
+                        animator.SetBool("isWalking", false);
+                        combatRoutine = StartCoroutine(LockCombatState(attackSpeed, opponent));
                     }
                     return;
                 }
             }
-            if (priorityCollider)
+            if(dist >= stoppingRange)
             {
-                base.Seek(priorityCollider.transform.position);
+                if (priorityCollider)
+                {
+                    base.Seek(priorityCollider.transform.position);
+                }
+                else
+                {
+                    base.Seek(chasedTarget.gameObject.transform.position);
+                }
+                animator.SetBool("isWalking", true);
             }
-            else
-            {
-                base.Seek(chasedTarget.gameObject.transform.position);
-            }
-        } else
+        }
+        else
         {
-            StartCoroutine(base.Wander());
+            if (wanderRoutine == null)
+            {
+                wanderRoutine = StartCoroutine(base.Wander());
+            }
         }
     }
 
@@ -91,19 +107,27 @@ public class Slayer : Combatant
     public bool isAttacking = false;
     public override IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
     {
-        yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(attackSpeed);
+        if(health <= 0)
+        {
+            Die();
+        }
         if (opponent.health > 0.0f)
         {
             base.DealDamage(opponent);
-            Debug.Log($"{GetComponentInParent<CharacterModel>().NickName} wacked at a snake!");
+            Debug.Log($"{GetComponentInParent<CharacterModel>().NickName} wacked at a snake! Snake HP: {opponent.health}");
             yield return new WaitUntil(AnimationCompleted);
             StartCoroutine(LockCombatState(attackSpeed, opponent));
         }
         else
         {
-            StopAllCoroutines();
-            StartCoroutine(ResetAgentIsStopped(1.0f));
+            isAttacking = false;
+            chasedTarget = null;
+            priorityCollider = null;
             animator.SetBool("isAttacking", false);
+            StartCoroutine(ResetAgentIsStopped(0.0f));
+            StopCoroutine(combatRoutine);
+            base.Wander();
         }
     }
 }

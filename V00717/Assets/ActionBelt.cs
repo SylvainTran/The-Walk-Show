@@ -58,8 +58,8 @@ public class ActionBelt : MonoBehaviour
             }
             if (botRole)
             {
-                botRole.FreezeAgent();
-                StartCoroutine(botRole.ResetAgentIsStopped(5.0f));
+                //botRole.FreezeAgent();
+                //StartCoroutine(botRole.ResetAgentIsStopped(5.0f));
             }
             Component[] components = {new MainActor(), new SlayerHat(), new GraveDiggerHat() };
             // We want to strip the actionGameObject without caring what component it has - we already determined it's the things we want

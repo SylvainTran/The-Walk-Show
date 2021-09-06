@@ -27,7 +27,7 @@ public class Bot : MonoBehaviour
     [SerializeField]
     public float health = 100.0f;
     [SerializeField]
-    protected float damage = 1.0f;
+    protected float damage = 20.0f;
     [SerializeField]
     protected float attackSpeed = 1.0f; // Delay in s before next attack
     [SerializeField]
@@ -40,11 +40,11 @@ public class Bot : MonoBehaviour
     // Start is called before the first frame update
     public virtual void Start()
     {
-        characterModel = GetComponentInParent<CharacterModel>();
-        animator = GetComponentInParent<Animator>();
         gameController = FindObjectOfType<GameController>();
         parent = transform.parent.parent.transform;
-        agent = GetComponentInParent<NavMeshAgent>();
+        agent = parent.GetComponent<NavMeshAgent>();
+        characterModel = parent.GetComponent<CharacterModel>();
+        animator = parent.GetComponent<Animator>();
     }
 
     public virtual bool Seek(Vector3 location)
@@ -154,8 +154,19 @@ public class Bot : MonoBehaviour
 
     public void Die()
     {
+        StopAllCoroutines();
         BehaviourCoolDown(true);
         agent.isStopped = true;
+        Debug.Log($"I'm Dead: {this.gameObject.name}");
+        if(GetComponent<Snake>() || GetComponent<Zombie>())
+        {
+            Destroy(parent.gameObject);
+        } else
+        {
+            //Death Animation !!!
+            animator.SetBool("isDead", true);
+            // Alert subscribers (literally)
+        }
     }
 
     public IEnumerator ResetAgentIsStopped(float delay)

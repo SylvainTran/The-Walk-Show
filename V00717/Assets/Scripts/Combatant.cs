@@ -54,6 +54,7 @@ public class Combatant : Bot
             }
         }
         BehaviourCoolDown(true);
+        animator.SetBool("isWalking", true);
         yield return new WaitUntil(ArrivedAtDestination);
         BehaviourCoolDown(false);
         if (chasedTarget == null && !coolDown)
@@ -110,6 +111,10 @@ public class Combatant : Bot
     public virtual IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
     {
         yield return new WaitForSeconds(attackSpeed);
+        if (health <= 0)
+        {
+            Die();
+        }
         if (opponent.health > 0.0f)
         {
             DealDamage(opponent);
@@ -185,12 +190,20 @@ public class Combatant : Bot
     public void DealDamage(Combatant opponent)
     {
         Debug.Log($"{this.gameObject.name}  dealt {damage} damage to {opponent.gameObject.name}");
-        opponent.TakeDamage(damage);
+        opponent.TakeDamage(this.gameObject, damage);
     }
 
-    public void TakeDamage(float damage)
+    public virtual void TakeDamage(GameObject attacker, float damage)
     {
+        isAttacked = true;
         health -= damage;
+        parent.transform.LookAt(attacker.transform);
+
+        StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
+        if(health <= 0.0f)
+        {
+            Die();
+        }
     }
 
     public void SetLastEvent(string lastEvent)

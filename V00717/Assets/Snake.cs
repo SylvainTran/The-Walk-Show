@@ -4,12 +4,12 @@ using UnityEngine.AI;
 public class Snake : Combatant
 {
     Coroutine wanderRoutine = null;
+    Coroutine combatRoutine = null;
+    public bool countering;
     
     public  new void Start()
     {
         base.Start();
-        characterModel = GetComponent<CharacterModel>();
-        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -21,6 +21,13 @@ public class Snake : Combatant
             if (agent == null)
                 return;
         }
+        if (IsAttacked)
+        {
+            FreezeAgent();
+            GetComponentInParent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
+            countering = true;
+            return;
+        }
         if (chasedTarget ==  null || priorityCollider == null)
         {
             if(wanderRoutine == null)
@@ -30,7 +37,7 @@ public class Snake : Combatant
         }
         else
         {
-            StopAllCoroutines();
+            //StopAllCoroutines();
             if (priorityCollider)
             {
                 Seek(priorityCollider.transform.position);
@@ -51,11 +58,6 @@ public class Snake : Combatant
     public void LateUpdate()
     {
         HandleCollisions();
-        if(IsAttacked)
-        {
-            FreezeAgent();
-            //GetComponentInParent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        }
     }
 
     public override void HandleCollisions()
@@ -103,5 +105,20 @@ public class Snake : Combatant
             return true;
         }
         return false;
+    }
+    public override void TakeDamage(GameObject attacker, float damage)
+    {
+        health -= damage;
+        parent.transform.LookAt(attacker.transform);
+        countering = true;
+        if(countering && combatRoutine == null)
+        {
+            Debug.Log($"Snake defending from douche {attacker.gameObject.name}");
+            combatRoutine = StartCoroutine(base.LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
+        }
+        if (health <= 0.0f)
+        {
+            Die();
+        }
     }
 }

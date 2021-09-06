@@ -168,18 +168,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  wanderRadius: 0
-  wanderDistance: 0
-  wanderJitter: 0
+  wanderRadius: 15
+  wanderDistance: 25
+  wanderJitter: 3
   characterModel: {fileID: 0}
   quadrantTarget: {fileID: 0}
-  stoppingRange: 6.1
+  stoppingRange: 3
   quadrantSize: {x: 0, y: 0, z: 0}
   chasedTarget: {fileID: 0}
-  attackRange: 6.1
+  attackRange: 3.5
   animator: {fileID: 0}
   health: 100
-  damage: 1
+  damage: 50
   attackSpeed: 1
   fleeingState: 0
   gameController: {fileID: 0}
@@ -188,6 +188,7 @@ MonoBehaviour:
   sight: 15
   renderer: {fileID: 0}
   priorityCollider: {fileID: 0}
+  countering: 0
   isAttacking: 0
 --- !u!1 &1518167114035217205
 GameObject:
