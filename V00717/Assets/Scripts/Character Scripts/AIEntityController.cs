@@ -113,27 +113,22 @@ public class AIEntityController : MonoBehaviour
         GameObject spawn = null;
         switch (role)
         {
+            case ACTOR_ROLES.PREDATOR:
+                spawn = Instantiate(predatorPrefabs[Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[Random.Range(0, predatorWaypoints.Length)].transform);
+                spawn.gameObject.name = "Predator";
+                spawn.gameObject.tag = "Predator";
+                break;
             case ACTOR_ROLES.ZOMBIE:
                 spawnWaypoint = zombieWaypoints[Random.Range(0, zombieWaypoints.Length)];
                 spawn = Instantiate(zombiePrefab, spawnWaypoint.transform);
                 spawn.gameObject.name = "Zombie"; // Temp, the prefab will have name and tag setup already
                 spawn.gameObject.tag = "Zombie";
-
-                if(spawn.GetComponent<Zombie>() == null)
-                {
-                    spawn.AddComponent<Zombie>();
-                }
-                spawn.GetComponent<Zombie>().BehaviourSetup(spawnWaypoint);
+                spawn.GetComponentInChildren<Zombie>().BehaviourSetup(spawnWaypoint);
                 break;
             case ACTOR_ROLES.HUMAN:
                 spawn = Instantiate(humanPrefab, humanCityWaypoints[Random.Range(0, humanCityWaypoints.Length)].transform);
                 spawn.gameObject.name = "Human";
                 spawn.gameObject.tag = "Human";
-                break;
-            case ACTOR_ROLES.PREDATOR:
-                spawn = Instantiate(predatorPrefabs[Random.Range(0, predatorPrefabs.Count)], predatorWaypoints[Random.Range(0, predatorWaypoints.Length)].transform);
-                spawn.gameObject.name = "Predator";
-                spawn.gameObject.tag = "Predator";
                 break;
             default:
                 break;

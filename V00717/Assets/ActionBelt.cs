@@ -48,14 +48,17 @@ public class ActionBelt : MonoBehaviour
             Func<GameObject> actionMethod = actionFactory.GetActionByIndex(actionIndex, actionActorTarget.transform.position);
             GameObject actionGameObject = actionMethod();
             // Spawn position
-            actionGameObject.transform.position = hatTransform.transform.position + new Vector3(UnityEngine.Random.Range(1.5f, 3.0f), 0.0f, UnityEngine.Random.Range(1.5f, 3.0f));
+            if (actionGameObject.GetComponentInChildren<Snake>())
+            {
+                actionGameObject.transform.position = hatTransform.transform.position + new Vector3(UnityEngine.Random.Range(1.5f, 3.0f), 0.0f, UnityEngine.Random.Range(1.5f, 3.0f));
+            }
 
-            // Setup - like freezing the actor temporarily
-            Bot botRole = hatTransform.GetComponentInChildren<Bot>();
-            if(actionGameObject.GetComponentInChildren<Snake>() || actionGameObject.GetComponentInChildren<Zombie>())
+            if (actionGameObject.GetComponentInChildren<Snake>() || actionGameObject.GetComponentInChildren<Zombie>())
             {
                 return;
             }
+            // Setup - like freezing the actor temporarily
+            Bot botRole = hatTransform.GetComponentInChildren<Bot>();
             if (botRole)
             {
                 //botRole.FreezeAgent();

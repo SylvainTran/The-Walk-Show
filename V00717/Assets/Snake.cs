@@ -7,7 +7,6 @@ public class Snake : Combatant
     Coroutine wanderRoutine = null;
     Coroutine combatRoutine = null;
     public bool countering;
-    public Vector3 sensorRange = Vector3.zero;
 
     public  new void Start()
     {
@@ -79,18 +78,21 @@ public class Snake : Combatant
         while (i < hitColliders.Length)
         {
             Collider collided = hitColliders[i];
-            i++;
-            if (collided.gameObject == parent.gameObject) continue;
-
+            if (collided.gameObject == parent.gameObject)
+            {
+                i++;
+                continue;
+            }
             if (collided.GetComponentInChildren<Bot>())
             {
                 chasedTarget = collided.gameObject;
                 priorityCollider = chasedTarget;
                 break;
             }
+            i++;
         }
     }
-    public bool isAttacking = false;
+
     public override bool Seek(Vector3 target)
     {
         base.Seek(target);

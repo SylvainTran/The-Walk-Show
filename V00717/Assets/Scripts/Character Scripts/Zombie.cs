@@ -3,8 +3,13 @@ using UnityEngine;
 
 public class Zombie : Combatant
 {
+    private new void Start()
+    {
+        base.Start();
+        sensorRange = new Vector3(15.0f, 0.0f, 15.0f);
+    }
 
-    public override void DetectMainActors()
+    public override void HandleCollisions()
     {
         // Prioritize the in-range ones
         if(priorityCollider)
@@ -12,38 +17,23 @@ public class Zombie : Combatant
             return;
         }
         // TODO should we use a line of sight or collider? But the game primarily uses waypoints...
-        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale * sight, Quaternion.identity);
+        Collider[] hitColliders = Physics.OverlapBox(parent.position, sensorRange, Quaternion.identity);
         int i = 0;
         //Check when there is a new collider coming into contact with the box
         while (i < hitColliders.Length)
         {
             Collider collided = hitColliders[i];
-            if (collided.gameObject.GetComponent<MainActor>())
+            if (collided.gameObject == parent.gameObject)
             {
-                if (collided.gameObject.GetComponent<MainActor>().ActorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
-                {
-                    chasedTarget = hitColliders[i].gameObject;
-                    break;
-                }
+                i++;
+                continue;
             }
-            i++;
-        }
-    }
 
-    public override void HandleCollisions()
-    {
-        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, transform.localScale / 2, Quaternion.identity);
-        int i = 0;
-        //Check when there is a new collider coming into contact with the box
-        while (i < hitColliders.Length)
-        {
-            Collider collided = hitColliders[i];
-            if (collided.gameObject.GetComponent<MainActor>())
+            if (collided.gameObject.GetComponentInChildren<Bot>())
             {
-                if (collided.gameObject.GetComponent<MainActor>().ActorRole != (int)SeasonController.ACTOR_ROLES.VAMPIRE)
+                if (collided.gameObject.GetComponentInChildren<Vampire>() == null)
                 {
                     chasedTarget = hitColliders[i].gameObject;
-                    priorityCollider = chasedTarget; // TODO reset to null if dead or out of range
                     break;
                 }
             }
@@ -56,7 +46,7 @@ public class Zombie : Combatant
         base.Seek(target);
 
         if (!chasedTarget) return false;
-        if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(target, transform.position) <= attackRange)
+        if (chasedTarget.GetComponent<CharacterModel>() && Vector3.Distance(target, parent.position) <= attackRange)
         {
             Combatant opponent = chasedTarget.GetComponent<Combatant>();
             StartCoroutine(LockCombatState(attackSpeed, opponent));
@@ -68,30 +58,17 @@ public class Zombie : Combatant
     // Update is called once per frame
     private void Update()
     {
-        if(chasedTarget == null)
+        if(chasedTarget == null || priorityCollider == null)
         {
-            StartCoroutine(base.Wander());
+            wanderRoutine = StartCoroutine(base.Wander());
         } else
         {
-            if(priorityCollider)
-            {
-                Seek(priorityCollider.transform.position);
-            } else
-            {
-                Seek(chasedTarget.gameObject.transform.position);
-            }
-            if (Vector3.Distance(chasedTarget.transform.position, transform.position) >= chaseRange)
-            {
-                chasedTarget = null;
-                priorityCollider = null;
-                StopAllCoroutines();
-            }
+            Hunt();
         }
     }
 
     void FixedUpdate()
     {
         HandleCollisions();
-        DetectMainActors();
     }
 }

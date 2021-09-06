@@ -12,6 +12,11 @@ public class Combatant : Bot
     public new Renderer renderer; // for the bounds
     private bool isAttacked = false;
     public bool IsAttacked { get { return isAttacked; } set { isAttacked = true; } }
+    public bool isAttacking = false;
+    public Vector3 sensorRange = Vector3.zero;
+    public Coroutine combatRoutine;
+    public Coroutine wanderRoutine;
+
     // Start is called before the first frame update
     private new void Start()
     {
@@ -27,7 +32,7 @@ public class Combatant : Bot
         {
             agent = this.GetComponent<NavMeshAgent>();
         }
-        if (!agent.isOnNavMesh || coolDown)
+        if (!agent || !agent.isOnNavMesh || coolDown)
         {
             yield return null;
         }
@@ -36,7 +41,7 @@ public class Combatant : Bot
         if (!success) // TODO make while condition here until success is true => I think there is an issue with the navmesh agent height?
         {
             wanderTarget = RandomizeWanderParameters();
-            NavMesh.CalculatePath(transform.position, wanderTarget, NavMesh.AllAreas, plannedPath);
+            NavMesh.CalculatePath(parent.position, wanderTarget, NavMesh.AllAreas, plannedPath);
             success = plannedPath.status != NavMeshPathStatus.PathInvalid;
         }
         if(success)
@@ -45,7 +50,7 @@ public class Combatant : Bot
         } else
         {
             // fall back => TODO also add return to nearest game way point if this also fails, but should not. At any rate, we should clamp the max wander zone to the original instantiation vector
-            Vector3 randomPoint = transform.position + Random.insideUnitSphere * wanderRadius;
+            Vector3 randomPoint = parent.position + Random.insideUnitSphere * wanderRadius;
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
             {
@@ -57,9 +62,13 @@ public class Combatant : Bot
         animator.SetBool("isWalking", true);
         yield return new WaitUntil(ArrivedAtDestination);
         BehaviourCoolDown(false);
+        if(wanderRoutine != null)
+            StopCoroutine(wanderRoutine);
+        wanderRoutine = null;
+
         if (chasedTarget == null && !coolDown)
         {
-            StartCoroutine(Wander());
+            wanderRoutine = StartCoroutine(Wander());
         }
     }
 
@@ -74,7 +83,7 @@ public class Combatant : Bot
         int attempts = 0;
         while (attempts < 5)
         {
-            localWander= new Vector3(Random.Range(-wanderRadius, wanderRadius), 0.0f, Random.Range(-wanderRadius, wanderRadius));
+            localWander = new Vector3(Random.Range(-wanderRadius, wanderRadius), 0.0f, Random.Range(-wanderRadius, wanderRadius));
             localWander *= Random.Range(-wanderJitter, wanderJitter);
             localWander.Normalize();
             wanderTarget = transform.position + transform.TransformDirection(localWander);
@@ -108,22 +117,84 @@ public class Combatant : Bot
         return base.Seek(target);
     }
 
+    public virtual void Hunt()
+    {
+        if (wanderRoutine != null)
+            StopCoroutine(wanderRoutine);
+        wanderRoutine = null;
+        // TODO funny observation about the hat being the new transform reference/point of origin => What about it being displaced
+        float dist = Vector3.Distance(chasedTarget.transform.position, parent.position);
+        if (dist >= chaseRange)
+        {
+            chasedTarget = null;
+            priorityCollider = null;
+            return;
+        }
+        else if (dist <= sensorRange.magnitude) //  TODO + renderer.bounds.extents.z
+        {
+            Combatant opponent = chasedTarget.GetComponentInChildren<Combatant>();
+            if (opponent && dist <= attackRange)
+            {
+                // Play animation and attack
+                if (!isAttacking)
+                {
+                    isAttacking = true;
+                    FreezeAgent();
+                    parent.LookAt(chasedTarget.transform);
+                    animator.SetBool("isAttacking", true);
+                    animator.SetBool("isWalking", false);
+                    combatRoutine = StartCoroutine(LockCombatState(attackSpeed, opponent));
+                }
+                return;
+            }
+        }
+        if (dist >= stoppingRange)
+        {
+            if (priorityCollider)
+            {
+                base.Seek(priorityCollider.transform.position);
+            }
+            else
+            {
+                base.Seek(chasedTarget.gameObject.transform.position);
+            }
+            animator.SetBool("isWalking", true);
+        }
+    }
+
     public virtual IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
     {
         yield return new WaitForSeconds(attackSpeed);
         if (health <= 0)
         {
-            base.Die();
+            Die();
+            yield return null;
         }
-        if (opponent.health > 0.0f)
+        if (opponent == null || opponent.health <= 0.0f)
+        {
+            if (combatRoutine != null)
+            {
+                StopCoroutine(combatRoutine);
+                combatRoutine = null;
+            }
+            animator.SetBool("isAttacking", false);
+            isAttacking = false;
+            chasedTarget = null;
+            priorityCollider = null;
+            StartCoroutine(ResetAgentIsStopped(0.0f));
+            base.Wander();
+            yield return null;
+        }
+        if (opponent && opponent.health > 0.0f)
         {
             DealDamage(opponent);
             animator.SetBool("isAttacking", true);
-            StartCoroutine(LockCombatState(attackSpeed, opponent));
+            combatRoutine = StartCoroutine(LockCombatState(attackSpeed, opponent));
         }
         else
         {
-            StopAllCoroutines();
+            if(combatRoutine != null)
+                StopCoroutine(combatRoutine);
             animator.SetBool("isAttacking", false);
         }
     }

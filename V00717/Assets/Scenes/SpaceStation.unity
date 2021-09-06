@@ -28762,7 +28762,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 210877994294980756, guid: 0f462d64723b64aad9581626d993557b, type: 3}
       propertyPath: thisActionIndex
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 210877994294980757, guid: 0f462d64723b64aad9581626d993557b, type: 3}
       propertyPath: m_Pivot.x
@@ -28882,7 +28882,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 210877994294980778, guid: 0f462d64723b64aad9581626d993557b, type: 3}
       propertyPath: m_Name
-      value: Action Toolbelt Item (4)
+      value: Zombie Action Toolbelt Item (4)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f462d64723b64aad9581626d993557b, type: 3}
@@ -32992,7 +32992,7 @@ MonoBehaviour:
   zombiePopulation: []
   predatorPopulation: []
   humanPrefab: {fileID: 8436086421275342091, guid: 6ea9cf84e904c4f49bfdc574e4e88657, type: 3}
-  zombiePrefab: {fileID: 8852988027855491976, guid: b954a9299b5dd4b00b64f63cf4c26a12, type: 3}
+  zombiePrefab: {fileID: 2986327617450678211, guid: b954a9299b5dd4b00b64f63cf4c26a12, type: 3}
   snakePrefab: {fileID: 5045529893560988609, guid: f0a14c968cec6954eab7f7dc8535559a, type: 3}
   predatorPrefabs: []
   humanCityWaypoints:
@@ -52442,7 +52442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 210877994294980778, guid: 0f462d64723b64aad9581626d993557b, type: 3}
       propertyPath: m_Name
-      value: Action Toolbelt Item
+      value: Predator Action Toolbelt Item
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f462d64723b64aad9581626d993557b, type: 3}

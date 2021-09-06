@@ -20,7 +20,8 @@ public class GroundCheck : MonoBehaviour
                 agent = gameObject.AddComponent<NavMeshAgent>();
                 agent.agentTypeID = 0;
                 agent.radius = 0.1f;
-                if (GetComponentInChildren<MainActor>() || GetComponentInChildren<Zombie>())
+                agent.baseOffset = 0.0f;
+                if (GetComponentInChildren<MainActor>())
                 {
                     agent.baseOffset = 2.1f;
                 }

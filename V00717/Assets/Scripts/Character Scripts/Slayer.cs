@@ -5,9 +5,6 @@ using UnityEngine;
 public class Slayer : Combatant
 {
     public int ACTOR_SKIN;
-    public Vector3 sensorRange = Vector3.zero;
-    public Coroutine combatRoutine;
-    public Coroutine wanderRoutine;
    
     public override void HandleCollisions()
     {
@@ -19,8 +16,13 @@ public class Slayer : Combatant
         while (i < hitColliders.Length)
         {
             Collider collided = hitColliders[i];
-            if (collided.gameObject == this.gameObject) continue;
-            if(collided.GetComponentInChildren<Snake>())
+            if (collided.gameObject == this.gameObject)
+            {
+                i++;
+                continue;
+            }
+
+            if (collided.GetComponentInChildren<Snake>())
             {
                 chasedTarget = collided.gameObject;
                 priorityCollider = chasedTarget;
@@ -45,50 +47,56 @@ public class Slayer : Combatant
         HandleCollisions();
     }
 
+    public override void Hunt()
+    {
+        if (wanderRoutine != null)
+            StopCoroutine(wanderRoutine);
+        wanderRoutine = null;
+        // TODO funny observation about the hat being the new transform reference/point of origin => What about it being displaced
+        float dist = Vector3.Distance(chasedTarget.transform.position, parent.position);
+        if (dist >= chaseRange)
+        {
+            chasedTarget = null;
+            priorityCollider = null;
+            return;
+        }
+        else if (dist <= sensorRange.magnitude) //  TODO + renderer.bounds.extents.z
+        {
+            Snake opponent = chasedTarget.GetComponentInChildren<Snake>();
+            if (opponent && dist <= attackRange)
+            {
+                // Play animation and attack
+                if (!isAttacking)
+                {
+                    isAttacking = true;
+                    FreezeAgent();
+                    parent.LookAt(chasedTarget.transform);
+                    animator.SetBool("isAttacking", true);
+                    animator.SetBool("isWalking", false);
+                    combatRoutine = StartCoroutine(LockCombatState(attackSpeed, opponent));
+                }
+                return;
+            }
+        }
+        if (dist >= stoppingRange)
+        {
+            if (priorityCollider)
+            {
+                base.Seek(priorityCollider.transform.position);
+            }
+            else
+            {
+                base.Seek(chasedTarget.gameObject.transform.position);
+            }
+            animator.SetBool("isWalking", true);
+        }
+    }
+
     public void Update()
     {
         if(chasedTarget != null)
         {
-            if (wanderRoutine != null)
-                StopCoroutine(wanderRoutine);
-            wanderRoutine = null;
-            // TODO funny observation about the hat being the new transform reference/point of origin => What about it being displaced
-            float dist = Vector3.Distance(chasedTarget.transform.position, transform.parent.parent.transform.position);
-            if (dist >= chaseRange)
-            {
-                chasedTarget = null;
-                priorityCollider = null;
-                return;
-            } else if(dist <= sensorRange.magnitude) //  TODO + renderer.bounds.extents.z
-            {
-                Snake opponent = chasedTarget.GetComponentInChildren<Snake>();
-                if (opponent && dist <= attackRange)
-                {
-                    // Play animation and attack
-                    if (!isAttacking)
-                    {
-                        isAttacking = true;
-                        FreezeAgent();
-                        parent.LookAt(chasedTarget.transform);
-                        animator.SetBool("isAttacking", true);
-                        animator.SetBool("isWalking", false);
-                        combatRoutine = StartCoroutine(LockCombatState(attackSpeed, opponent));
-                    }
-                    return;
-                }
-            }
-            if(dist >= stoppingRange)
-            {
-                if (priorityCollider)
-                {
-                    base.Seek(priorityCollider.transform.position);
-                }
-                else
-                {
-                    base.Seek(chasedTarget.gameObject.transform.position);
-                }
-                animator.SetBool("isWalking", true);
-            }
+            Hunt();
         }
         else
         {
@@ -104,7 +112,6 @@ public class Slayer : Combatant
         return animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.9;
     }
 
-    public bool isAttacking = false;
     public override IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
     {
         yield return new WaitForSeconds(attackSpeed);

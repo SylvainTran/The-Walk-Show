@@ -35,6 +35,21 @@ public class ActionFactory
         }
     }
 
+    class SpawnZombie : ContentSpawner, IToolbeltAction
+    {
+        AIEntityController AIEntityController;
+
+        public SpawnZombie(Vector3 areaOfAction) : base(areaOfAction)
+        {
+            AIEntityController = GameObject.FindObjectOfType<AIEntityController>();
+        }
+        public GameObject GetAction()
+        {
+            Debug.Log("Spawning a zombie through the toolbelt!");
+            return AIEntityController.EntityFactory(SeasonController.ACTOR_ROLES.ZOMBIE, areaOfAction);
+        }
+    }
+
     class SpawnGift : ContentSpawner, IToolbeltAction
     {
         public SpawnGift(Vector3 areaOfAction) : base(areaOfAction) { }
@@ -72,6 +87,8 @@ public class ActionFactory
             case 6:
                 return new SpawnPredator(areaOfAction).GetAction;
             case 7:
+                return new SpawnZombie(areaOfAction).GetAction;
+            case 8:
                 return new SpawnGift(areaOfAction).GetAction;
             default:
                 return new SpawnPredator(areaOfAction).GetAction;
