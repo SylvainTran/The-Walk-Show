@@ -163,7 +163,7 @@ public class Bot : MonoBehaviour
             Destroy(parent.gameObject);
         } else
         {
-            //Death Animation !!!
+            Utility.DisableAnimations(animator);
             animator.SetBool("isDead", true);
             // Alert subscribers (literally)
         }

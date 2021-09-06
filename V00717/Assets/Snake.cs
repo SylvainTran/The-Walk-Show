@@ -7,10 +7,12 @@ public class Snake : Combatant
     Coroutine wanderRoutine = null;
     Coroutine combatRoutine = null;
     public bool countering;
-    
+    public Vector3 sensorRange = Vector3.zero;
+
     public  new void Start()
     {
         base.Start();
+        sensorRange = new Vector3(30.0f, 0.0f, 30.0f);
     }
 
     // Update is called once per frame
@@ -25,6 +27,8 @@ public class Snake : Combatant
         if (IsAttacked)
         {
             FreezeAgent();
+            StopCoroutine(wanderRoutine);
+            wanderRoutine = null;
             GetComponentInParent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
             countering = true;
             return;
@@ -38,7 +42,6 @@ public class Snake : Combatant
         }
         else
         {
-            //StopAllCoroutines();
             if (priorityCollider)
             {
                 Seek(priorityCollider.transform.position);
@@ -71,12 +74,13 @@ public class Snake : Combatant
         }
         if (chasedTarget || priorityCollider) return;
 
-        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, parent.GetChild(1).transform.GetComponent<Renderer>().bounds.extents, Quaternion.identity);
+        Collider[] hitColliders = Physics.OverlapBox(gameObject.transform.position, sensorRange, Quaternion.identity);
         int i = 0;
         while (i < hitColliders.Length)
         {
             Collider collided = hitColliders[i];
-            if (collided.gameObject == this.gameObject) continue;
+            i++;
+            if (collided.gameObject == parent.gameObject) continue;
 
             if (collided.GetComponentInChildren<Bot>())
             {
@@ -84,7 +88,6 @@ public class Snake : Combatant
                 priorityCollider = chasedTarget;
                 break;
             }
-            i++;
         }
     }
     public bool isAttacking = false;
@@ -107,19 +110,20 @@ public class Snake : Combatant
         }
         return false;
     }
+
     public override void TakeDamage(GameObject attacker, float m_damage)
     {
         health -= m_damage;
         parent.transform.LookAt(attacker.transform);
         countering = true; // Temporary fix => could counter over several frames in future time
-        if(countering && combatRoutine == null)
-        {
-            Debug.Log($"Snake defending from douche {attacker.gameObject.name}");
-            combatRoutine = StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
-        }
         if (health <= 0.0f)
         {
             base.Die();
+        }
+        if (countering && combatRoutine == null)
+        {
+            Debug.Log($"Snake defending from douche {attacker.gameObject.name}");
+            combatRoutine = StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
         }
     }
 
@@ -129,17 +133,26 @@ public class Snake : Combatant
         if (health <= 0)
         {
             base.Die();
+            yield return null;
+        }
+        if (opponent == null || opponent.health <= 0.0f)
+        {
+            if(combatRoutine != null)
+            {
+                StopCoroutine(combatRoutine);
+                combatRoutine = null;
+            }
+            animator.SetBool("isAttacking", false);
+            GetComponentInParent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            chasedTarget = null;
+            priorityCollider = null;
+            yield return null;
         }
         if (opponent.health > 0.0f)
         {
             DealDamage(opponent);
             animator.SetBool("isAttacking", true);
             StartCoroutine(LockCombatState(attackSpeed, opponent));
-        }
-        else
-        {
-            StopAllCoroutines();
-            animator.SetBool("isAttacking", false);
         }
     }
 }

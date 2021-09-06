@@ -61,6 +61,10 @@ public class ActionBelt : MonoBehaviour
                 //botRole.FreezeAgent();
                 //StartCoroutine(botRole.ResetAgentIsStopped(5.0f));
             }
+            // Disable animations
+            Animator anim = actionActorTarget.GetComponent<Animator>();
+            Utility.DisableAnimations(anim);
+
             Component[] components = {new MainActor(), new SlayerHat(), new GraveDiggerHat() };
             // We want to strip the actionGameObject without caring what component it has - we already determined it's the things we want
             foreach(Component t in components)

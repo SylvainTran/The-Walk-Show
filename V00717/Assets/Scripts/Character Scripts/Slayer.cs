@@ -111,6 +111,22 @@ public class Slayer : Combatant
         if(health <= 0)
         {
             Die();
+            yield return null;
+        }
+        if (opponent == null || opponent.health <= 0.0f)
+        {
+            if (combatRoutine != null)
+            {
+                StopCoroutine(combatRoutine);
+                combatRoutine = null;
+            }
+            animator.SetBool("isAttacking", false);
+            isAttacking = false;
+            chasedTarget = null;
+            priorityCollider = null;
+            StartCoroutine(ResetAgentIsStopped(0.0f));
+            base.Wander();
+            yield return null;
         }
         if (opponent.health > 0.0f)
         {
@@ -118,16 +134,6 @@ public class Slayer : Combatant
             Debug.Log($"{GetComponentInParent<CharacterModel>().NickName} wacked at a snake! Snake HP: {opponent.health}");
             yield return new WaitUntil(AnimationCompleted);
             StartCoroutine(LockCombatState(attackSpeed, opponent));
-        }
-        else
-        {
-            isAttacking = false;
-            chasedTarget = null;
-            priorityCollider = null;
-            animator.SetBool("isAttacking", false);
-            StartCoroutine(ResetAgentIsStopped(0.0f));
-            StopCoroutine(combatRoutine);
-            base.Wander();
         }
     }
 }
