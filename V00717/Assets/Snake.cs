@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -106,19 +107,39 @@ public class Snake : Combatant
         }
         return false;
     }
-    public override void TakeDamage(GameObject attacker, float damage)
+    public override void TakeDamage(GameObject attacker, float m_damage)
     {
-        health -= damage;
+        health -= m_damage;
         parent.transform.LookAt(attacker.transform);
-        countering = true;
+        countering = true; // Temporary fix => could counter over several frames in future time
         if(countering && combatRoutine == null)
         {
             Debug.Log($"Snake defending from douche {attacker.gameObject.name}");
-            combatRoutine = StartCoroutine(base.LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
+            combatRoutine = StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
         }
         if (health <= 0.0f)
         {
-            Die();
+            base.Die();
+        }
+    }
+
+    public override IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
+    {
+        yield return new WaitForSeconds(attackSpeed);
+        if (health <= 0)
+        {
+            base.Die();
+        }
+        if (opponent.health > 0.0f)
+        {
+            DealDamage(opponent);
+            animator.SetBool("isAttacking", true);
+            StartCoroutine(LockCombatState(attackSpeed, opponent));
+        }
+        else
+        {
+            StopAllCoroutines();
+            animator.SetBool("isAttacking", false);
         }
     }
 }

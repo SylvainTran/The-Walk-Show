@@ -152,7 +152,7 @@ public class Bot : MonoBehaviour
         BehaviourCoolDown(false);
     }
 
-    public void Die()
+    public virtual void Die()
     {
         StopAllCoroutines();
         BehaviourCoolDown(true);

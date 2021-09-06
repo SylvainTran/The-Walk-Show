@@ -113,7 +113,7 @@ public class Combatant : Bot
         yield return new WaitForSeconds(attackSpeed);
         if (health <= 0)
         {
-            Die();
+            base.Die();
         }
         if (opponent.health > 0.0f)
         {
@@ -189,21 +189,19 @@ public class Combatant : Bot
 
     public void DealDamage(Combatant opponent)
     {
-        Debug.Log($"{this.gameObject.name}  dealt {damage} damage to {opponent.gameObject.name}");
         opponent.TakeDamage(this.gameObject, damage);
     }
 
-    public virtual void TakeDamage(GameObject attacker, float damage)
+    public virtual void TakeDamage(GameObject attacker, float m_damage)
     {
         isAttacked = true;
-        health -= damage;
-        parent.transform.LookAt(attacker.transform);
-
-        StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
-        if(health <= 0.0f)
+        health -= m_damage;
+        if (health <= 0.0f)
         {
             Die();
         }
+        parent.transform.LookAt(attacker.transform);
+        StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));
     }
 
     public void SetLastEvent(string lastEvent)
