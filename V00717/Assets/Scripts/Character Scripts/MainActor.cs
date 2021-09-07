@@ -11,6 +11,7 @@ public class MainActor : Bot
     public int ActorRole { get { return actorRole; } set { actorRole = value; } }
     public float safeDistance = 35.0f;
     public Vector3 sensorRange = Vector3.zero;
+    public int fleeAttempt = 0;
 
     public new void Start()
     {
@@ -46,17 +47,20 @@ public class MainActor : Bot
             {
                 Seek(chasedTarget.gameObject.transform.position);
             }
-        }
-        if (fleeingState)
-        {
             float dist = Vector3.Distance(chasedTarget.transform.position, parent.position);
             if (dist >= safeDistance)
             {
                 fleeingState = false;
                 chasedTarget = null;
-            } else
+                fleeAttempt = 0;
+                animator.SetBool("isFleeing", false);
+            }
+            if (fleeingState && fleeAttempt == 0)
             {
-                Flee(chasedTarget.transform.position);
+                if (Flee(chasedTarget.transform.position))
+                {
+                    ++fleeAttempt;
+                }
             }
         }
     }

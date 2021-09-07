@@ -71,8 +71,11 @@ public class Bot : MonoBehaviour
     {
         if (!agent.isOnNavMesh) return false;
         Vector3 fleeVector = location - parent.position;
-        agent.SetDestination( Random.Range(1, 10) * (parent.position - fleeVector));
-        return true;
+        if (agent.SetDestination( Random.Range(1, 10) * - fleeVector))
+        {
+            return true;
+        }
+        return false;
     }
 
     protected Vector3 wanderTarget;
