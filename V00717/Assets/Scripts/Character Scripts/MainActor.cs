@@ -10,6 +10,7 @@ public class MainActor : Bot
     private int actorRole = 1;// TODO assign at creation
     public int ActorRole { get { return actorRole; } set { actorRole = value; } }
     public float safeDistance = 35.0f;
+    public Vector3 sensorRange = Vector3.zero;
 
     public new void Start()
     {
@@ -23,7 +24,7 @@ public class MainActor : Bot
             quadrantTarget = gameController.quadrantMapper.gameWayPoints[quadrantIndex];
             gameController.quadrantMapper.GoToQuadrant(parent.GetComponent<CharacterModel>(), quadrantTarget);
         }
-        collisionRadius = new Vector3(25.0f, 0.0f, 25.0f);
+        sensorRange = new Vector3(25.0f, 0.0f, 25.0f);
     }
 
     public void Update()
@@ -53,6 +54,9 @@ public class MainActor : Bot
             {
                 fleeingState = false;
                 chasedTarget = null;
+            } else
+            {
+                Flee(chasedTarget.transform.position);
             }
         }
     }
@@ -62,19 +66,18 @@ public class MainActor : Bot
         HandleCollisions();
     }
 
-    public Vector3 collisionRadius;
     public void HandleCollisions()
     {
         if (chasedTarget) return;
         //Use the OverlapBox to detect if there are any other colliders within this box area.
         //Use the GameObject's centre, half the size (as a radius) and rotation. This creates an invisible box around your GameObject.
-        Collider[] hitColliders = Physics.OverlapBox(parent.position, collisionRadius, Quaternion.identity);
+        Collider[] hitColliders = Physics.OverlapBox(parent.position, sensorRange, Quaternion.identity);
         int i = 0;
         //Check when there is a new collider coming into contact with the box
         while (i < hitColliders.Length)
         {
             //Output all of the collider names
-            if (hitColliders[i].GetComponent<Zombie>() || hitColliders[i].GetComponent<Snake>())
+            if (hitColliders[i].GetComponentInChildren<Zombie>() || hitColliders[i].GetComponentInChildren<Snake>())
             {
                 Debug.Log("Predator detected : " + hitColliders[i].name + i);
                 chasedTarget = hitColliders[i].gameObject;

@@ -150,7 +150,7 @@ public class Snake : Combatant
             priorityCollider = null;
             yield return null;
         }
-        if (opponent.health > 0.0f)
+        if (opponent && opponent.health > 0.0f)
         {
             DealDamage(opponent);
             animator.SetBool("isAttacking", true);

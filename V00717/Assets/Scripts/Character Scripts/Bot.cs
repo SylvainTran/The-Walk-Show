@@ -65,11 +65,13 @@ public class Bot : MonoBehaviour
             return false;
         }
     }
+    [Range(1, 100)]
+    public float fleeDistance;
     public bool Flee(Vector3 location)
     {
         if (!agent.isOnNavMesh) return false;
         Vector3 fleeVector = location - parent.position;
-        agent.SetDestination(parent.position - fleeVector);
+        agent.SetDestination( Random.Range(1, 10) * (parent.position - fleeVector));
         return true;
     }
 
