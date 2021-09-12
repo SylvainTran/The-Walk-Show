@@ -101,7 +101,7 @@ public class DashboardOSController : PageController
         CharacterModel._OnGameClockEventProcessed += ProcessEventFromCharacter;
         CharacterModel._OnGameClockEventProcessed += ProcessEventFromViewer;
         PendingCallEvent._OnPendingCallEvent += UpdatePendingCallsLog;
-        GameClockEvent._OnColonistIsDead += OnColonistDied;
+        Bot._OnMainActorIsDead += OnMainActorDied;
         BattleEvent._OnBattleEnded += ProcessEventFromCharacter;
         //SeasonController._OnQuadrantSelectionAction += UpdateQuadrantSelectionUI;
         Viewer._OnNewDonationAction += SetDonationMoneyView;
@@ -115,7 +115,7 @@ public class DashboardOSController : PageController
         CharacterModel._OnGameClockEventProcessed -= ProcessEventFromCharacter;
         CharacterModel._OnGameClockEventProcessed -= ProcessEventFromViewer;
         PendingCallEvent._OnPendingCallEvent -= UpdatePendingCallsLog;
-        GameClockEvent._OnColonistIsDead -= OnColonistDied;
+        Bot._OnMainActorIsDead -= OnMainActorDied;
         BattleEvent._OnBattleEnded -= ProcessEventFromCharacter;
         //SeasonController._OnQuadrantSelectionAction -= UpdateQuadrantSelectionUI;
         Viewer._OnNewDonationAction -= SetDonationMoneyView;
@@ -385,10 +385,10 @@ public class DashboardOSController : PageController
     }
 
     // On colonist dead, need to put X medical bay and also exclude that colonist from next save instance
-    public void OnColonistDied(GameClockEvent e, GameObject c)
+    public void OnMainActorDied(GameObject a)
     {
         //UpdateEventLog(e);
-        ClearColonistIcons(c);        
+        ClearColonistIcons(a);        
     }
 
     public void ClearColonistIcons(DataRequests request, Transform layout)
@@ -407,13 +407,12 @@ public class DashboardOSController : PageController
         int len = aliveColonistsVerticalGroupLayout.transform.childCount;
         for (int i = 0; i < len; i++)
         {
-            // Todo fix no name error
             Transform child = aliveColonistsVerticalGroupLayout.transform.GetChild(i);
-            if (child.gameObject.name == null || c.GetComponent<CharacterModel>().Name() == null)
+            if (child.gameObject.name == null || c.GetComponentInChildren<CharacterModel>().NickName == null)
             {
                 return;
             }
-            if (child.gameObject.name.Trim().ToLower().Contains(c.GetComponent<CharacterModel>().Name().Trim().ToLower()))
+            if (child.gameObject.name.Trim().ToLower().Contains(c.GetComponentInChildren<CharacterModel>().NickName.Trim().ToLower()))
             {
                 Destroy(child.gameObject);
             }

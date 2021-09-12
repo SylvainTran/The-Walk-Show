@@ -6,7 +6,7 @@ public class Zombie : Combatant
     private new void Start()
     {
         base.Start();
-        sensorRange = new Vector3(15.0f, 0.0f, 15.0f);
+        sensorRange = new Vector3(25.0f, 0.0f, 25.0f);
     }
 
     public override void HandleCollisions()
@@ -58,13 +58,7 @@ public class Zombie : Combatant
     // Update is called once per frame
     private void Update()
     {
-        if(chasedTarget == null || priorityCollider == null)
-        {
-            wanderRoutine = StartCoroutine(base.Wander());
-        } else
-        {
-            Hunt();
-        }
+        Navigate();
     }
 
     void FixedUpdate()

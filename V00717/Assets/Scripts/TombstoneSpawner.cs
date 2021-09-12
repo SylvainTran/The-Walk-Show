@@ -16,12 +16,12 @@ public class TombstoneSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        GameClockEvent._OnColonistIsDead += SpawnTombstone;
+        //Bot._OnMainActorIsDead += SpawnTombstone;
     }
 
     private void OnDisable()
     {
-        GameClockEvent._OnColonistIsDead -= SpawnTombstone;
+        //Bot._OnMainActorIsDead -= SpawnTombstone;
     }
 
     private void Start()
@@ -29,12 +29,11 @@ public class TombstoneSpawner : MonoBehaviour
         CharacterCreationView = GameObject.FindObjectOfType<CharacterCreationView>();
     }
 
-    public void SpawnTombstone(GameClockEvent e, GameObject go)
+    public void SpawnTombstone(GameObject go)
     {
         // TODO define equals method to compare UUIDs by default and other things
         if(go.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == go.GetComponent<CharacterModel>().UniqueColonistPersonnelID_)
         {
-            GetComponent<Bot>().Die();
             SpawnMeshAtLocation(go);
         } else
         {
@@ -55,6 +54,6 @@ public class TombstoneSpawner : MonoBehaviour
     {
         this.transform.localScale *= tombstoneScalingSize;
         this.transform.Rotate(new Vector3(90.0f, 0.0f, 0.0f));
-        CharacterCreationView.UpdateSkinColor(go);
+        //CharacterCreationView.UpdateSkinColor(go);
     }
 }

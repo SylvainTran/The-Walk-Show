@@ -40,6 +40,10 @@ public class GameController : MonoBehaviour
 
     public List<GameObject> auditionEditorsInGame;
     public GameObject[] landingPositions;
+    /// <summary>
+    /// The audition camera
+    /// </summary>
+    public GameObject auditionCamera;
 
     public PlayerStatistics GetPlayerStatistics()
     {
@@ -113,11 +117,13 @@ public class GameController : MonoBehaviour
     public GameObject coinPrefab;
     public GameObject snakePrefab;
 
+    public GameObject[] cameraFeedActorNameLabels;
+
     // Auditioning role text
     public TMP_Text auditionRole;
     private void OnEnable()
     {
-        GameClockEvent._OnColonistIsDead += OnColonistDied;
+        Bot._OnMainActorIsDead += OnColonistDied;
         TimeController._OnUpdateEventClock += OnEventClockUpdate;
         Viewer._OnNewDonationAction += SetDonationMoney;
         SeasonController._OnSeasonIntroAction += SetupIntroPhase;
@@ -125,7 +131,7 @@ public class GameController : MonoBehaviour
 
     private void OnDisable()
     {
-        GameClockEvent._OnColonistIsDead -= OnColonistDied;
+        Bot._OnMainActorIsDead -= OnColonistDied;
         TimeController._OnUpdateEventClock -= OnEventClockUpdate;
         Viewer._OnNewDonationAction -= SetDonationMoney;
         SeasonController._OnSeasonIntroAction -= SetupIntroPhase;        
@@ -179,13 +185,14 @@ public class GameController : MonoBehaviour
         interjectionDatabase = JsonUtility.FromJson<InterjectionDatabase>(currentFileTextRead);
 
         LoadGameCharacters();
+        UpdateActorNameLabels();
 
         // Set game state to the intro
         seasonController = new SeasonController(this);
         // Validate the stage we're in
         if(colonists.Count < 4) // TODO issue on my mac/mac big sur file reading? Missing playerstatistics file etc.
         {
-            StartAuditions(CreationController.MAX_COLONISTS);
+            StartAuditions(CreationController.MAX_COLONISTS - colonists.Count);
             SetupIntroPhase();
         }
         else
@@ -197,7 +204,9 @@ public class GameController : MonoBehaviour
 
         // Start specific coroutines
         channelController.GameController = this;
-        channelController.GenerateRandomViewersCoroutine = StartCoroutine(channelController.GenerateRandomViewers(UnityEngine.Random.Range(0, 5)));        
+        channelController.GenerateRandomViewersCoroutine = StartCoroutine(channelController.GenerateRandomViewers(UnityEngine.Random.Range(0, 5)));
+
+        Debug.Log("Persistent path: " + Application.persistentDataPath);
     }
     public string currentFileTextRead;    
     public IEnumerator ReadAssetFromPlatformDependentPath(string relativePath)
@@ -218,6 +227,15 @@ public class GameController : MonoBehaviour
 #endif
     }
 
+    public void UpdateActorNameLabels()
+    {
+        int i = 0;
+        colonists.ForEach(actor =>
+        {
+            cameraFeedActorNameLabels[i].GetComponent<TMP_Text>().SetText(actor.GetComponent<CharacterModel>().NickName);
+            ++i;
+        });
+    }
     string jsonTextFromWebRequestDownloadHandler = null;
     private IEnumerator GetRequest(string uri)
     {
@@ -588,11 +606,11 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void OnColonistDied(GameClockEvent e, GameObject c)
+    public void OnColonistDied(GameObject c)
     {
         // Remove the dead before saving again
-        colonists.Remove(c);
-        deleteSaveFile();
+        // colonists.Remove(c);
+        // deleteSaveFile();
         deadColonists.Add(c);
         _OnSaveAction("colonists", deadColonists, "deadColonists.json");
     }
@@ -649,6 +667,8 @@ public class GameController : MonoBehaviour
         ae.gameObject.GetComponent<CharacterCreationView>().newCharacterModelInstance = Instantiate(characterModelPrefab, CharacterCreationView.characterModelPrefabInstanceCoords + new Vector3(0.0f, 25.0f, 0.0f), Quaternion.identity);
         ae.gameObject.GetComponent<CharacterCreationView>().newCharacterModelInstance.GetComponent<CharacterModel>().InitEventsMarkersFeed(); // Inits events feed and last event but they're null at this stage
         ae.gameObject.GetComponent<AuditionEditor>().RandomizeFields();
+        // Setup auditor camera that tracks the new actor
+        auditionCamera.GetComponent<CharacterTracker>().SetTarget(ae.gameObject.GetComponent<CharacterCreationView>().newCharacterModelInstance.gameObject.transform);
     }
 
     public IEnumerator CreateNewEditor(float delay)

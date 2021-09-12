@@ -13,8 +13,6 @@ public abstract class GameClockEvent
     public string Message { get { return message; } set { message = value; } }
 
     // Dead colonist event (by injury, illness, battle, etc.)
-    public delegate void OnColonistIsDead(GameClockEvent e, GameObject c);
-    public static event OnColonistIsDead _OnColonistIsDead;
 
     public GameClockEvent()
     {
@@ -54,7 +52,6 @@ public abstract class GameClockEvent
         {
             string monumentMaterial = "stone"; // TODO randomize materials of death sculpture
             message = $"{b.GetComponent<CharacterModel>().Name()} has died at {b.transform.position}, and has become a monument of {monumentMaterial}.";
-            _OnColonistIsDead(this, b);
         }
     }
 

@@ -131,6 +131,18 @@ public class CharacterModel : Element, ISerializableObject, ICombatant
     private int goldInventory = 0;
     public int GoldInventory { get { return goldInventory; } set { goldInventory = value; } }
 
+    /// <summary>
+    /// 0 = no head, 100 = complete head
+    /// </summary>
+    [SerializeField]
+    private int headCompletionLevel = 0;
+    public int HeadCompletionLevel { get { return headCompletionLevel; } set { headCompletionLevel = value; } }
+
+    /// <summary>
+    /// The max head level reachable
+    /// </summary>
+    public const int MAX_HEAD_LEVEL = 10;
+
     public void InitCharacterModel(CharacterModelObject other)
     {
         this.nickName = other.NickName;

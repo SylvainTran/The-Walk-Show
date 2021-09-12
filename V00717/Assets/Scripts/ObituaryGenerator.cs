@@ -17,13 +17,6 @@ public class ObituaryGenerator
         this.target = target;
     }
 
-    public float RandomizeEventWeights()
-    {
-        // Count instances where the NPC has gotten x event (increments)
-        // Multiplies them with the weights here, after modelling the equation using perlin noise.
-        return Mathf.PerlinNoise(HEALTH_EVENT_WEIGHT, BATTLE_EVENT_WEIGHT);
-    }
-
     // Uses the achievement/frequency map to anchor a main event, and the rest is plausible randomness
     public string GenerateEventFrequencyText()
     {

@@ -20,29 +20,26 @@ public class ActionBelt : MonoBehaviour
 
     private void Awake()
     {
-        if (gameController == null)
-        {
-            gameController = FindObjectOfType<GameController>();
-        }
-        if (actionFactory == null)
-        {
-            actionFactory = new ActionFactory();
-        }
+        if (gameController == null) gameController = FindObjectOfType<GameController>();
+        if (actionFactory == null) actionFactory = new ActionFactory();
     }
 
     public void InvokeActionActorTarget(int actionActorTargetUUID)
     {
-        if(actionActorTargetUUID == -1 || actionIndex == -1 || actionFactory == null)
-        {
-            return;
-        }
+        if (actionActorTargetUUID == -1 || actionIndex == -1 || actionFactory == null) return;
         activeActionActorTargetUUID = actionActorTargetUUID;
         GameObject actionActorTarget = gameController.Colonists.Find(x => x.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ == activeActionActorTargetUUID);
-        GameObject hatTransform = actionActorTarget.transform.GetChild(0).gameObject; // hat
+        if (actionActorTarget == null) return;
+
+        GameObject hatTransform = null;
 
         // Invoke the action referred to by actionIndex
         if (actionActorTarget != null)
         {
+            if (actionActorTarget.transform.GetChild(0))
+            {
+                hatTransform = actionActorTarget.transform.GetChild(0).gameObject; // hat
+            }
             Debug.Log($"Invoking {actionIndex} on {actionActorTarget.GetComponent<CharacterModel>().NickName}");
 
             Func<GameObject> actionMethod = actionFactory.GetActionByIndex(actionIndex, actionActorTarget.transform.position);
@@ -53,10 +50,7 @@ public class ActionBelt : MonoBehaviour
                 actionGameObject.transform.position = hatTransform.transform.position + new Vector3(UnityEngine.Random.Range(1.5f, 3.0f), 0.0f, UnityEngine.Random.Range(1.5f, 3.0f));
             }
 
-            if (actionGameObject.GetComponentInChildren<Snake>() || actionGameObject.GetComponentInChildren<Zombie>())
-            {
-                return;
-            }
+            if (actionGameObject.GetComponentInChildren<Snake>() || actionGameObject.GetComponentInChildren<Zombie>()) return;
             // Setup - like freezing the actor temporarily
             Bot botRole = hatTransform.GetComponentInChildren<Bot>();
             if (botRole)
@@ -84,15 +78,5 @@ public class ActionBelt : MonoBehaviour
         // Reset
         actionActorTargetUUID = -1;
         actionIndex = -1;
-    }
-
-    public void GetActorRoleHat(Component t)
-    {
-        switch (t)
-        { 
-            
-        
-        }
-
     }
 }

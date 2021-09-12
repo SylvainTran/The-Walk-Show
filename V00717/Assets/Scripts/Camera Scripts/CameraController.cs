@@ -28,7 +28,6 @@ public class CameraController : MonoBehaviour
         TriggerCreationMenu._OnTriggerCreationMenuAction += SetCreationMenuCamPriority;
         CreationMenuController._OnTriggerExitCreationMenuAction += ResetCamPriority;
         StarterAssetsInputs._OnTriggerCloseActiveMenu += ResetCamPriority;
-        GameClockEvent._OnColonistIsDead += ShakeCamera;
     }
 
     // Disable listeners
@@ -37,7 +36,6 @@ public class CameraController : MonoBehaviour
         TriggerCreationMenu._OnTriggerCreationMenuAction -= SetCreationMenuCamPriority;
         CreationMenuController._OnTriggerExitCreationMenuAction -= ResetCamPriority;
         StarterAssetsInputs._OnTriggerCloseActiveMenu -= ResetCamPriority;
-        GameClockEvent._OnColonistIsDead -= ShakeCamera;
     }
 
     // Sets the creation menu's virtual cam live

@@ -4,10 +4,6 @@ using UnityEngine.AI;
 
 public class Snake : Combatant
 {
-    Coroutine wanderRoutine = null;
-    Coroutine combatRoutine = null;
-    public bool countering;
-
     public  new void Start()
     {
         base.Start();
@@ -17,45 +13,7 @@ public class Snake : Combatant
     // Update is called once per frame
     public void Update()
     {
-        if (agent == null)
-        {
-            agent = GetComponentInParent<NavMeshAgent>();
-            if (agent == null)
-                return;
-        }
-        if (IsAttacked)
-        {
-            FreezeAgent();
-            StopCoroutine(wanderRoutine);
-            wanderRoutine = null;
-            GetComponentInParent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
-            countering = true;
-            return;
-        }
-        if (chasedTarget ==  null || priorityCollider == null)
-        {
-            if(wanderRoutine == null)
-            {
-                wanderRoutine = StartCoroutine(base.Wander());
-            }
-        }
-        else
-        {
-            if (priorityCollider)
-            {
-                Seek(priorityCollider.transform.position);
-            }
-            else
-            {
-                Seek(chasedTarget.gameObject.transform.position);
-            }
-            if (Vector3.Distance(chasedTarget.transform.position, transform.position) >= chaseRange)
-            {
-                chasedTarget = null;
-                priorityCollider = null;
-                StartCoroutine(base.Wander());
-            }
-        }
+        Navigate();
     }
 
     public void LateUpdate()
@@ -121,6 +79,7 @@ public class Snake : Combatant
         if (health <= 0.0f)
         {
             base.Die();
+            return;
         }
         if (countering && combatRoutine == null)
         {

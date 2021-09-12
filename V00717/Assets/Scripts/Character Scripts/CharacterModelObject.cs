@@ -124,6 +124,13 @@ public class CharacterModelObject : ISerializableObject
     [SerializeField] private string lastEvent = null;
     public string LastEvent { get { return lastEvent; } set { lastEvent = value; } }
 
+    /// <summary>
+    /// 0 = no head, 100 = complete head
+    /// </summary>
+    [SerializeField]
+    private int headCompletionLevel = 0;
+    public int HeadCompletionLevel { get { return headCompletionLevel; } set { headCompletionLevel = value; } }
+
     // To serialize wrapper fill-in the actual characterModel
     public void InitCharacterModel(CharacterModel other)
     {

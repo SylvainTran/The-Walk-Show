@@ -16,6 +16,7 @@ public class Combatant : Bot
     public Vector3 sensorRange = Vector3.zero;
     public Coroutine combatRoutine;
     public Coroutine wanderRoutine;
+    public bool countering;
 
     // Start is called before the first frame update
     private new void Start()
@@ -162,6 +163,36 @@ public class Combatant : Bot
         }
     }
 
+    public void Navigate()
+    {
+        if (agent == null)
+        {
+            agent = parent.GetComponent<NavMeshAgent>();
+            if (agent == null)
+                return;
+        }
+        if (IsAttacked)
+        {
+            FreezeAgent();
+            StopCoroutine(wanderRoutine);
+            wanderRoutine = null;
+            parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
+            countering = true;
+            return;
+        }
+        if (chasedTarget == null || priorityCollider == null)
+        {
+            if (wanderRoutine == null)
+            {
+                wanderRoutine = StartCoroutine(base.Wander());
+            }
+        }
+        else
+        {
+            Hunt();
+        }
+    }
+
     public virtual IEnumerator LockCombatState(float attackSpeed, Combatant opponent)
     {
         yield return new WaitForSeconds(attackSpeed);
@@ -210,11 +241,6 @@ public class Combatant : Bot
             Collider collided = hitColliders[i];
             i++;
         }
-    }
-
-    public virtual void DetectMainActors()
-    {
-
     }
 
     // Update is called once per frame
@@ -270,6 +296,7 @@ public class Combatant : Bot
         if (health <= 0.0f)
         {
             Die();
+            return;
         }
         parent.transform.LookAt(attacker.transform);
         StartCoroutine(LockCombatState(attackSpeed, attacker.GetComponent<Combatant>()));

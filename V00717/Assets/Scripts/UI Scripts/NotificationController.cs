@@ -21,7 +21,7 @@ public class NotificationController : MonoBehaviour
 
     private void OnEnable()
     {
-        GameClockEvent._OnColonistIsDead += TriggerNotification;
+        Bot._OnMainActorIsDead += TriggerNotification;
         Viewer._OnNewSubscriberAction += TriggerSubscriberNotification;
         Viewer._OnNewDonationAction += TriggerDonationNotification;
         ChannelController._OnSubscriberRequestAction += TriggerSubscriberRequest;
@@ -30,7 +30,7 @@ public class NotificationController : MonoBehaviour
 
     private void OnDisable()
     {
-        GameClockEvent._OnColonistIsDead -= TriggerNotification;
+        Bot._OnMainActorIsDead -= TriggerNotification;
         Viewer._OnNewSubscriberAction -= TriggerSubscriberNotification;
         Viewer._OnNewDonationAction -= TriggerDonationNotification;
         ChannelController._OnSubscriberRequestAction -= TriggerSubscriberRequest;
@@ -88,9 +88,9 @@ public class NotificationController : MonoBehaviour
         }
     }
 
-    public void TriggerNotification(GameClockEvent e, GameObject go)
+    public void TriggerNotification(GameObject go)
     {
-        TriggerTextAnimation($"{go.gameObject.name}'s death data added to the Bar's Vine Cellar");
+        TriggerTextAnimation($"{go.gameObject.name}'s data was preservedr");
     }
 
     /// <summary>

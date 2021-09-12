@@ -22,7 +22,6 @@ public class RoleController : MonoBehaviour
             case ACTOR_ROLES.SLAYER:
                 Debug.Log("Assgning a slayer role through toolbelt!");
                 return Instantiate(slayerHatPrefab, t.transform, true);
-                break;
             case ACTOR_ROLES.FARMER:
                 break;
             default:

@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 1643233120314361928}
   - component: {fileID: 463530484901367750}
   - component: {fileID: 6797796142236922073}
-  - component: {fileID: 5732311579627065}
-  - component: {fileID: 7146800040578013091}
+  - component: {fileID: 6729781414625881901}
+  - component: {fileID: 3650381268909174550}
   m_Layer: 0
-  m_Name: Slayer Hat
+  m_Name: GraveDigger Hat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3a408d7f44cbb4d86992ed7dbc4ce806, type: 2}
+  - {fileID: 2100000, guid: e436e1652ad0449febf1bc48f88771eb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5732311579627065
+--- !u!114 &6729781414625881901
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,10 +93,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5110035158998783576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6097ebf5f590746bba0c9a2e5b15d74c, type: 3}
+  m_Script: {fileID: 11500000, guid: 5715df2b5bd72604dae12ffcc6a266ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7146800040578013091
+--- !u!114 &3650381268909174550
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -105,13 +105,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5110035158998783576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aee6f4f54ea7e3747a9ae222dc22a8d6, type: 3}
+  m_Script: {fileID: 11500000, guid: 5475817baa9ac19459e51fc2f276a498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  wanderRadius: 0
-  wanderDistance: 0
-  wanderJitter: 0
+  wanderRadius: 100
+  wanderDistance: 100
+  wanderJitter: 10
   characterModel: {fileID: 0}
   quadrantTarget: {fileID: 0}
   stoppingRange: 6.1
@@ -120,17 +120,11 @@ MonoBehaviour:
   attackRange: 6.1
   animator: {fileID: 0}
   health: 100
-  damage: 1
+  damage: 20
   attackSpeed: 1
   fleeingState: 0
   gameController: {fileID: 0}
   quadrantIndex: -1
   fleeDistance: 0
-  chaseRange: 20
-  sight: 15
-  renderer: {fileID: 0}
-  isAttacking: 0
   sensorRange: {x: 0, y: 0, z: 0}
-  countering: 0
-  priorityCollider: {fileID: 0}
-  ACTOR_SKIN: 0
+  isDigging: 0

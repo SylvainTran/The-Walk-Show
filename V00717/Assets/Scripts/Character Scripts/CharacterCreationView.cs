@@ -219,16 +219,18 @@ public class CharacterCreationView : MonoBehaviour
         int trackLanePosition = creationController.FindAvailableCameraLane();
 
         GameObject newCharacterMesh = newCharacterModelInstance;
+        CharacterModel newCharacterModel = newCharacterMesh.GetComponent<CharacterModel>();
         try
         {
-            newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
-            RenameGameObject(newCharacterMesh, newCharacterMesh.GetComponent<CharacterModel>().NickName);
+            newCharacterModel.UniqueColonistPersonnelID_ = CharacterModelObject.uniqueColonistPersonnelID;
+            RenameGameObject(newCharacterMesh, newCharacterModel.NickName);
             AddGameObjectToList(newCharacterMesh);
             SetupTransformPosition(newCharacterMesh.transform, GameController.landingPositions[trackLanePosition].transform.position);
             newCharacterMesh.transform.SetParent(GameController.landingPositions[trackLanePosition].transform);
             SetCameraTarget(creationController, newCharacterMesh.transform, trackLanePosition);
             GameController.SetupStartingQuadrant(newCharacterMesh);
             // Setup dragged action handler with this actor's UUID
+            // TODO should match with UUID (if delete character and reload game, this won't be nice)
             for (int i = 0; i < GameController.draggedActionHandlers.Length; i++)
             {
                 int actionActorTargetUUID = GameController.draggedActionHandlers[i].ActionActorTargetUUID;
@@ -236,7 +238,8 @@ public class CharacterCreationView : MonoBehaviour
                 {
                     continue;
                 }
-                GameController.draggedActionHandlers[i].ActionActorTargetUUID = newCharacterMesh.GetComponent<CharacterModel>().UniqueColonistPersonnelID_;
+                GameController.draggedActionHandlers[i].ActionActorTargetUUID = newCharacterModel.UniqueColonistPersonnelID_;
+                GameController.cameraFeedActorNameLabels[i].GetComponent<TMP_Text>().SetText(newCharacterModel.NickName);
                 break;
             }
         }

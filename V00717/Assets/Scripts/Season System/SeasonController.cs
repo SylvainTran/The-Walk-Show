@@ -75,7 +75,7 @@ public class SeasonController
             PlaySeasonIntroVideo();
             SetSeasonIntro();
         }
-        GameClockEvent._OnColonistIsDead += AnnounceDeath;
+        Bot._OnMainActorIsDead += AnnounceDeath;
     }
 
     public void PlaySeasonIntroVideo()
@@ -100,12 +100,12 @@ public class SeasonController
         }
     }
 
-    public void AnnounceDeath(GameClockEvent e, GameObject c)
+    public void AnnounceDeath(GameObject c)
     {
         // Narrator voice saying they're dead, video clip popup, counter update
         if(gameController.Colonists.Count <= 1)
         {
-            SetIntermissionState();
+            // SetIntermissionState();
             // Show highlights?
 
             // And then restarts new season from auditions

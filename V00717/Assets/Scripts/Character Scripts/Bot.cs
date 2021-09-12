@@ -37,6 +37,9 @@ public class Bot : MonoBehaviour
     public int quadrantIndex = -1;
     protected Transform parent;
 
+    public delegate void OnMainActorIsDead(GameObject a);
+    public static event OnMainActorIsDead _OnMainActorIsDead;
+
     // Start is called before the first frame update
     public virtual void Start()
     {
@@ -71,7 +74,10 @@ public class Bot : MonoBehaviour
     {
         if (!agent.isOnNavMesh) return false;
         Vector3 fleeVector = location - parent.position;
-        if (agent.SetDestination( Random.Range(1, 10) * - fleeVector))
+        float jitter = Random.Range(3,15);
+        fleeVector.x += jitter;
+        fleeVector.z += jitter;
+        if (agent.SetDestination(Random.Range(1, 10) * - fleeVector))
         {
             return true;
         }
@@ -171,6 +177,7 @@ public class Bot : MonoBehaviour
             Utility.DisableAnimations(animator);
             animator.SetBool("isDead", true);
             // Alert subscribers (literally)
+            _OnMainActorIsDead(parent.gameObject);
         }
     }
 

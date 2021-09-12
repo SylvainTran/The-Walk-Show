@@ -43,17 +43,14 @@ public class MainActor : Bot
         }
         else
         {
-            if(actorRole == (int)SeasonController.ACTOR_ROLES.SLAYER)
-            {
-                Seek(chasedTarget.gameObject.transform.position);
-            }
             float dist = Vector3.Distance(chasedTarget.transform.position, parent.position);
-            if (dist >= safeDistance)
+            if (fleeingState && dist >= safeDistance)
             {
                 fleeingState = false;
                 chasedTarget = null;
                 fleeAttempt = 0;
                 animator.SetBool("isFleeing", false);
+                animator.SetBool("isWalking", true);
             }
             if (fleeingState && fleeAttempt == 0)
             {
@@ -72,7 +69,7 @@ public class MainActor : Bot
 
     public void HandleCollisions()
     {
-        if (chasedTarget) return;
+        if (chasedTarget || fleeingState) return;
         //Use the OverlapBox to detect if there are any other colliders within this box area.
         //Use the GameObject's centre, half the size (as a radius) and rotation. This creates an invisible box around your GameObject.
         Collider[] hitColliders = Physics.OverlapBox(parent.position, sensorRange, Quaternion.identity);
