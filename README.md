@@ -5,6 +5,7 @@ Lifestream studio 2521: The Official Walkthrough: [![Documentation Status](https
 Congratulations on your purchase of Lifestream Studio 2521: Home Edition.
 
 Please start by getting acquainted with the docs: [Lifestream studio 2521: The Official Manual](https://lifestream-studio-2521.readthedocs.io/en/latest/)
+(This is WIP: Things will change a lot so don't actually take it seriously for now)
 
 Until we meet again.
 
