@@ -7,6 +7,8 @@ public class RoleController : MonoBehaviour
     public GameObject vampireHatPrefab;
     public GameObject graveDiggerHatPrefab;
     public GameObject farmerHatPrefab;
+    public GameObject mainActorHatPrefab;
+    public GameObject dancerHatPrefab;
 
     public GameObject RoleFactory(ACTOR_ROLES roleIndex)
     {
@@ -23,6 +25,14 @@ public class RoleController : MonoBehaviour
                 Debug.Log("Assgning a slayer role through toolbelt!");
                 return Instantiate(slayerHatPrefab, t.transform, true);
             case ACTOR_ROLES.FARMER:
+                break;
+            case ACTOR_ROLES.HUMAN:
+                Debug.Log("Assgning a main actor role through toolbelt!");
+                return Instantiate(mainActorHatPrefab, t.transform, true);
+                break;
+            case ACTOR_ROLES.DANCER:
+                Debug.Log("Assgning a dancer role through toolbelt!");
+                return Instantiate(dancerHatPrefab, t.transform, true);
                 break;
             default:
                 break;

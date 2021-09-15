@@ -51,7 +51,7 @@ public class SeasonController
     /// </summary>
     public enum ACTOR_ROLES
     {
-        VAMPIRE, GRAVEDIGGER, SLAYER, FARMER, ZOMBIE, HUMAN, PREDATOR
+        VAMPIRE, GRAVEDIGGER, SLAYER, FARMER, HUMAN, DANCER, ZOMBIE, PREDATOR
     }
     public Vampire vampire;
     public GraveDigger graveDigger;

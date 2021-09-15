@@ -103,8 +103,11 @@ public class QuadrantMapper : MonoBehaviour
     /// <param name="quadrantIntKey"></param>
     public bool GoToQuadrant(CharacterModel character, GameWaypoint newWaypoint)
     {
+        Combatant combatant = character.GetComponentInChildren<Combatant>();
+        if (combatant && combatant.isDancing) return false;
         // Update location status
         character.InQuadrant = newWaypoint.intKey;
+        character.GetComponentInChildren<Bot>().quadrantIndex = newWaypoint.intKey;
         character.GetComponentInChildren<Bot>().quadrantTarget = newWaypoint;
 
         NavMeshAgent nav = character.gameObject.GetComponentInChildren<NavMeshAgent>();

@@ -60,8 +60,10 @@ MonoBehaviour:
   fleeingState: 0
   gameController: {fileID: 0}
   quadrantIndex: -1
+  fleeDistance: 0
   safeDistance: 35
-  collisionRadius: {x: 0, y: 0, z: 0}
+  sensorRange: {x: 0, y: 0, z: 0}
+  fleeAttempt: 0
 --- !u!1 &154417835977979813
 GameObject:
   m_ObjectHideFlags: 0
@@ -979,6 +981,7 @@ MonoBehaviour:
   lastEvent: 
   inQuadrant: -1
   goldInventory: 0
+  headCompletionLevel: 0
 --- !u!114 &-4217327980875837605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1045,7 +1048,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120

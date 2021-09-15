@@ -32,10 +32,6 @@ public class MainActor : Bot
     {
         if (chasedTarget == null)
         {
-            if(quadrantTarget == null)
-            {
-                return;
-            }
             if (!coolDown && SeasonController.currentGameState != SeasonController.GAME_STATE.SEASON_INTRO)
             {
                 StartCoroutine(base.Wander());

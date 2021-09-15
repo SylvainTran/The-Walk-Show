@@ -17,6 +17,7 @@ public class Combatant : Bot
     public Coroutine combatRoutine;
     public Coroutine wanderRoutine;
     public bool countering;
+    public bool isDancing;
 
     // Start is called before the first frame update
     private new void Start()
@@ -248,7 +249,8 @@ public class Combatant : Bot
     {
         if (chasedTarget == null)
         {
-            StartCoroutine(base.Wander());
+            if(!isDancing)
+              StartCoroutine(base.Wander());
         }
         else
         {

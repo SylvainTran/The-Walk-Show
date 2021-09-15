@@ -57,7 +57,7 @@ public class Bot : MonoBehaviour
 
         if (successful)
         {
-            coolDown = true;
+            //coolDown = true;
             return true;
         } else
         {            

@@ -525,7 +525,7 @@ public class GameController : MonoBehaviour
         }
         if (SaveSystem.SaveFileExists("deadColonists.json"))
         {
-            LoadCharactersFromJSONFile(deadColonists, "deadColonists.json", false, true);
+            LoadCharactersFromJSONFile(deadColonists, "deadColonists.json", false, false);
         }
     }
 
