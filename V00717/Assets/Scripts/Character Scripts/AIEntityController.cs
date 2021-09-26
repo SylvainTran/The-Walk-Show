@@ -27,6 +27,9 @@ public class AIEntityController : MonoBehaviour
     public float humanRoll = 65;
     public float predatorRoll = 35;
 
+    public GameObject rainPrefab;
+    public GameObject snowPrefab;
+
     /// <summary>
     /// Toolbelt buttons (generic / all uses)
     /// </summary>
@@ -140,6 +143,24 @@ public class AIEntityController : MonoBehaviour
         }
         return spawn;
     }
+    
+    public GameObject WeatherFactory(WEATHER_TYPES weatherType, Vector3 spawnLocation = default)
+    {
+        GameObject spawn = null;
+        switch (weatherType)
+        {
+            case WEATHER_TYPES.RAIN:
+                spawn = Instantiate(rainPrefab);
+                break;
+            case WEATHER_TYPES.SNOW:
+                spawn = Instantiate(snowPrefab);
+                break;
+            default:
+                break;
+        }
+        return spawn;
+    }
+   
     public void GroundAgent(GameObject spawn)
     {        
         // Kinematic version

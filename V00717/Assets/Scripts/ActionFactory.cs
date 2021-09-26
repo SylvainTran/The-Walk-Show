@@ -7,6 +7,7 @@ public class ActionFactory
     class ContentSpawner
     {
         protected Vector3 areaOfAction;
+        protected AIEntityController AIEntityController;
 
         public ContentSpawner(Vector3 areaOfAction)
         {
@@ -19,14 +20,12 @@ public class ActionFactory
                 // Might not have an area of action, in that case it's a "no position" action
                 this.areaOfAction = default;
             }
+            AIEntityController = GameObject.FindObjectOfType<AIEntityController>();
         }
     }
     class SpawnPredator : ContentSpawner, IToolbeltAction
     {
-        AIEntityController AIEntityController;
-
         public SpawnPredator(Vector3 areaOfAction) : base(areaOfAction) {
-            AIEntityController = GameObject.FindObjectOfType<AIEntityController>();
         }
         public GameObject GetAction()
         {
@@ -37,11 +36,8 @@ public class ActionFactory
 
     class SpawnZombie : ContentSpawner, IToolbeltAction
     {
-        AIEntityController AIEntityController;
-
         public SpawnZombie(Vector3 areaOfAction) : base(areaOfAction)
         {
-            AIEntityController = GameObject.FindObjectOfType<AIEntityController>();
         }
         public GameObject GetAction()
         {
@@ -50,16 +46,23 @@ public class ActionFactory
         }
     }
 
-    class SpawnWeather : ContentSpawner, IToolbeltAction
+    class SpawnSnow : ContentSpawner, IToolbeltAction
     {
-        public SpawnWeather(Vector3 areaOfAction) : base(areaOfAction)
-        {
-
-        }
+        public SpawnSnow(Vector3 areaOfAction) : base(areaOfAction) { }
         public GameObject GetAction()
         {
-            Debug.Log("Spawning weather through the toolbelt!");
-            return new GameObject();
+            Debug.Log("Spawning snow through the toolbelt!");
+            return AIEntityController.WeatherFactory(SeasonController.WEATHER_TYPES.SNOW, areaOfAction);
+        }
+    }
+
+    class SpawnRain : ContentSpawner, IToolbeltAction
+    {
+        public SpawnRain(Vector3 areaOfAction) : base(areaOfAction) { }
+        public GameObject GetAction()
+        {
+            Debug.Log("Spawning rain through the toolbelt!");
+            return AIEntityController.WeatherFactory(SeasonController.WEATHER_TYPES.RAIN, areaOfAction);
         }
     }
 
@@ -102,9 +105,9 @@ public class ActionFactory
             case 7:
                 return new SpawnZombie(areaOfAction).GetAction;
             case 8:
-                return new SpawnWeather(areaOfAction).GetAction;
+                return new SpawnSnow(areaOfAction).GetAction;
             case 9:
-                return new SpawnGift(areaOfAction).GetAction;
+                return new SpawnRain(areaOfAction).GetAction;
             default:
                 return new SpawnPredator(areaOfAction).GetAction;
         }

@@ -4885,6 +4885,7 @@ GameObject:
   - component: {fileID: 19980976}
   - component: {fileID: 11466772}
   - component: {fileID: 8287616}
+  - component: {fileID: 1665929266591825625}
   m_Layer: 0
   m_Name: RainParticle
   m_TagString: Untagged
@@ -9845,3 +9846,15 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1665929266591825625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16e7fdb3a5dc3df40ae3645069136cfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

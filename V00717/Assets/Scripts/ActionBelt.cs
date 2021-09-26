@@ -51,6 +51,12 @@ public class ActionBelt : MonoBehaviour
             }
 
             if (actionGameObject.GetComponentInChildren<Snake>() || actionGameObject.GetComponentInChildren<Zombie>()) return;
+            actionGameObject.transform.position = hatTransform.transform.position;
+            actionGameObject.SetActive(true);
+
+            if (actionGameObject.GetComponentInChildren<RainAction>() || actionGameObject.GetComponentInChildren<SnowAction>()) return;
+            actionGameObject.transform.SetParent(hatTransform.transform);
+
             // Setup - like freezing the actor temporarily
             Bot botRole = hatTransform.GetComponentInChildren<Bot>();
             if (botRole)
@@ -73,8 +79,6 @@ public class ActionBelt : MonoBehaviour
                     break;
                 }
             }
-            actionGameObject.transform.SetParent(hatTransform.transform);
-            actionGameObject.transform.position = hatTransform.transform.position;
         }
         // Reset
         actionActorTargetUUID = -1;

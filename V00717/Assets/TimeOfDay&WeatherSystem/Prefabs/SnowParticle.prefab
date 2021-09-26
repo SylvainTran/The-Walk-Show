@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 19903652}
   - component: {fileID: 11428096}
   - component: {fileID: 8229456}
+  - component: {fileID: 4450239842000451288}
   m_Layer: 0
   m_Name: SnowParticle
   m_TagString: Untagged
@@ -4974,3 +4975,15 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4450239842000451288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2644023b57251df488d7c960bd07fdb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

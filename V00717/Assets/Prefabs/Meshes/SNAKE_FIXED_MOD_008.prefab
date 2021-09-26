@@ -179,17 +179,20 @@ MonoBehaviour:
   attackRange: 3.5
   animator: {fileID: 0}
   health: 100
-  damage: 50
+  damage: 25
   attackSpeed: 1
   fleeingState: 0
   gameController: {fileID: 0}
   quadrantIndex: -1
+  fleeDistance: 0
   chaseRange: 20
   sight: 15
   renderer: {fileID: 0}
-  priorityCollider: {fileID: 0}
-  countering: 0
   isAttacking: 0
+  sensorRange: {x: 0, y: 0, z: 0}
+  countering: 0
+  isDancing: 0
+  priorityCollider: {fileID: 0}
 --- !u!1 &1518167114035217205
 GameObject:
   m_ObjectHideFlags: 0

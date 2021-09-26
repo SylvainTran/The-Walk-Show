@@ -53,6 +53,12 @@ public class SeasonController
     {
         VAMPIRE, GRAVEDIGGER, SLAYER, FARMER, HUMAN, DANCER, ZOMBIE, PREDATOR
     }
+
+    public enum WEATHER_TYPES
+    {
+        RAIN, SNOW
+    }
+
     public Vampire vampire;
     public GraveDigger graveDigger;
     public Slayer slayer;
