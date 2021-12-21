@@ -8,7 +8,9 @@ public class RemoteViewControlButton : PrimaryMenuButton
     {
         base.Start();
         AddOnClickCommand(new TriggerPopUpRequest(this));
-        AddOnClickCommand(new TriggerSceneChange(this, GameEngine.GetGameEngine().gameObject.GetComponent<SceneController>()));
+        // TODO: Don't change scenes, just the camera and UI
+        AddOnClickCommand(new TriggerSceneChange(this, GameEngine.GetGameEngine().SceneController));
+        GameEngine.GetGameEngine().RemoteViewControl();
         GameEngine.GetGameEngine().AddLogObserver(new LogObserver(this));
     }
 }

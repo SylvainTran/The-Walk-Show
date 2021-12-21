@@ -16,6 +16,6 @@ public class LogObserver : Observer
     }
     public override void UpdateState()
     {
-        Debug.Log(subject.stringToLog);
+        Debug.Log(subject.StringToLog);
     }
 }

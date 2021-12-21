@@ -577,8 +577,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1184882877}
-        m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
+      - m_Target: {fileID: 1100165051}
+        m_TargetAssemblyTypeName: GameEngine, Assembly-CSharp
         m_MethodName: NewGame
         m_Mode: 1
         m_Arguments:
@@ -2120,7 +2120,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -250, y: -201}
+  m_AnchoredPosition: {x: -305, y: -208}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &669140484
@@ -2206,7 +2206,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 44.221527, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2379,7 +2379,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Suscribers:'
+  m_text: 'Achievements:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b8c40982a61cb401381adf2fca0fbfb2, type: 2}
   m_sharedMaterial: {fileID: 1359457454209024607, guid: b8c40982a61cb401381adf2fca0fbfb2, type: 2}
@@ -2640,9 +2640,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7375384434571833132, guid: fa28ffec1f47fc244a28e869b92f4a88, type: 3}
       propertyPath: m_Name
-      value: SceneController
+      value: MainMenuController
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5166678911769140429, guid: fa28ffec1f47fc244a28e869b92f4a88, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: fa28ffec1f47fc244a28e869b92f4a88, type: 3}
 --- !u!1 &874605735
 GameObject:
@@ -3859,8 +3860,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1184882877}
-        m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
+      - m_Target: {fileID: 1100165051}
+        m_TargetAssemblyTypeName: GameEngine, Assembly-CSharp
         m_MethodName: LoadGame
         m_Mode: 1
         m_Arguments:
@@ -3943,7 +3944,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -292, y: -299}
+  m_AnchoredPosition: {x: -305, y: -299}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1142436869
@@ -4061,17 +4062,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadGameButton: {fileID: 1107902892}
---- !u!114 &1184882877 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5166678911769140429, guid: fa28ffec1f47fc244a28e869b92f4a88, type: 3}
-  m_PrefabInstance: {fileID: 815846476}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1184882875}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 271cbdee4ccbb4be482bfe59213891d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1185406837
 GameObject:
   m_ObjectHideFlags: 0
@@ -4651,7 +4641,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Resume Stream
+  m_text: Continue
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
   m_sharedMaterial: {fileID: 5226485715806369113, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
@@ -6063,7 +6053,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1708436844
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11554,7 +11544,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: v0.8-pre-alpha
+  m_text: v0.10-pre-alpha
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
   m_sharedMaterial: {fileID: 5226485715806369113, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
@@ -11813,7 +11803,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1903458669
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12215,7 +12205,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -235, y: -253}
+  m_AnchoredPosition: {x: -292, y: -260}
   m_SizeDelta: {x: 236.6513, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1950115983
@@ -12622,7 +12612,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Go Live
+  m_text: New Game
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
   m_sharedMaterial: {fileID: 5226485715806369113, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
@@ -12747,7 +12737,7 @@ GameObject:
   - component: {fileID: 2029278906}
   - component: {fileID: 2029278905}
   m_Layer: 0
-  m_Name: Text (TMP) (2)
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12769,7 +12759,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -121.000015, y: -346}
+  m_AnchoredPosition: {x: -183, y: -346}
   m_SizeDelta: {x: 472.3851, y: -8.6714}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2029278905
@@ -12792,7 +12782,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: lifestream studio
+  m_text: x
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
   m_sharedMaterial: {fileID: 5226485715806369113, guid: b64220725d515a1449f0e9aaa5e780b2, type: 2}
@@ -12855,7 +12845,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -98.2366, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -12996,7 +12986,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -283, y: -353}
+  m_AnchoredPosition: {x: -296, y: -353}
   m_SizeDelta: {x: 236.6513, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2098142701

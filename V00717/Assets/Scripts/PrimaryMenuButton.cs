@@ -10,7 +10,7 @@ public class PrimaryMenuButton : MonoBehaviour, ISubject
     private string stringToLog;
 
     public List<Observer> Observers { get => observers; set => observers = value; }
-    string ISubject.stringToLog { get => stringToLog; set => stringToLog = value; }
+    public string StringToLog { get => stringToLog; set => stringToLog = value; }
 
     public virtual void Start()
     {

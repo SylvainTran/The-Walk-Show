@@ -1,14 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-public class MainMenuController : SceneController
+public class MainMenuController : MonoBehaviour
 {
     public Button loadGameButton;
 
     // Start is called before the first frame update
-    new void Start()
+    public void Start()
     {
         if (SaveSystem.SaveFileExists("PlayerStatistics.json") || SaveSystem.SaveFileExists("colonists.json") || SaveSystem.SaveFileExists("deadColonists.json"))
         {

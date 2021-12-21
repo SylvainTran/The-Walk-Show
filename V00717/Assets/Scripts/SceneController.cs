@@ -1,33 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
-public class SceneController : MonoBehaviour
+public class SceneController
 {
-    int currentScene;
-    int max;
+    public int currentScene;
+    public int max;
 
-    public void Start()
+    public SceneController()
     {
         currentScene = SceneManager.GetActiveScene().buildIndex;
         max = SceneManager.sceneCountInBuildSettings;
+        Debug.LogWarning($"MAX n scenes: {max}");
+
     }
 
     public void NewGame()
     {
-        LoadNextScene(currentScene + 1);
+        SceneManager.LoadScene(1);
+        currentScene = 1;
+    }
+
+    public void UpdateCurrentScene(int value)
+    {
+        currentScene = value;
     }
 
     /// <summary>
-    /// The start of game is at buildIndex 3
+    /// The start of game is at buildIndex 2
     /// </summary>
     public void LoadGame()
     {
-        SceneManager.LoadScene(3);
+        SceneManager.LoadScene(2);
+        currentScene = 2;
     }
-
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
     public void PatronsGallery()
     {
 
@@ -38,6 +47,7 @@ public class SceneController : MonoBehaviour
     /// <param name="buildIndex"></param>
     public void LoadNextScene(int buildIndex)
     {
+        Debug.LogWarning($"Load scene at: Build Index {buildIndex}");
         SceneManager.LoadScene(buildIndex);
     }
     /// <summary>
@@ -46,9 +56,11 @@ public class SceneController : MonoBehaviour
     /// </summary>
     public void LoadNextScene()
     {
+        Debug.LogWarning($"Loading next scene! Current Scene Index: {currentScene} Max: {max}");
         if(currentScene < max)
         {
-            LoadNextScene(currentScene + 1);
+            Debug.LogWarning($"Loading scene at index {currentScene + 1}");
+            SceneManager.LoadScene(++currentScene);
         }
     }
 

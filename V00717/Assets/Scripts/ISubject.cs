@@ -7,7 +7,7 @@ public interface ISubject
         get;
         set;
     }
-    string stringToLog
+    string StringToLog
     {
         get;
         set;
