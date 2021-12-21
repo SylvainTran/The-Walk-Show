@@ -78,7 +78,7 @@ public class Combatant : Bot
     {
         Vector3 localWander;
         // Terrain adjustment
-        float t_height = Terrain.activeTerrain.SampleHeight(wanderTarget);
+        //float t_height = Terrain.activeTerrain.SampleHeight(wanderTarget);
         float radius = Vector3.up.y;
 
         Vector3 point;
@@ -95,7 +95,7 @@ public class Combatant : Bot
             {
                 radius = renderer.bounds.extents.magnitude;
             }
-            wanderTarget += new Vector3(0.0f, t_height + 0.5f, 0.0f); // TODO check if this is correct: y => y + t_height + radius
+            wanderTarget += new Vector3(0.0f, 0.5f, 0.0f); // TODO check if this is correct: y => y + t_height + radius
             NavMeshHit hit;
             if (NavMesh.SamplePosition(wanderTarget, out hit, 25.0f, NavMesh.AllAreas))
             {
