@@ -1,0 +1,7 @@
+.cast-shift-container {
+
+}
+.cast-shift-form {
+	background-color: black;
+	color: white;
+}

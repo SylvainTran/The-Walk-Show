@@ -29,17 +29,6 @@ public class ChatGenerator
         {
             ++stressWeight;
         }
-
-        if (target.StressTolerance <= lowThreshold)
-        {
-            ++stressWeight;
-        }
-
-        if (target.MoralLevel <= lowThreshold)
-        {
-            ++stressWeight;
-        }
-
         Dictionary<string, int> profileWeights = new Dictionary<string, int>();
         // For all the events that are achieved, add to profile?
         foreach (KeyValuePair<string, int> kvp in target.eventMarkersMap.EventMarkersFeed)

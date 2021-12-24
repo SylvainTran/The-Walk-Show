@@ -52,9 +52,9 @@ public class ObituaryGenerator
         int rPreposition = UnityEngine.Random.Range(0, prepositions.Length);
         int rDeterminer = UnityEngine.Random.Range(0, determiners.Length);
 
-        string gender = target.Sex == "Male" ? "He" : "Her"; // They?
-        string gender2 = target.Sex == "Male" ? "He" : "She"; // 
-        string gender3 = target.Sex == "Male" ? "His" : "Her"; // 
+        string gender = target.Gender == "Male" ? "He" : "Her"; // They?
+        string gender2 = target.Gender == "Male" ? "He" : "She"; // 
+        string gender3 = target.Gender == "Male" ? "His" : "Her"; // 
 
         // Using human English skills to generate highly entropic ideas
         string[] WAS_BORN_VARIANTS =

@@ -11,7 +11,6 @@ public class SceneController
         currentScene = SceneManager.GetActiveScene().buildIndex;
         max = SceneManager.sceneCountInBuildSettings;
         Debug.LogWarning($"MAX n scenes: {max}");
-
     }
 
     public void NewGame()

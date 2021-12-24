@@ -13,6 +13,7 @@ using UnityEngine.Networking;
 
 public class GameController : MonoBehaviour
 {
+    private static GameController instance;
     private CharacterModelObject characterModel = null;
     public CharacterModelObject CharacterModel { get { return characterModel; } set { characterModel = value; } }
     private CreationController creationController = null;
@@ -141,7 +142,22 @@ public class GameController : MonoBehaviour
     {
         donationMoney += donationAmount;
     }
-
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+    }
+    public static GameController GetGameController()
+    {
+        return instance;
+    }
     private IEnumerator Start()
     {
 #if UNITY_EDITOR        

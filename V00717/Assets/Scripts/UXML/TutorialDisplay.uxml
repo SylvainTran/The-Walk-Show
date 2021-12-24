@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement class="Style" style="height: 333px; width: auto; -unity-text-align: upper-center; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-basis: auto; flex-shrink: 0; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center;">
+        <ui:Label text="Count: 0" display-tooltip-when-elided="true" name="counter-label" style="-unity-text-align: middle-center; white-space: nowrap; justify-content: center; height: 194px; align-items: center; width: 174px;" />
+        <ui:Button text="Get New Subscriber" display-tooltip-when-elided="true" name="counter-button" style="height: 109px; background-color: rgb(255, 255, 255); -unity-background-image-tint-color: rgb(255, 255, 255); border-left-color: rgb(0, 87, 255); border-right-color: rgb(0, 87, 255); border-top-color: rgb(0, 87, 255); border-bottom-color: rgb(0, 87, 255); color: rgb(0, 0, 0); width: 50%; justify-content: flex-start;" />
+    </ui:VisualElement>
+    <ui:MinMaxSlider picking-mode="Ignore" label="Min/Max Slider" min-value="10" max-value="12" low-limit="-10" high-limit="40" />
+</ui:UXML>

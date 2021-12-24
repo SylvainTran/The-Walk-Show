@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="sliders.uss" />
+    <ui:VisualElement class="cast-shift-container" style="justify-content: flex-start; align-items: center; width: auto; flex-wrap: nowrap; flex-direction: column;">
+        <ui:VisualElement name="cast-name" class="cast-shift-form" style="width: 100%; justify-content: center; align-items: center; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; flex-direction: column; flex-basis: auto; overflow: visible;">
+            <ui:Label text="[Cast Name]" display-tooltip-when-elided="true" style="align-items: flex-start; justify-content: flex-start; -unity-text-align: upper-left;" />
+            <ui:VisualElement style="align-items: flex-start; justify-content: flex-start; flex-direction: column; flex-wrap: nowrap;">
+                <ui:RadioButton label="Active" name="RadioButton" />
+                <ui:DropdownField label="Service" index="-1" choices="System.Collections.Generic.List`1[System.String]" class="service-dd" style="justify-content: flex-start; width: auto; align-items: stretch; max-width: none; min-width: auto; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                <ui:DropdownField label="Start Time" index="-1" choices="System.Collections.Generic.List`1[System.String]" class="end-dd" style="justify-content: flex-start; width: 50%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-direction: row; align-items: flex-start;" />
+                <ui:DropdownField label="End Time" index="-1" choices="System.Collections.Generic.List`1[System.String]" class="end-dd" style="justify-content: flex-start; width: 50%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-direction: row; align-items: flex-start;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

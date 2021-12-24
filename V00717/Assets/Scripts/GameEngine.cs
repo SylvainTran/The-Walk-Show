@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public abstract class State
 {
@@ -107,7 +109,9 @@ public class StartGameState : State
 {
     public StartGameState(GameEngine g) : base(g)
     {
-
+        // Add first main cast(s) in the story
+        gameEngine.Casting.entities.Add(gameEngine.AlfredoPeristasisGameObject);
+        gameEngine.Casting.entities.Add(gameEngine.YuriArtyomGameObject);
     }
 }
 public class GameLoadedState : State
@@ -177,19 +181,48 @@ public class StreamerRoomState : State
 {
     public StreamerRoomState(GameEngine g) : base(g)
     {
-
     }
 
     public override void RemoteViewControl()
     {
         Debug.Log("[GameEngine] RemoteViewControl enabled.");
+        foreach (GameObject castingShiftPrefabInGame in gameEngine.castingShiftPrefabsInGame)
+        {
+            Debug.Log($"Active cast today? : {castingShiftPrefabInGame.GetComponent<CastingShift>().GetActiveIsOn()}");
+            Debug.Log($"Cast in room : {castingShiftPrefabInGame.GetComponent<CastingShift>().GetRoleDropDownValue()}");
+            Debug.Log($"Begin time : {castingShiftPrefabInGame.GetComponent<CastingShift>().GetBeginTime()}");
+            Debug.Log($"End time : {castingShiftPrefabInGame.GetComponent<CastingShift>().GetEndTime()}");
+        }
     }
 
     public override void Scheduling()
     {
+        Debug.Log("[GameEngine] Scheduling window enabled.");
         // MAIN PAGE
         // Get the main casting currently active (depending on the story, and live/dead)
+        //Entities<GameObject> casting = gameEngine.Casting; ;
+        //foreach(GameObject go in casting.entities) {
+        //    Debug.Log($"Active Cast: {go.gameObject.GetComponent<CharacterModel>().name}");
+        //}
+        string[] castingDummyData = { "Alan Pent", "Alfredo Peristasis", "Derrick Groot", "Erina Cliffhills", "Myla Keys", "Sabrina Brielstursson", "Takatsu Honda", "Yuri Artyom", "Zedina Werty"};
+        string[] activeCasting = { "Alfredo Peristasis", "Zedina Werty" };
+        foreach (string go in activeCasting)
+        {
+            Debug.Log($"Active Cast: {go}");
+        }
         // Display as a list, Press [1-4] keys to change corresponding cast's schedule
+        foreach (GameObject cast in gameEngine.Casting.entities)
+        {
+            GameObject newShift = GameObject.Instantiate(gameEngine.CastingShiftPrefab);
+            newShift.transform.SetPositionAndRotation(new Vector3(0, 0, 0), Quaternion.identity);
+            newShift.transform.SetParent(GameObject.FindObjectOfType<SchedulingWindowContent>().transform);
+            newShift.SetActive(true);
+            newShift.GetComponent<CastingShift>().BindCharacter(cast);
+            gameEngine.castingShiftPrefabsInGame.Add(newShift);
+            Debug.Log($"Instantiated a new casting shift for cast: {cast.GetComponent<CharacterModel>().name}");
+        }
+
+        // var boxTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("UXML/shift.uxml");
         // SUB PAGE
         // Display time schedule for the selected cast, for current date/day in-game
         // One time schedule shift = minimum 3 hours, at least one shift a day, and max 1h breaks between shifts and max 1h30 break total
@@ -238,6 +271,14 @@ public class CheckStoryState : State
 
     }
 }
+public class Entities<T>
+{
+    public List<T> entities;
+
+    public Entities() {
+        entities = new List<T>();
+    }
+}
 public class GameEngine : MonoBehaviour, ISubject
 {
     private static GameEngine Instance;
@@ -246,11 +287,35 @@ public class GameEngine : MonoBehaviour, ISubject
     private static List<LogObserver> logObservers;
     private string stringToLog;
     private SceneController sceneController;
+
+    //  UI Prefabs
+    public static GameObject SchedulingWindow;
+    public GameObject SchedulingWindowScrollview;
+    public GameObject CastingShiftPrefab;
+    //  Instantiated casting shift prefabs in the scheduling window
+    public List<GameObject> castingShiftPrefabsInGame;
+
+    /// <summary>
+    /// The active casting (the active story game character(s)).
+    /// </summary>
+    private Entities<GameObject> casting;
+    [SerializeField] public GameObject AlfredoPeristasisGameObject;
+    [SerializeField] public GameObject YuriArtyomGameObject;
+    [SerializeField] public GameObject ZedinaWertyGameObject;
+    [SerializeField] public GameObject ErinaCliffHillsGameObject;
+    [SerializeField] public GameObject DerrickGrootGameObject;
+    [SerializeField] public GameObject MylaKeysGameObject;
+    [SerializeField] public GameObject SabrinaBrielsturssonGameObject;
+    [SerializeField] public GameObject TakashiHondaGameObject;
+    [SerializeField] public GameObject AlanPentGameObject;
+
     public List<LogObserver> LogObserver { get => logObservers; set => logObservers = value; }
     public List<Observer> Observers { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public string StringToLog { get => stringToLog; set => stringToLog = value; }
     public static State CurrentState { get => currentState; set => currentState = value; }
     public SceneController SceneController { get => sceneController; set => sceneController = value; }
+    public Entities<GameObject> Casting { get => casting;   set => casting = value; }
+
     private void Awake()
     {
         if(Instance != null && Instance != this)
@@ -262,6 +327,8 @@ public class GameEngine : MonoBehaviour, ISubject
             observers = new List<Observer>();
             logObservers = new List<LogObserver>();
             sceneController = new SceneController();
+            casting = new Entities<GameObject>();
+            castingShiftPrefabsInGame = new List<GameObject>();
             DontDestroyOnLoad(this.gameObject);
             TransitionToState(new MainMenuState(this));
         }
@@ -270,6 +337,7 @@ public class GameEngine : MonoBehaviour, ISubject
     {
         currentState = null;
         currentState = newState;
+        Debug.Log($"Current state: {currentState}");
     }
     public static GameEngine GetGameEngine()
     {

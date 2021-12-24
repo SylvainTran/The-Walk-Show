@@ -1,0 +1,7 @@
+#counter-label {
+	color: blue;
+}
+
+VisualElement {
+	background-color: yellow;
+}

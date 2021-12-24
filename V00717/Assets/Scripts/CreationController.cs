@@ -28,7 +28,6 @@ public class CreationController
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction += MallocNewCharacter;
         DashboardOSController._OnRequestColonistData += OnServerReply;
-        CharacterCreationView._OnSexChanged += OnSexChanged;
         SaveSystem._SuccessfulSaveAction += ResetCharacterCache;
         GameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>(); // TODO temporary, will be passed by GameController itself
         this.characterModelPrefab = characterModelPrefab;
@@ -39,7 +38,6 @@ public class CreationController
     {
         TriggerCreationMenu._OnTriggerCreationMenuAction -= MallocNewCharacter;
         DashboardOSController._OnRequestColonistData -= OnServerReply;
-        CharacterCreationView._OnSexChanged -= OnSexChanged;
         SaveSystem._SuccessfulSaveAction -= ResetCharacterCache;
     }
 
@@ -58,29 +56,6 @@ public class CreationController
     public void OnNickNameChanged(string nickName)
     {
         GameController.CharacterModel.NickName = nickName;
-    }
-
-    public void OnSexChanged(string sex)
-    {
-        GameController.CharacterModel.Sex = sex;
-    }
-
-    //Setter for skin color changed (red slider)
-    public void OnSkinColorChanged_R(float r)
-    {
-        GameController.CharacterModel.SkinColorR = r;
-    }
-
-    //Setter for skin color changed (green slider)
-    public void OnSkinColorChanged_G(float g)
-    {
-        GameController.CharacterModel.SkinColorG = g;
-    }
-
-    //Setter for skin color changed (blue slider)
-    public void OnSkinColorChanged_B(float b)
-    {
-        GameController.CharacterModel.SkinColorB = b;
     }
     public string GetStartingItemKey()
     {
