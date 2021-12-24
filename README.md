@@ -4,12 +4,6 @@ Lifestream studio 2521: The Official Walkthrough: [![Documentation Status](https
 
 - It's a research creation project for Concordia University
 
-### A message from EVA
-
-Congratulations on your purchase of Lifestream Studio 2521: Home Edition.
-
-- EVA
-
 ### V00717
 This repository contains the following design process documentation:
 
