@@ -24,7 +24,7 @@ This repository contains the following design process documentation:
 
 - [Reflection on Techniques](https://github.com/SylvainTran/V00717/wiki/Reflection-on-Techniques) - (IN-PROGRESS) High level summary of how I approached the implementation details and technical problems, and how the approach taken might have influenced game design decisions/ideas. Also a post-it to remember how I did certain major new things using the selected programming or editing tools.
 
-### Bonus/Immersion
+### Game's Guide/Bonus/Immersion
 
 Lifestream studio 2521: The Official Walkthrough: [![Documentation Status](https://readthedocs.org/projects/lifestream-studio-2521/badge/?version=latest)](https://lifestream-studio-2521.readthedocs.io/en/latest/?badge=latest)
 
