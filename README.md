@@ -1,10 +1,7 @@
-Lifestream studio 2521: The Official Walkthrough: [![Documentation Status](https://readthedocs.org/projects/lifestream-studio-2521/badge/?version=latest)](https://lifestream-studio-2521.readthedocs.io/en/latest/?badge=latest)
-
 ### What is this?
 
-- It's a research creation project for Concordia University
+- It's a research creation project for Concordia University. As described in the About section, the game is a Reality Show, Staff Scheduling & AI Journalist Interviewing UI Game About Death.
 
-### V00717
 This repository contains the following design process documentation:
 
 ### Design Process
@@ -28,5 +25,7 @@ This repository contains the following design process documentation:
 - [Reflection on Techniques](https://github.com/SylvainTran/V00717/wiki/Reflection-on-Techniques) - (IN-PROGRESS) High level summary of how I approached the implementation details and technical problems, and how the approach taken might have influenced game design decisions/ideas. Also a post-it to remember how I did certain major new things using the selected programming or editing tools.
 
 ### Bonus/Immersion
+
+Lifestream studio 2521: The Official Walkthrough: [![Documentation Status](https://readthedocs.org/projects/lifestream-studio-2521/badge/?version=latest)](https://lifestream-studio-2521.readthedocs.io/en/latest/?badge=latest)
 
 - [The Official Walkthrough](https://github.com/SylvainTran/V00717/wiki/Technical-Docs) - (IN-PROGRESS) The Official Walkthrough
