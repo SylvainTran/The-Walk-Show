@@ -1,3 +1,5 @@
+<img id="v1.0-mm" align=center src="https://github.com/SylvainTran/V00717/blob/main/docs/v1.0/3.PNG" width=600 height=400 alt="The actors walking in the new environment"/>
+
 ### What is this?
 
 - It's a research creation project for Concordia University. As described in the About section, the game is a Reality Show, Staff Scheduling & AI Journalist Interviewing UI Game About Death.
